@@ -1,0 +1,1491 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f5f5; }
+
+    /* Login View */
+    .login-container { max-width: 400px; margin: 100px auto; padding: 40px; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    h1 { text-align: center; margin-bottom: 30px; color: #333; }
+    .form-group { margin-bottom: 20px; }
+    label { display: block; margin-bottom: 5px; font-weight: 600; color: #555; }
+    input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
+    input:focus { outline: none; border-color: #4CAF50; }
+    .btn-primary { width: 100%; padding: 12px; background: #4CAF50; color: white; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; }
+    .btn-primary:hover { background: #45a049; }
+    .btn-primary:disabled { background: #ccc; cursor: not-allowed; }
+    .error { color: red; text-align: center; margin-top: 10px; display: none; }
+    .success { color: #4CAF50; text-align: center; margin-top: 10px; display: none; font-weight: 600; }
+    .loading { display: none; text-align: center; margin-top: 10px; color: #666; }
+    .lang-toggle { text-align: right; margin-bottom: 20px; }
+    .lang-btn { background: none; border: none; color: #2196F3; cursor: pointer; text-decoration: underline; padding: 0 5px; font-size: 14px; }
+
+    /* 회원가입/비밀번호 찾기 링크 */
+    .signup-link, .forgot-password-link { text-align: center; margin-top: 15px; font-size: 14px; }
+    .signup-link p { color: #666; }
+    .signup-link a, .forgot-password-link a { color: #2196F3; text-decoration: none; }
+    .signup-link a:hover, .forgot-password-link a:hover { text-decoration: underline; }
+
+    /* Main App View */
+    #app-view { display: none; }
+    .header { background: #4CAF50; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+    .header h1 { color: white; margin: 0; font-size: 20px; text-align: left; }
+    .header-right { display: flex; align-items: center; gap: 15px; }
+    .user-info { font-size: 14px; }
+    .btn-lang { padding: 6px 12px; background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.4); border-radius: 4px; cursor: pointer; font-size: 12px; }
+    .btn-lang:hover { background: rgba(255,255,255,0.3); }
+    .btn-logout { padding: 8px 16px; background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.4); border-radius: 4px; cursor: pointer; font-size: 13px; }
+    .btn-logout:hover { background: rgba(255,255,255,0.3); }
+    .app-container { max-width: 1400px; margin: 20px auto; padding: 20px; }
+
+    /* 탭 네비게이션 */
+    .tab-nav { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #eee; }
+    .tab-btn { padding: 10px 20px; background: none; border: none; border-bottom: 3px solid transparent; cursor: pointer; font-size: 15px; color: #666; transition: all 0.3s; white-space: pre-line; text-align: center; line-height: 1.4; }
+    .tab-btn.active { color: #4CAF50; border-bottom-color: #4CAF50; font-weight: 600; }
+    .tab-btn:hover { color: #4CAF50; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* 학생 관리 섹션 */
+    .student-section { padding: 20px; }
+    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .section-header h2 { margin: 0; color: #333; }
+
+    /* 검색 바 */
+    .search-bar { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+    .search-bar input { flex: 1; min-width: 200px; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+    .search-bar select { padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+    .btn-search { padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    .btn-search:hover { background: #45a049; }
+
+    /* 테이블 */
+    .table-container { overflow-x: auto; }
+    .student-table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .student-table thead { background: #4CAF50; color: white; }
+    .student-table th { padding: 12px; text-align: left; font-weight: 600; }
+    .student-table td { padding: 12px; border-bottom: 1px solid #eee; }
+    .student-table tbody tr:hover { background: #f5f5f5; }
+    .actions { display: flex; gap: 5px; }
+    .btn-sm { padding: 5px 10px; font-size: 13px; border: none; border-radius: 3px; cursor: pointer; }
+    .btn-edit { background: #2196F3; color: white; }
+    .btn-edit:hover { background: #0b7dda; }
+    .btn-delete { background: #f44336; color: white; }
+    .btn-delete:hover { background: #da190b; }
+
+    /* 페이지네이션 */
+    .pagination { display: flex; justify-content: center; gap: 5px; margin-top: 20px; }
+    .pagination button { padding: 8px 12px; border: 1px solid #ddd; background: white; cursor: pointer; border-radius: 3px; }
+    .pagination button.active { background: #4CAF50; color: white; border-color: #4CAF50; }
+    .pagination button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* 모달 */
+    .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; }
+    .modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
+    .modal-content { position: relative; max-width: 800px; max-height: 90vh; margin: 50px auto; background: white; border-radius: 8px; overflow-y: auto; padding: 30px; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .modal-close { background: none; border: none; font-size: 28px; cursor: pointer; color: #999; }
+
+    /* 폼 */
+    .form-section { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
+    .form-section:last-of-type { border-bottom: none; }
+    .form-section h3 { margin: 0 0 15px 0; color: #555; font-size: 16px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; margin-bottom: 5px; font-weight: 600; color: #555; font-size: 14px; }
+    .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
+    .form-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+    .btn-secondary { padding: 10px 20px; background: #f5f5f5; color: #333; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; font-size: 15px; }
+
+    /* 삭제 확인 다이얼로그 */
+    .confirm-dialog { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 2000; }
+    .dialog-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
+    .dialog-content { position: relative; max-width: 400px; margin: 200px auto; background: white; border-radius: 8px; padding: 30px; }
+    .dialog-content h3 { margin: 0 0 15px 0; color: #333; }
+    .dialog-content p { color: #666; margin-bottom: 10px; }
+    .student-name { font-weight: 600; color: #333; font-size: 16px; }
+    .dialog-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+    .btn-danger { padding: 10px 20px; background: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    .btn-danger:hover { background: #da190b; }
+
+    /* 로딩/메시지 */
+    #student-loading { text-align: center; padding: 40px; color: #666; display: none; }
+    .no-data { text-align: center; padding: 40px; color: #999; display: none; }
+
+    /* 반응형 - 태블릿 */
+    @media (max-width: 1024px) {
+      .app-container { padding: 10px; }
+      .student-section { padding: 10px; }
+    }
+
+    /* 반응형 - 모바일 */
+    @media (max-width: 768px) {
+      /* 헤더 */
+      .header { flex-direction: column; gap: 10px; padding: 10px; }
+      .header h1 { font-size: 16px; text-align: center; }
+      .header-right { flex-wrap: wrap; justify-content: center; }
+      .btn-lang { padding: 4px 8px; font-size: 11px; }
+      .btn-logout { padding: 6px 12px; font-size: 12px; }
+
+      /* 검색 바 */
+      .search-bar { flex-direction: column; }
+      .search-bar input { min-width: 100%; }
+      .search-bar select { width: 100%; }
+      .btn-search { width: 100%; }
+
+      /* 섹션 헤더 */
+      .section-header { flex-direction: column; gap: 10px; align-items: stretch; }
+      .section-header h2 { font-size: 18px; text-align: center; }
+      .btn-primary { width: 100%; }
+
+      /* 테이블 */
+      .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .student-table { font-size: 12px; min-width: 800px; }
+      .student-table th, .student-table td { padding: 6px 4px; white-space: nowrap; }
+      .actions { flex-direction: column; gap: 3px; }
+      .btn-sm { width: 100%; font-size: 11px; padding: 4px 8px; }
+
+      /* 페이지네이션 */
+      .pagination button { padding: 6px 10px; font-size: 12px; }
+
+      /* 폼 */
+      .form-row { grid-template-columns: 1fr; }
+      .form-group label { font-size: 13px; }
+      .form-group input, .form-group select { font-size: 13px; padding: 8px; }
+
+      /* 모달 */
+      .modal-content {
+        margin: 10px;
+        padding: 15px;
+        max-height: 95vh;
+        border-radius: 4px;
+      }
+      .modal-header h2 { font-size: 16px; }
+      .modal-close { font-size: 24px; }
+      .form-section h3 { font-size: 14px; }
+      .form-actions { flex-direction: column; }
+      .form-actions button { width: 100%; }
+
+      /* 다이얼로그 */
+      .dialog-content {
+        margin: 20px;
+        padding: 20px;
+      }
+      .dialog-content h3 { font-size: 16px; }
+      .dialog-actions { flex-direction: column; }
+      .dialog-actions button { width: 100%; }
+
+      /* 로딩/메시지 */
+      #student-loading, .no-data { padding: 20px; font-size: 14px; }
+    }
+
+    /* 반응형 - 작은 모바일 */
+    @media (max-width: 480px) {
+      .header h1 { font-size: 14px; }
+      .section-header h2 { font-size: 16px; }
+      .student-table { font-size: 11px; min-width: 700px; }
+      .modal-content { margin: 5px; padding: 10px; }
+      .form-group label { font-size: 12px; }
+      .form-group input, .form-group select { font-size: 12px; padding: 6px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- LOGIN VIEW -->
+  <div id="login-view">
+    <div class="login-container">
+      <div class="lang-toggle">
+        <button class="lang-btn" onclick="switchLanguage('ko')">한국어</button> |
+        <button class="lang-btn" onclick="switchLanguage('vi')">Ti&#7871;ng Vi&#7879;t</button>
+      </div>
+
+      <h1 data-i18n="title_login">로그인</h1>
+
+      <form onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label for="user-type" data-i18n="login_usertype_label">사용자 유형</label>
+          <select id="user-type" required>
+            <option value="student" data-i18n="option_usertype_student">학생</option>
+            <option value="agency" data-i18n="option_usertype_agency">유학원 관리자</option>
+            <option value="master" data-i18n="option_usertype_master">시스템 관리자</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label data-i18n="label_login_id">로그인 ID</label>
+          <input type="text" id="login-id" data-placeholder-i18n="placeholder_login_id" required>
+        </div>
+
+        <div class="form-group">
+          <label data-i18n="label_password">비밀번호</label>
+          <input type="password" id="password" data-placeholder-i18n="placeholder_password" required>
+        </div>
+
+        <button type="submit" id="login-btn" class="btn-primary" data-i18n="btn_login">로그인</button>
+      </form>
+
+      <div class="signup-link">
+        <p><span data-i18n="login_signup_link">아직 계정이 없으신가요?</span> <a href="SignUp.html" data-i18n="btn_signup">회원가입</a></p>
+      </div>
+
+      <div class="forgot-password-link">
+        <a href="ForgotPassword.html" data-i18n="login_forgot_password">비밀번호를 잊으셨나요?</a>
+      </div>
+
+      <div class="loading" id="loading" data-i18n="msg_logging_in">로그인 중...</div>
+      <div class="success" id="success" data-i18n="msg_login_success">로그인 성공!</div>
+      <div class="error" id="error"></div>
+    </div>
+  </div>
+
+  <!-- APP VIEW (shown after login) -->
+  <div id="app-view">
+    <div class="header">
+      <h1>AJU E&J 학생관리 시스템</h1>
+      <div class="header-right">
+        <span class="user-info" id="user-info"></span>
+        <button class="btn-lang" onclick="switchLanguage('ko')" data-i18n="btn_lang_ko">한국어</button>
+        <button class="btn-lang" onclick="switchLanguage('vi')" data-i18n="btn_lang_vi">Tiếng Việt</button>
+        <button class="btn-logout" onclick="handleLogout()" data-i18n="btn_logout">로그아웃</button>
+      </div>
+    </div>
+
+    <div class="app-container">
+      <!-- 탭 네비게이션 (master만 유학원 관리 탭 표시) -->
+      <div class="tab-nav">
+        <button class="tab-btn active" onclick="switchTab('student')" data-i18n="tab_student_management">학생
+관리</button>
+        <button class="tab-btn" id="agency-tab-btn" onclick="switchTab('agency')" data-i18n="tab_agency_management" style="display:none;">유학원
+관리</button>
+      </div>
+
+      <!-- 학생 관리 탭 -->
+      <div id="student-tab" class="tab-content active">
+        <div class="student-section">
+        <div class="section-header">
+          <h2 data-i18n="title_student_management">학생 관리</h2>
+          <button class="btn-primary" onclick="showCreateForm()" data-i18n="btn_add_student">
+            + 학생 등록
+          </button>
+        </div>
+
+        <!-- 검색/필터 바 -->
+        <div class="search-bar">
+          <input
+            type="text"
+            id="search-input"
+            data-placeholder-i18n="placeholder_search_student"
+            placeholder="이름, 학생ID로 검색..."
+            onkeyup="handleSearchKeyup(event)"
+          >
+          <button class="btn-search" onclick="searchStudents()" data-i18n="btn_search">검색</button>
+
+          <select id="sort-select" onchange="sortStudents()">
+            <option value="EnrollmentDate-desc" data-i18n="sort_newest">최신 등록순</option>
+            <option value="EnrollmentDate-asc" data-i18n="sort_oldest">오래된 순</option>
+            <option value="NameKR-asc" data-i18n="sort_name_asc">이름 가나다순</option>
+          </select>
+        </div>
+
+        <!-- 학생 목록 테이블 -->
+        <div class="table-container">
+          <table class="student-table">
+            <thead>
+              <tr>
+                <th data-i18n="label_student_id">학생 ID</th>
+                <th data-i18n="label_name_kr">한국 이름</th>
+                <th data-i18n="label_name_vn">베트남 이름</th>
+                <th data-i18n="label_dob">생년월일</th>
+                <th data-i18n="label_gender">성별</th>
+                <th data-i18n="label_agency">유학원</th>
+                <th data-i18n="label_phone_kr">연락처</th>
+                <th data-i18n="label_enrollment_date">등록일</th>
+                <th data-i18n="label_actions">작업</th>
+              </tr>
+            </thead>
+            <tbody id="student-list">
+              <!-- JavaScript로 동적 생성 -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 페이지네이션 -->
+        <div class="pagination" id="pagination">
+          <!-- JavaScript로 동적 생성 -->
+        </div>
+
+        <!-- 로딩/메시지 -->
+        <div id="student-loading">
+          <span data-i18n="msg_loading">로딩 중...</span>
+        </div>
+        <div class="no-data" id="no-data">
+          <span data-i18n="msg_no_students">등록된 학생이 없습니다.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 유학원 관리 탭 (master 전용) -->
+    <div id="agency-tab" class="tab-content">
+      <div class="agency-section">
+        <div class="section-header">
+          <h2 data-i18n="tab_agency_management">유학원 관리</h2>
+          <button class="btn-primary" onclick="showCreateAgencyForm()" data-i18n="btn_add_agency">
+            + 유학원 등록
+          </button>
+        </div>
+
+        <!-- 검색 바 -->
+        <div class="search-bar">
+          <input
+            type="text"
+            id="agency-search"
+            data-placeholder-i18n="placeholder_search_agency"
+            placeholder="유학원명, 코드로 검색..."
+            onkeyup="searchAgencies()"
+          >
+        </div>
+
+        <!-- 유학원 테이블 -->
+        <div class="table-container">
+          <table id="agency-table" class="student-table">
+            <thead>
+              <tr>
+                <th data-i18n="label_agency_code">유학원 코드</th>
+                <th data-i18n="label_agency_name">유학원명</th>
+                <th data-i18n="label_login_id">로그인 ID</th>
+                <th data-i18n="label_role">역할</th>
+                <th data-i18n="label_created_at">등록일</th>
+                <th data-i18n="label_actions">작업</th>
+              </tr>
+            </thead>
+            <tbody id="agency-table-body">
+              <!-- JavaScript로 동적 생성 -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 페이지네이션 -->
+        <div class="pagination" id="agency-pagination">
+          <!-- JavaScript로 동적 생성 -->
+        </div>
+
+        <!-- 로딩/메시지 -->
+        <div id="agency-loading">
+          <span data-i18n="msg_loading">로딩 중...</span>
+        </div>
+        <div class="no-data" id="agency-no-data">
+          <span data-i18n="msg_no_agencies">등록된 유학원이 없습니다.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 학생 등록/수정 모달 -->
+    <div class="modal" id="student-form-modal" style="display:none;">
+      <div class="modal-overlay" onclick="closeModal()"></div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="modal-title" data-i18n="title_add_student">학생 등록</h2>
+          <button class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+
+        <form id="student-form" onsubmit="handleStudentSubmit(event)">
+          <!-- 기본 정보 섹션 -->
+          <div class="form-section">
+            <h3 data-i18n="section_basic_info">기본 정보</h3>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label data-i18n="label_name_kr">한국 이름 *</label>
+                <input type="text" name="NameKR" required data-placeholder-i18n="placeholder_name_kr">
+              </div>
+              <div class="form-group">
+                <label data-i18n="label_name_vn">베트남 이름 *</label>
+                <input type="text" name="NameVN" required data-placeholder-i18n="placeholder_name_vn">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label data-i18n="label_dob">생년월일 *</label>
+                <input type="date" name="DOB" required>
+              </div>
+              <div class="form-group">
+                <label data-i18n="label_gender">성별 *</label>
+                <select name="Gender" required>
+                  <option value="" data-i18n="option_select">선택</option>
+                  <option value="M" data-i18n="option_male">남성</option>
+                  <option value="F" data-i18n="option_female">여성</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group" id="agency-select-group">
+              <label data-i18n="label_agency">유학원 *</label>
+              <select name="AgencyCode" required id="agency-select">
+                <!-- JavaScript로 동적 생성 -->
+              </select>
+            </div>
+          </div>
+
+          <!-- 연락처 정보 섹션 -->
+          <div class="form-section">
+            <h3 data-i18n="section_contact_info">연락처 정보</h3>
+
+            <div class="form-group">
+              <label data-i18n="label_address_vn">베트남 주소</label>
+              <input type="text" name="HomeAddressVN" data-placeholder-i18n="placeholder_address_vn">
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label data-i18n="label_phone_kr">한국 연락처</label>
+                <input type="tel" name="PhoneKR" data-placeholder-i18n="placeholder_phone_kr">
+              </div>
+              <div class="form-group">
+                <label data-i18n="label_phone_vn">베트남 연락처</label>
+                <input type="tel" name="PhoneVN" data-placeholder-i18n="placeholder_phone_vn">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label data-i18n="label_email">이메일</label>
+              <input type="email" name="Email" data-placeholder-i18n="placeholder_email">
+            </div>
+          </div>
+
+          <!-- 학부모 정보 섹션 -->
+          <div class="form-section">
+            <h3 data-i18n="section_parent_info">학부모 정보</h3>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label data-i18n="label_parent_name">학부모 이름</label>
+                <input type="text" name="ParentNameVN" data-placeholder-i18n="placeholder_parent_name">
+              </div>
+              <div class="form-group">
+                <label data-i18n="label_parent_phone">학부모 연락처</label>
+                <input type="tel" name="ParentPhoneVN" data-placeholder-i18n="placeholder_parent_phone">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label data-i18n="label_parent_economic">학부모 경제 상황</label>
+              <select name="ParentEconomic">
+                <option value="" data-i18n="option_select">선택</option>
+                <option value="상" data-i18n="option_high">상</option>
+                <option value="중" data-i18n="option_medium">중</option>
+                <option value="하" data-i18n="option_low">하</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- 학업 정보 섹션 -->
+          <div class="form-section">
+            <h3 data-i18n="section_academic_info">학업 정보</h3>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label data-i18n="label_high_school_gpa">고등학교 성적</label>
+                <input type="text" name="HighSchoolGPA" data-placeholder-i18n="placeholder_gpa">
+              </div>
+              <div class="form-group">
+                <label data-i18n="label_enrollment_date">등록일</label>
+                <input type="date" name="EnrollmentDate">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label data-i18n="label_status">상태</label>
+              <select name="Status">
+                <option value="유학전" data-i18n="option_before_study">유학전</option>
+                <option value="어학연수" data-i18n="option_language_course">어학연수</option>
+                <option value="대학교재학중" data-i18n="option_enrolled">대학교재학중</option>
+                <option value="졸업" data-i18n="option_graduated">졸업</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn-primary" data-i18n="btn_save">저장</button>
+            <button type="button" class="btn-secondary" onclick="closeModal()" data-i18n="btn_cancel">취소</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 삭제 확인 다이얼로그 -->
+    <div class="confirm-dialog" id="delete-confirm" style="display:none;">
+      <div class="dialog-overlay" onclick="closeDeleteDialog()"></div>
+      <div class="dialog-content">
+        <h3 data-i18n="title_confirm_delete">삭제 확인</h3>
+        <p data-i18n="msg_confirm_delete">정말로 이 학생을 삭제하시겠습니까?</p>
+        <p class="student-name" id="delete-student-name"></p>
+        <div class="dialog-actions">
+          <button class="btn-danger" onclick="confirmDelete()" data-i18n="btn_delete">삭제</button>
+          <button class="btn-secondary" onclick="closeDeleteDialog()" data-i18n="btn_cancel">취소</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 유학원 등록/수정 모달 -->
+    <div class="modal" id="agency-form-modal" style="display:none;">
+      <div class="modal-overlay" onclick="closeAgencyModal()"></div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="agency-modal-title" data-i18n="title_add_agency">유학원 등록</h2>
+          <button class="modal-close" onclick="closeAgencyModal()">&times;</button>
+        </div>
+
+        <form id="agency-form" onsubmit="handleAgencySubmit(event)">
+          <div class="form-section">
+            <div class="form-group">
+              <label data-i18n="label_agency_code">유학원 코드 *</label>
+              <input type="text" name="AgencyCode" required id="agency-code-input" data-placeholder-i18n="placeholder_agency_code">
+            </div>
+
+            <div class="form-group">
+              <label data-i18n="label_agency_name">유학원명 *</label>
+              <input type="text" name="AgencyName" required data-placeholder-i18n="placeholder_agency_name">
+            </div>
+
+            <div class="form-group">
+              <label data-i18n="label_login_id">로그인 ID *</label>
+              <input type="text" name="LoginID" required data-placeholder-i18n="placeholder_login_id">
+            </div>
+
+            <div class="form-group">
+              <label data-i18n="label_password">비밀번호 *</label>
+              <input type="password" name="Password" id="agency-password-input" data-placeholder-i18n="placeholder_password">
+            </div>
+
+            <div class="form-group">
+              <label data-i18n="label_role">역할 *</label>
+              <select name="Role" required>
+                <option value="agency" data-i18n="option_role_agency">유학원</option>
+                <option value="branch" data-i18n="option_role_branch">한국 지점</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn-primary" data-i18n="btn_save">저장</button>
+            <button type="button" class="btn-secondary" onclick="closeAgencyModal()" data-i18n="btn_cancel">취소</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 유학원 삭제 확인 다이얼로그 -->
+    <div class="confirm-dialog" id="agency-delete-confirm" style="display:none;">
+      <div class="dialog-overlay" onclick="closeAgencyDeleteDialog()"></div>
+      <div class="dialog-content">
+        <h3 data-i18n="title_confirm_delete">삭제 확인</h3>
+        <p data-i18n="msg_confirm_delete_agency">정말로 이 유학원을 삭제하시겠습니까?</p>
+        <p class="agency-name" id="delete-agency-name"></p>
+        <div class="dialog-actions">
+          <button class="btn-danger" onclick="confirmAgencyDelete()" data-i18n="btn_delete">삭제</button>
+          <button class="btn-secondary" onclick="closeAgencyDeleteDialog()" data-i18n="btn_cancel">취소</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==================== 전역 변수 ====================
+    var currentSessionId = null;
+    var currentUser = null;
+    var currentLang = 'ko';
+    var i18n = {};
+    var studentList = [];          // 전체 학생 목록
+    var currentPage = 1;           // 현재 페이지
+    var itemsPerPage = 20;         // 페이지당 항목 수
+    var currentFilters = {};       // 현재 필터 조건
+    var editingStudentId = null;   // 수정 중인 학생 ID
+    var deletingStudentId = null;  // 삭제 대상 학생 ID
+
+    // 유학원 관리 관련 변수
+    var agencyList = [];           // 전체 유학원 목록
+    var currentAgencyPage = 1;     // 현재 페이지
+    var agencyItemsPerPage = 20;   // 페이지당 항목 수
+    var editingAgencyCode = null;  // 수정 중인 유학원 코드
+    var deletingAgencyCode = null; // 삭제 대상 유학원 코드
+
+    // ========================================
+    // 초기화
+    // ========================================
+    window.onload = function() {
+      loadI18n('ko');
+
+      // sessionStorage에서 세션 복원 시도
+      var savedSessionId = sessionStorage.getItem('sessionId');
+      var savedUser = sessionStorage.getItem('user');
+
+      if (savedSessionId && savedUser) {
+        // 서버에서 세션 유효성 확인
+        google.script.run
+          .withSuccessHandler(function(response) {
+            // response null 방어
+            if (!response) {
+              console.error('checkSession returned null/undefined');
+              clearSession();
+              showLoginView();
+              return;
+            }
+
+            if (response.success) {
+              currentSessionId = savedSessionId;
+              currentUser = JSON.parse(savedUser);
+              showAppView();
+            } else {
+              clearSession();
+              showLoginView();
+            }
+          })
+          .withFailureHandler(function(error) {
+            console.error('checkSession failed:', error);
+            clearSession();
+            showLoginView();
+          })
+          .checkSession(savedSessionId);
+      } else {
+        showLoginView();
+      }
+    };
+
+    // ========================================
+    // View Switching
+    // ========================================
+    function showLoginView() {
+      document.getElementById('login-view').style.display = 'block';
+      document.getElementById('app-view').style.display = 'none';
+    }
+
+    function showAppView() {
+      document.getElementById('login-view').style.display = 'none';
+      document.getElementById('app-view').style.display = 'block';
+
+      // 사용자 정보 표시 (v2.0: userType 사용)
+      if (currentUser) {
+        var roleLabel = {
+          'master': 'Admin',
+          'agency': currentUser.agencyName || currentUser.agencyCode,
+          'branch': 'Branch',
+          'student': 'Student'
+        };
+        document.getElementById('user-info').textContent =
+          currentUser.loginId + ' (' + (roleLabel[currentUser.userType] || currentUser.userType) + ')';
+      }
+
+      // 1. API 연결 확인 후 2. 데이터 로드 (GAS null 반환 문제 대응)
+      // 🔍 디버깅: 초간단 테스트 먼저
+      console.log('[DEBUG] Testing testSimple...');
+      google.script.run
+        .withSuccessHandler(function(result) {
+          console.log('[DEBUG] testSimple result:', result);
+          if (!result) {
+            console.error('[DEBUG] testSimple returned null!');
+            showMessage('🚨 디버깅: 가장 간단한 함수도 null 반환!');
+            return;
+          }
+          console.log('[DEBUG] testSimple success! Now testing testApiConnection...');
+
+          // 2. testApiConnection
+          google.script.run
+            .withSuccessHandler(function(conn) {
+              console.log('[DEBUG] testApiConnection result:', conn);
+              if (!conn || !conn.success) {
+                console.error('testApiConnection failed:', conn);
+                showMessage('서버 연결 실패. clasp push 후 웹앱을 재배포해 주세요.');
+                return;
+              }
+
+              console.log('[DEBUG] testApiConnection success! Now loading data...');
+              loadStudentList();
+              loadAgencyList();
+            })
+            .withFailureHandler(function(err) {
+              console.error('testApiConnection error:', err);
+              showMessage('서버 연결 오류. 웹앱 배포 설정을 확인해 주세요.');
+            })
+            .testApiConnection();
+        })
+        .withFailureHandler(function(err) {
+          console.error('[DEBUG] testSimple error:', err);
+          showMessage('🚨 디버깅: testSimple 실패!');
+        })
+        .testSimple();
+
+      // agency 역할이면 유학원 선택 필드 숨기기 (v2.0: userType)
+      if (currentUser.userType === 'agency') {
+        document.getElementById('agency-select-group').style.display = 'none';
+      }
+
+      // master 역할이면 유학원 관리 탭 표시 (v2.0: userType)
+      if (currentUser.userType === 'master') {
+        document.getElementById('agency-tab-btn').style.display = 'block';
+      }
+    }
+
+    // ========================================
+    // Session Helpers
+    // ========================================
+    function saveSession(sessionId, user) {
+      currentSessionId = sessionId;
+      currentUser = user;
+      sessionStorage.setItem('sessionId', sessionId);
+      sessionStorage.setItem('user', JSON.stringify(user));
+    }
+
+    function clearSession() {
+      currentSessionId = null;
+      currentUser = null;
+      sessionStorage.removeItem('sessionId');
+      sessionStorage.removeItem('user');
+    }
+
+    // ========================================
+    // i18n
+    // ========================================
+    function switchLanguage(lang) {
+      currentLang = lang;
+      loadI18n(lang);
+    }
+
+    function loadI18n(lang) {
+      google.script.run
+        .withSuccessHandler(function(response) {
+          // response null 방어
+          if (!response) {
+            console.error('getLocaleStrings returned null/undefined');
+            return;
+          }
+
+          if (response.success) {
+            i18n = response.data;
+            applyLanguage();
+          } else {
+            console.error('getLocaleStrings failed:', response.errorKey);
+          }
+        })
+        .withFailureHandler(function(error) {
+          console.error('i18n load error:', error);
+        })
+        .getLocaleStrings(lang);
+    }
+
+    function applyLanguage() {
+      document.querySelectorAll('[data-i18n]').forEach(function(el) {
+        var key = el.getAttribute('data-i18n');
+        if (i18n[key]) {
+          el.textContent = i18n[key];
+        }
+      });
+
+      document.querySelectorAll('[data-placeholder-i18n]').forEach(function(el) {
+        var key = el.getAttribute('data-placeholder-i18n');
+        if (i18n[key]) {
+          el.placeholder = i18n[key];
+        }
+      });
+    }
+
+    // ========================================
+    // Login Handler
+    // ========================================
+    function handleLogin(event) {
+      event.preventDefault();
+
+      var loginId = document.getElementById('login-id').value;
+      var password = document.getElementById('password').value;
+      var userType = document.getElementById('user-type').value;
+      var btn = document.getElementById('login-btn');
+
+      // UI 초기화
+      document.getElementById('error').style.display = 'none';
+      document.getElementById('success').style.display = 'none';
+      document.getElementById('loading').style.display = 'block';
+      btn.disabled = true;
+
+      google.script.run
+        .withSuccessHandler(function(response) {
+          document.getElementById('loading').style.display = 'none';
+
+          if (!response) {
+            console.error('login returned null/undefined');
+            btn.disabled = false;
+            document.getElementById('error').textContent = '서버 응답 오류';
+            document.getElementById('error').style.display = 'block';
+            return;
+          }
+          if (response.success) {
+            // v2.0: 응답 구조 변경 (sessionId → sessionToken, user 객체 없음)
+            var user = {
+              userId: response.data.userId,
+              userType: response.data.userType,
+              agencyCode: response.data.agencyCode,
+              loginId: loginId
+            };
+
+            saveSession(response.data.sessionToken, user);
+
+            // 성공 메시지 표시 후 앱 뷰로 전환
+            document.getElementById('success').style.display = 'block';
+
+            setTimeout(function() {
+              showAppView();
+            }, 500);
+          } else {
+            // 에러 처리
+            btn.disabled = false;
+            var errorKey = response.errorKey || 'err_unknown';
+            var errorMessage = i18n[errorKey] || 'Login failed';
+            document.getElementById('error').textContent = errorMessage;
+            document.getElementById('error').style.display = 'block';
+          }
+        })
+        .withFailureHandler(function(error) {
+          document.getElementById('loading').style.display = 'none';
+          btn.disabled = false;
+          console.error('Login error:', error);
+          document.getElementById('error').textContent = 'Network error';
+          document.getElementById('error').style.display = 'block';
+        })
+        .login(loginId, password, userType);
+    }
+
+    // ========================================
+    // Logout Handler
+    // ========================================
+    function handleLogout() {
+      var sid = currentSessionId;
+      clearSession();
+      showLoginView();
+
+      // 비동기로 서버 세션도 정리
+      if (sid) {
+        google.script.run.logout(sid);
+      }
+
+      // 폼 초기화
+      document.getElementById('login-id').value = '';
+      document.getElementById('password').value = '';
+      document.getElementById('login-btn').disabled = false;
+      document.getElementById('error').style.display = 'none';
+      document.getElementById('success').style.display = 'none';
+    }
+
+    // ==================== 학생 목록 로드 ====================
+    function loadStudentList() {
+      showLoadingIndicator(true);
+
+      google.script.run
+        .withSuccessHandler(function(response) {
+          showLoadingIndicator(false);
+
+          // response null 방어
+          if (!response) {
+            console.error('getStudentList returned null/undefined');
+            showMessage('서버 응답 오류 - 학생 목록을 불러올 수 없습니다');
+            return;
+          }
+
+          if (response.success) {
+            studentList = response.data;
+            renderStudentTable();
+          } else {
+            showMessage(i18n[response.errorKey] || 'Error loading students');
+          }
+        })
+        .withFailureHandler(function(error) {
+          showLoadingIndicator(false);
+          console.error('getStudentList failed:', error);
+          showMessage(i18n['err_unknown']);
+        })
+        .getStudentList(currentSessionId, currentFilters);
+    }
+
+    // ==================== 유학원 목록 로드 ====================
+    function loadAgencyList() {
+      google.script.run
+        .withSuccessHandler(function(response) {
+          // response null 방어
+          if (!response) {
+            console.error('getAgencyList returned null/undefined');
+            // 기본 옵션은 유지
+            var select = document.getElementById('agency-select');
+            select.innerHTML = '<option value="" data-i18n="option_select">선택</option>';
+            return;
+          }
+
+          if (response.success) {
+            var select = document.getElementById('agency-select');
+            select.innerHTML = '<option value="" data-i18n="option_select">선택</option>';
+
+            if (response.data && response.data.length > 0) {
+              response.data.forEach(function(agency) {
+                var option = document.createElement('option');
+                option.value = agency.AgencyCode;
+                option.textContent = agency.AgencyName;
+                select.appendChild(option);
+              });
+            }
+          } else {
+            console.error('getAgencyList failed:', response.errorKey);
+          }
+        })
+        .withFailureHandler(function(error) {
+          console.error('Failed to load agency list:', error);
+        })
+        .getAgencyList(currentSessionId);
+    }
+
+    // ==================== 테이블 렌더링 ====================
+    function renderStudentTable() {
+      var tbody = document.getElementById('student-list');
+      tbody.innerHTML = '';
+
+      if (studentList.length === 0) {
+        document.getElementById('no-data').style.display = 'block';
+        document.getElementById('pagination').innerHTML = '';
+        return;
+      }
+
+      document.getElementById('no-data').style.display = 'none';
+
+      // 페이지네이션 계산
+      var start = (currentPage - 1) * itemsPerPage;
+      var end = Math.min(start + itemsPerPage, studentList.length);
+      var pageData = studentList.slice(start, end);
+
+      // 테이블 행 생성
+      pageData.forEach(function(student) {
+        var tr = document.createElement('tr');
+
+        tr.innerHTML =
+          '<td>' + student.StudentID + '</td>' +
+          '<td>' + student.NameKR + '</td>' +
+          '<td>' + student.NameVN + '</td>' +
+          '<td>' + formatDate(student.DOB) + '</td>' +
+          '<td>' + (student.Gender === 'M' ? i18n['option_male'] : i18n['option_female']) + '</td>' +
+          '<td>' + student.AgencyCode + '</td>' +
+          '<td>' + (student.PhoneKR || '-') + '</td>' +
+          '<td>' + formatDate(student.EnrollmentDate) + '</td>' +
+          '<td class="actions">' +
+            '<button class="btn-sm btn-edit" onclick="showEditForm(\'' + student.StudentID + '\')">' +
+              i18n['btn_edit'] +
+            '</button>' +
+            (currentUser.userType === 'master' ?
+              '<button class="btn-sm btn-delete" onclick="showDeleteDialog(\'' + student.StudentID + '\', \'' + student.NameKR + '\')">' +
+                i18n['btn_delete'] +
+              '</button>' : '') +
+          '</td>';
+
+        tbody.appendChild(tr);
+      });
+
+      // 페이지네이션 렌더링
+      renderPagination();
+    }
+
+    function renderPagination() {
+      var totalPages = Math.ceil(studentList.length / itemsPerPage);
+      var paginationDiv = document.getElementById('pagination');
+      paginationDiv.innerHTML = '';
+
+      if (totalPages <= 1) return;
+
+      // 이전 버튼
+      var prevBtn = document.createElement('button');
+      prevBtn.textContent = '‹';
+      prevBtn.disabled = currentPage === 1;
+      prevBtn.onclick = function() {
+        currentPage--;
+        renderStudentTable();
+      };
+      paginationDiv.appendChild(prevBtn);
+
+      // 페이지 번호
+      for (var i = 1; i <= totalPages; i++) {
+        var pageBtn = document.createElement('button');
+        pageBtn.textContent = i;
+        pageBtn.className = i === currentPage ? 'active' : '';
+        pageBtn.onclick = (function(page) {
+          return function() {
+            currentPage = page;
+            renderStudentTable();
+          };
+        })(i);
+        paginationDiv.appendChild(pageBtn);
+      }
+
+      // 다음 버튼
+      var nextBtn = document.createElement('button');
+      nextBtn.textContent = '›';
+      nextBtn.disabled = currentPage === totalPages;
+      nextBtn.onclick = function() {
+        currentPage++;
+        renderStudentTable();
+      };
+      paginationDiv.appendChild(nextBtn);
+    }
+
+    // ==================== 검색/정렬 ====================
+    function searchStudents() {
+      var searchValue = document.getElementById('search-input').value;
+      currentFilters.search = searchValue;
+      currentPage = 1;
+      loadStudentList();
+    }
+
+    function handleSearchKeyup(event) {
+      if (event.key === 'Enter') {
+        searchStudents();
+      }
+    }
+
+    function sortStudents() {
+      var sortValue = document.getElementById('sort-select').value;
+      var parts = sortValue.split('-');
+      currentFilters.sortBy = parts[0];
+      currentFilters.sortOrder = parts[1];
+      currentPage = 1;
+      loadStudentList();
+    }
+
+    // ==================== 학생 등록 ====================
+    function showCreateForm() {
+      editingStudentId = null;
+      document.getElementById('modal-title').setAttribute('data-i18n', 'title_add_student');
+      document.getElementById('modal-title').textContent = i18n['title_add_student'];
+      document.getElementById('student-form').reset();
+      document.getElementById('student-form-modal').style.display = 'block';
+    }
+
+    function handleStudentSubmit(event) {
+      event.preventDefault();
+
+      var formData = {};
+      var form = document.getElementById('student-form');
+      var inputs = form.querySelectorAll('input, select');
+
+      inputs.forEach(function(input) {
+        if (input.name) {
+          formData[input.name] = input.value;
+        }
+      });
+
+      showLoadingIndicator(true);
+
+      if (editingStudentId) {
+        // 수정
+        google.script.run
+          .withSuccessHandler(handleStudentSaveSuccess)
+          .withFailureHandler(handleStudentSaveError)
+          .updateStudent(currentSessionId, editingStudentId, formData);
+      } else {
+        // 등록
+        google.script.run
+          .withSuccessHandler(handleStudentSaveSuccess)
+          .withFailureHandler(handleStudentSaveError)
+          .createStudent(currentSessionId, formData);
+      }
+    }
+
+    function handleStudentSaveSuccess(response) {
+      showLoadingIndicator(false);
+      if (response.success) {
+        showMessage(i18n['msg_save_success']);
+        closeModal();
+        loadStudentList();
+      } else {
+        showMessage(i18n[response.errorKey] || 'Save failed');
+      }
+    }
+
+    function handleStudentSaveError(error) {
+      showLoadingIndicator(false);
+      showMessage(i18n['err_unknown']);
+    }
+
+    // ==================== 학생 수정 ====================
+    function showEditForm(studentId) {
+      editingStudentId = studentId;
+      document.getElementById('modal-title').setAttribute('data-i18n', 'title_edit_student');
+      document.getElementById('modal-title').textContent = i18n['title_edit_student'];
+
+      showLoadingIndicator(true);
+
+      google.script.run
+        .withSuccessHandler(function(response) {
+          showLoadingIndicator(false);
+          if (response.success) {
+            fillFormWithData(response.data);
+            document.getElementById('student-form-modal').style.display = 'block';
+          } else {
+            showMessage(i18n[response.errorKey]);
+          }
+        })
+        .withFailureHandler(function(error) {
+          showLoadingIndicator(false);
+          showMessage(i18n['err_unknown']);
+        })
+        .getStudentById(currentSessionId, studentId);
+    }
+
+    function fillFormWithData(student) {
+      var form = document.getElementById('student-form');
+      for (var field in student) {
+        var input = form.querySelector('[name="' + field + '"]');
+        if (input) {
+          input.value = student[field] || '';
+        }
+      }
+    }
+
+    // ==================== 학생 삭제 ====================
+    function showDeleteDialog(studentId, studentName) {
+      deletingStudentId = studentId;
+      document.getElementById('delete-student-name').textContent = studentName;
+      document.getElementById('delete-confirm').style.display = 'block';
+    }
+
+    function confirmDelete() {
+      showLoadingIndicator(true);
+
+      google.script.run
+        .withSuccessHandler(function(response) {
+          showLoadingIndicator(false);
+          if (response.success) {
+            showMessage(i18n['msg_delete_success']);
+            closeDeleteDialog();
+            loadStudentList();
+          } else {
+            showMessage(i18n[response.errorKey]);
+          }
+        })
+        .withFailureHandler(function(error) {
+          showLoadingIndicator(false);
+          showMessage(i18n['err_unknown']);
+        })
+        .deleteStudent(currentSessionId, deletingStudentId);
+    }
+
+    function closeDeleteDialog() {
+      deletingStudentId = null;
+      document.getElementById('delete-confirm').style.display = 'none';
+    }
+
+    // ==================== 유틸리티 ====================
+    function closeModal() {
+      document.getElementById('student-form-modal').style.display = 'none';
+      editingStudentId = null;
+    }
+
+    function showLoadingIndicator(show) {
+      document.getElementById('student-loading').style.display = show ? 'block' : 'none';
+    }
+
+    function showMessage(message) {
+      // 메시지 표시 로직 (추후 Toast UI 구현)
+      alert(message);
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '-';
+      var date = new Date(dateStr);
+      return date.toLocaleDateString('ko-KR');
+    }
+
+    // ==================== 탭 전환 ====================
+    function switchTab(tabName) {
+      // 모든 탭 버튼에서 active 제거
+      var tabButtons = document.querySelectorAll('.tab-btn');
+      tabButtons.forEach(function(btn) {
+        btn.classList.remove('active');
+      });
+
+      // 모든 탭 콘텐츠 숨기기
+      var tabContents = document.querySelectorAll('.tab-content');
+      tabContents.forEach(function(content) {
+        content.classList.remove('active');
+      });
+
+      // 선택된 탭 활성화
+      if (tabName === 'student') {
+        document.getElementById('student-tab').classList.add('active');
+        document.querySelector('[onclick="switchTab(\'student\')"]').classList.add('active');
+      } else if (tabName === 'agency') {
+        document.getElementById('agency-tab').classList.add('active');
+        document.getElementById('agency-tab-btn').classList.add('active');
+        loadAgencyListForAdmin();
+      }
+    }
+
+    // ==================== 유학원 관리 ====================
+
+    function loadAgencyListForAdmin() {
+      showAgencyLoadingIndicator(true);
+
+      google.script.run
+        .withSuccessHandler(function(response) {
+          showAgencyLoadingIndicator(false);
+
+          // response null 방어
+          if (!response) {
+            console.error('getAgencyListForAdmin returned null/undefined');
+            showMessage('서버 응답 오류 - 유학원 목록을 불러올 수 없습니다');
+            return;
+          }
+
+          if (response.success) {
+            agencyList = response.data || [];
+            currentAgencyPage = 1;
+            renderAgencyTable();
+            renderAgencyPagination();
+          } else {
+            showMessage(i18n[response.errorKey]);
+          }
+        })
+        .withFailureHandler(function(error) {
+          showAgencyLoadingIndicator(false);
+          console.error('getAgencyListForAdmin failed:', error);
+          showMessage(i18n['err_unknown']);
+        })
+        .getAgencyListForAdmin(currentSessionId);
+    }
+
+    function renderAgencyTable() {
+      var tbody = document.getElementById('agency-table-body');
+      var noData = document.getElementById('agency-no-data');
+
+      if (agencyList.length === 0) {
+        tbody.innerHTML = '';
+        noData.style.display = 'block';
+        return;
+      }
+
+      noData.style.display = 'none';
+
+      // 페이지네이션 계산
+      var start = (currentAgencyPage - 1) * agencyItemsPerPage;
+      var end = start + agencyItemsPerPage;
+      var pageData = agencyList.slice(start, end);
+
+      var html = '';
+      pageData.forEach(function(agency) {
+        html += '<tr>';
+        html += '<td>' + agency.AgencyCode + '</td>';
+        html += '<td>' + (agency.AgencyName || '-') + '</td>';
+        html += '<td>' + agency.LoginID + '</td>';
+        html += '<td>' + (agency.Role === 'master' ? '관리자' : agency.Role === 'branch' ? '한국 지점' : '유학원') + '</td>';
+        html += '<td>' + formatDate(agency.CreatedAt) + '</td>';
+        html += '<td class="action-buttons">';
+        html += '<button class="btn-edit" onclick="showEditAgencyForm(\'' + agency.AgencyCode + '\')" data-i18n="btn_edit">수정</button>';
+        if (agency.AgencyCode !== 'MASTER') {
+          html += '<button class="btn-delete" onclick="showAgencyDeleteDialog(\'' + agency.AgencyCode + '\', \'' + (agency.AgencyName || agency.AgencyCode) + '\')" data-i18n="btn_delete">삭제</button>';
+        }
+        html += '</td>';
+        html += '</tr>';
+      });
+
+      tbody.innerHTML = html;
+    }
+
+    function renderAgencyPagination() {
+      var totalPages = Math.ceil(agencyList.length / agencyItemsPerPage);
+      var container = document.getElementById('agency-pagination');
+
+      if (totalPages <= 1) {
+        container.innerHTML = '';
+        return;
+      }
+
+      var html = '<button onclick="currentAgencyPage=1; renderAgencyTable(); renderAgencyPagination();">&laquo;</button>';
+
+      for (var i = 1; i <= totalPages; i++) {
+        if (i === currentAgencyPage) {
+          html += '<button class="active">' + i + '</button>';
+        } else {
+          html += '<button onclick="currentAgencyPage=' + i + '; renderAgencyTable(); renderAgencyPagination();">' + i + '</button>';
+        }
+      }
+
+      html += '<button onclick="currentAgencyPage=' + totalPages + '; renderAgencyTable(); renderAgencyPagination();">&raquo;</button>';
+      container.innerHTML = html;
+    }
+
+    function searchAgencies() {
+      var searchText = document.getElementById('agency-search').value.toLowerCase();
+
+      if (!searchText) {
+        loadAgencyListForAdmin();
+        return;
+      }
+
+      google.script.run
+        .withSuccessHandler(function(response) {
+          if (response.success) {
+            agencyList = (response.data || []).filter(function(agency) {
+              return (agency.AgencyCode && agency.AgencyCode.toLowerCase().indexOf(searchText) >= 0) ||
+                     (agency.AgencyName && agency.AgencyName.toLowerCase().indexOf(searchText) >= 0) ||
+                     (agency.LoginID && agency.LoginID.toLowerCase().indexOf(searchText) >= 0);
+            });
+            currentAgencyPage = 1;
+            renderAgencyTable();
+            renderAgencyPagination();
+          }
+        })
+        .getAgencyListForAdmin(currentSessionId);
+    }
+
+    function showCreateAgencyForm() {
+      editingAgencyCode = null;
+      document.getElementById('agency-modal-title').setAttribute('data-i18n', 'title_add_agency');
+      document.getElementById('agency-modal-title').textContent = i18n['title_add_agency'] || '유학원 등록';
+
+      document.getElementById('agency-form').reset();
+      document.getElementById('agency-code-input').disabled = false;
+      document.getElementById('agency-password-input').required = true;
+
+      document.getElementById('agency-form-modal').style.display = 'flex';
+    }
+
+    function showEditAgencyForm(agencyCode) {
+      editingAgencyCode = agencyCode;
+      document.getElementById('agency-modal-title').setAttribute('data-i18n', 'title_edit_agency');
+      document.getElementById('agency-modal-title').textContent = i18n['title_edit_agency'] || '유학원 정보 수정';
+
+      showAgencyLoadingIndicator(true);
+
+      google.script.run
+        .withSuccessHandler(function(response) {
+          showAgencyLoadingIndicator(false);
+
+          if (response.success) {
+            fillAgencyFormWithData(response.data);
+            document.getElementById('agency-code-input').disabled = true;
+            document.getElementById('agency-password-input').required = false;
+            document.getElementById('agency-form-modal').style.display = 'flex';
+          } else {
+            showMessage(i18n[response.errorKey]);
+          }
+        })
+        .withFailureHandler(function(error) {
+          showAgencyLoadingIndicator(false);
+          showMessage(i18n['err_unknown']);
+        })
+        .getAgencyById(currentSessionId, agencyCode);
+    }
+
+    function fillAgencyFormWithData(agency) {
+      var form = document.getElementById('agency-form');
+      form.AgencyCode.value = agency.AgencyCode || '';
+      form.AgencyName.value = agency.AgencyName || '';
+      form.LoginID.value = agency.LoginID || '';
+      form.Password.value = '';
+      form.Role.value = agency.Role || 'agency';
+    }
+
+    function handleAgencySubmit(event) {
+      event.preventDefault();
+
+      var formData = new FormData(event.target);
+      var agencyData = {};
+
+      formData.forEach(function(value, key) {
+        if (value) agencyData[key] = value;
+      });
+
+      showAgencyLoadingIndicator(true);
+
+      if (editingAgencyCode) {
+        // 수정
+        google.script.run
+          .withSuccessHandler(function(response) {
+            showAgencyLoadingIndicator(false);
+
+            if (response.success) {
+              showMessage(i18n['msg_save_success']);
+              closeAgencyModal();
+              loadAgencyListForAdmin();
+            } else {
+              showMessage(i18n[response.errorKey]);
+            }
+          })
+          .withFailureHandler(function(error) {
+            showAgencyLoadingIndicator(false);
+            showMessage(i18n['err_unknown']);
+          })
+          .updateAgency(currentSessionId, editingAgencyCode, agencyData);
+      } else {
+        // 등록
+        google.script.run
+          .withSuccessHandler(function(response) {
+            showAgencyLoadingIndicator(false);
+
+            if (response.success) {
+              showMessage(i18n['msg_save_success']);
+              closeAgencyModal();
+              loadAgencyListForAdmin();
+            } else {
+              showMessage(i18n[response.errorKey]);
+            }
+          })
+          .withFailureHandler(function(error) {
+            showAgencyLoadingIndicator(false);
+            showMessage(i18n['err_unknown']);
+          })
+          .createAgency(currentSessionId, agencyData);
+      }
+    }
+
+    function showAgencyDeleteDialog(agencyCode, agencyName) {
+      deletingAgencyCode = agencyCode;
+      document.getElementById('delete-agency-name').textContent = agencyName;
+      document.getElementById('agency-delete-confirm').style.display = 'flex';
+    }
+
+    function confirmAgencyDelete() {
+      if (!deletingAgencyCode) return;
+
+      showAgencyLoadingIndicator(true);
+
+      google.script.run
+        .withSuccessHandler(function(response) {
+          showAgencyLoadingIndicator(false);
+
+          if (response.success) {
+            showMessage(i18n['msg_delete_success']);
+            closeAgencyDeleteDialog();
+            loadAgencyListForAdmin();
+          } else {
+            showMessage(i18n[response.errorKey]);
+          }
+        })
+        .withFailureHandler(function(error) {
+          showAgencyLoadingIndicator(false);
+          showMessage(i18n['err_unknown']);
+        })
+        .deleteAgency(currentSessionId, deletingAgencyCode);
+    }
+
+    function closeAgencyModal() {
+      document.getElementById('agency-form-modal').style.display = 'none';
+      editingAgencyCode = null;
+    }
+
+    function closeAgencyDeleteDialog() {
+      deletingAgencyCode = null;
+      document.getElementById('agency-delete-confirm').style.display = 'none';
+    }
+
+    function showAgencyLoadingIndicator(show) {
+      document.getElementById('agency-loading').style.display = show ? 'block' : 'none';
+    }
+  </script>
+</body>
+</html>

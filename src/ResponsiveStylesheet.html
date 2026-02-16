@@ -1,0 +1,548 @@
+<style>
+/**
+ * Responsive.css
+ *
+ * 모바일 반응형 레이아웃 스타일시트
+ * Mobile-first approach with 3 breakpoints
+ *
+ * Breakpoints:
+ * - 320px+ : Mobile (base)
+ * - 768px+ : Tablet
+ * - 1024px+ : Desktop
+ *
+ * @version 2.2
+ * @since 2026-02-16
+ */
+
+/* ========================================
+   BASE STYLES (Mobile-First)
+   ======================================== */
+
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  /* Mobile Font Sizes */
+  --font-size-base: 14px;
+  --font-size-small: 12px;
+  --font-size-large: 16px;
+  --font-size-xlarge: 18px;
+
+  /* Mobile Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+
+  /* Mobile Touch Targets */
+  --touch-target-min: 44px;
+  --button-height: 44px;
+  --input-height: 44px;
+
+  /* Mobile Layout */
+  --container-padding: 16px;
+  --form-max-width: 100%;
+  --table-font-size: 13px;
+
+  /* Colors */
+  --primary-color: #4285f4;
+  --secondary-color: #34a853;
+  --danger-color: #ea4335;
+  --text-color: #202124;
+  --border-color: #dadce0;
+  --bg-color: #ffffff;
+  --bg-gray: #f8f9fa;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+               'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+  font-size: var(--font-size-base);
+  line-height: 1.5;
+  color: var(--text-color);
+  background-color: var(--bg-color);
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Container (Mobile) */
+.container {
+  width: 100%;
+  max-width: 100%;
+  padding: var(--container-padding);
+  margin: 0 auto;
+}
+
+/* Grid System (Mobile - Stacked) */
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 -8px;
+}
+
+.col {
+  flex: 1 0 100%; /* Full width on mobile */
+  padding: 0 8px;
+  margin-bottom: var(--spacing-md);
+}
+
+/* Buttons (Mobile) */
+.btn {
+  display: inline-block;
+  min-height: var(--button-height);
+  min-width: var(--touch-target-min);
+  padding: 12px 20px;
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  text-align: center;
+  text-decoration: none;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s, box-shadow 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.btn-primary:hover,
+.btn-primary:active {
+  background-color: #1a73e8;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.btn-secondary {
+  background-color: var(--secondary-color);
+  color: white;
+}
+
+.btn-danger {
+  background-color: var(--danger-color);
+  color: white;
+}
+
+/* Forms (Mobile) */
+.form-group {
+  margin-bottom: var(--spacing-md);
+}
+
+.form-label {
+  display: block;
+  margin-bottom: var(--spacing-xs);
+  font-weight: 500;
+  font-size: var(--font-size-base);
+}
+
+.form-control {
+  width: 100%;
+  min-height: var(--input-height);
+  padding: 12px;
+  font-size: var(--font-size-base);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: white;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.1);
+}
+
+/* Tables (Mobile - Responsive) */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--table-font-size);
+}
+
+thead {
+  background-color: var(--bg-gray);
+}
+
+th, td {
+  padding: var(--spacing-sm);
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+th {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Cards (Mobile) */
+.card {
+  background-color: white;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.card-header {
+  font-size: var(--font-size-large);
+  font-weight: 600;
+  margin-bottom: var(--spacing-md);
+}
+
+/* Navigation (Mobile) */
+.nav-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  border-bottom: 2px solid var(--border-color);
+  margin-bottom: var(--spacing-md);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.nav-tab {
+  flex: 1 0 auto;
+  min-width: 80px;
+  min-height: var(--touch-target-min);
+  padding: 12px 16px;
+  font-size: var(--font-size-base);
+  text-align: center;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  color: var(--text-color);
+  border-bottom: 3px solid transparent;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.nav-tab.active {
+  color: var(--primary-color);
+  border-bottom-color: var(--primary-color);
+  font-weight: 600;
+}
+
+/* Modals (Mobile) */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0,0,0,0.5);
+  z-index: 1000;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.modal.show {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-md);
+}
+
+.modal-content {
+  background-color: white;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.modal-header {
+  padding: var(--spacing-md);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-title {
+  font-size: var(--font-size-large);
+  font-weight: 600;
+  margin: 0;
+}
+
+.modal-close {
+  min-width: var(--touch-target-min);
+  min-height: var(--touch-target-min);
+  padding: 8px;
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: var(--text-color);
+}
+
+.modal-body {
+  padding: var(--spacing-md);
+}
+
+.modal-footer {
+  padding: var(--spacing-md);
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-sm);
+}
+
+/* Utilities */
+.text-center {
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.mt-1 { margin-top: var(--spacing-xs); }
+.mt-2 { margin-top: var(--spacing-sm); }
+.mt-3 { margin-top: var(--spacing-md); }
+.mt-4 { margin-top: var(--spacing-lg); }
+
+.mb-1 { margin-bottom: var(--spacing-xs); }
+.mb-2 { margin-bottom: var(--spacing-sm); }
+.mb-3 { margin-bottom: var(--spacing-md); }
+.mb-4 { margin-bottom: var(--spacing-lg); }
+
+.hide-mobile {
+  display: none;
+}
+
+.show-mobile {
+  display: block;
+}
+
+/* ========================================
+   TABLET (768px+)
+   ======================================== */
+
+@media (min-width: 768px) {
+  :root {
+    /* Tablet Font Sizes */
+    --font-size-base: 15px;
+    --font-size-small: 13px;
+    --font-size-large: 17px;
+    --font-size-xlarge: 20px;
+
+    /* Tablet Touch Targets */
+    --button-height: 48px;
+    --input-height: 48px;
+
+    /* Tablet Layout */
+    --container-padding: 24px;
+    --table-font-size: 14px;
+  }
+
+  /* Container (Tablet) */
+  .container {
+    max-width: 720px;
+  }
+
+  /* Grid System (Tablet - 2 columns) */
+  .col {
+    flex: 1 0 50%;
+  }
+
+  .col-full {
+    flex: 1 0 100%;
+  }
+
+  .col-third {
+    flex: 1 0 33.333%;
+  }
+
+  /* Tables (Tablet - Better spacing) */
+  th, td {
+    padding: var(--spacing-md);
+  }
+
+  /* Modals (Tablet) */
+  .modal.show {
+    padding: var(--spacing-lg);
+  }
+
+  .modal-content {
+    max-width: 600px;
+  }
+
+  /* Navigation (Tablet) */
+  .nav-tab {
+    flex: 0 0 auto;
+    padding: 14px 24px;
+  }
+
+  /* Utilities */
+  .hide-tablet {
+    display: none;
+  }
+
+  .show-tablet {
+    display: block;
+  }
+
+  .hide-mobile {
+    display: block;
+  }
+
+  .show-mobile {
+    display: none;
+  }
+}
+
+/* ========================================
+   DESKTOP (1024px+)
+   ======================================== */
+
+@media (min-width: 1024px) {
+  :root {
+    /* Desktop Font Sizes */
+    --font-size-base: 16px;
+    --font-size-small: 14px;
+    --font-size-large: 18px;
+    --font-size-xlarge: 22px;
+
+    /* Desktop Touch Targets (can be smaller) */
+    --button-height: 40px;
+    --input-height: 40px;
+
+    /* Desktop Layout */
+    --container-padding: 32px;
+    --table-font-size: 15px;
+  }
+
+  /* Container (Desktop) */
+  .container {
+    max-width: 960px;
+  }
+
+  /* Grid System (Desktop - 3-4 columns) */
+  .col {
+    flex: 1 0 33.333%;
+  }
+
+  .col-quarter {
+    flex: 1 0 25%;
+  }
+
+  .col-half {
+    flex: 1 0 50%;
+  }
+
+  /* Tables (Desktop - Hover effects) */
+  tbody tr:hover {
+    background-color: var(--bg-gray);
+  }
+
+  /* Buttons (Desktop - Smaller padding) */
+  .btn {
+    padding: 10px 24px;
+  }
+
+  /* Forms (Desktop - Better layout) */
+  .form-inline {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+  }
+
+  .form-inline .form-group {
+    flex: 1;
+    margin-bottom: 0;
+  }
+
+  /* Modals (Desktop) */
+  .modal-content {
+    max-width: 800px;
+  }
+
+  /* Navigation (Desktop) */
+  .nav-tab:hover {
+    background-color: var(--bg-gray);
+  }
+
+  /* Utilities */
+  .hide-desktop {
+    display: none;
+  }
+
+  .show-desktop {
+    display: block;
+  }
+
+  .hide-tablet {
+    display: block;
+  }
+
+  .show-tablet {
+    display: none;
+  }
+}
+
+/* ========================================
+   LARGE DESKTOP (1440px+)
+   ======================================== */
+
+@media (min-width: 1440px) {
+  :root {
+    --font-size-base: 16px;
+  }
+
+  .container {
+    max-width: 1200px;
+  }
+
+  .col {
+    flex: 1 0 25%;
+  }
+}
+
+/* ========================================
+   PRINT STYLES
+   ======================================== */
+
+@media print {
+  body {
+    font-size: 12pt;
+    color: black;
+    background: white;
+  }
+
+  .btn,
+  .nav-tabs,
+  .modal,
+  .no-print {
+    display: none !important;
+  }
+
+  .container {
+    max-width: 100%;
+    padding: 0;
+  }
+
+  table {
+    page-break-inside: avoid;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+}
+</style>

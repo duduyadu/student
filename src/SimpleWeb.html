@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AJU E&J 학생관리</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 1.5rem 2rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .header h1 {
+      font-size: 1.8rem;
+      color: #2d3748;
+      margin-bottom: 0.5rem;
+    }
+
+    .header p {
+      color: #718096;
+      font-size: 0.9rem;
+    }
+
+    .container {
+      flex: 1;
+      padding: 2rem;
+      max-width: 1400px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: pointer;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 12px rgba(0,0,0,0.15);
+    }
+
+    .card-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .card-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 0.5rem;
+    }
+
+    .card-desc {
+      color: #718096;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    .sheet-container {
+      background: white;
+      border-radius: 12px;
+      padding: 1rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      display: none;
+    }
+
+    .sheet-container.active {
+      display: block;
+    }
+
+    .sheet-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid #e2e8f0;
+    }
+
+    .sheet-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #2d3748;
+    }
+
+    .back-btn {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .back-btn:hover {
+      background: #5568d3;
+    }
+
+    iframe {
+      width: 100%;
+      height: 600px;
+      border: none;
+      border-radius: 8px;
+    }
+
+    @media (max-width: 768px) {
+      .header {
+        padding: 1rem;
+      }
+
+      .header h1 {
+        font-size: 1.4rem;
+      }
+
+      .container {
+        padding: 1rem;
+      }
+
+      .cards {
+        grid-template-columns: 1fr;
+      }
+
+      iframe {
+        height: 500px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🎓 AJU E&J 학생관리 시스템</h1>
+    <p>베트남 유학생 통합 관리 플랫폼</p>
+  </div>
+
+  <div class="container">
+    <!-- 메뉴 카드 -->
+    <div id="menu" class="cards">
+      <div class="card" onclick="showSheet('students')">
+        <div class="card-icon">👥</div>
+        <div class="card-title">학생 목록</div>
+        <div class="card-desc">등록된 학생 정보를 조회하고 관리합니다.</div>
+      </div>
+
+      <div class="card" onclick="showSheet('agencies')">
+        <div class="card-icon">🏢</div>
+        <div class="card-title">유학원 목록</div>
+        <div class="card-desc">등록된 유학원 정보를 확인합니다.</div>
+      </div>
+
+      <div class="card" onclick="openGoogleSheets()">
+        <div class="card-icon">📊</div>
+        <div class="card-title">Google Sheets 열기</div>
+        <div class="card-desc">전체 기능을 사용하려면 Google Sheets를 여세요.</div>
+      </div>
+    </div>
+
+    <!-- Students 시트 -->
+    <div id="students-sheet" class="sheet-container">
+      <div class="sheet-header">
+        <div class="sheet-title">👥 학생 목록</div>
+        <button class="back-btn" onclick="showMenu()">← 돌아가기</button>
+      </div>
+      <iframe src="https://docs.google.com/spreadsheets/d/1j1tnoI_AHuxe624nn5ET3s7oizWFmOKkkQp7YuoKK02DLr_tOQkmlscN/edit#gid=0&range=A:U"></iframe>
+    </div>
+
+    <!-- Agencies 시트 -->
+    <div id="agencies-sheet" class="sheet-container">
+      <div class="sheet-header">
+        <div class="sheet-title">🏢 유학원 목록</div>
+        <button class="back-btn" onclick="showMenu()">← 돌아가기</button>
+      </div>
+      <iframe src="https://docs.google.com/spreadsheets/d/1j1tnoI_AHuxe624nn5ET3s7oizWFmOKkkQp7YuoKK02DLr_tOQkmlscN/edit#gid=1&range=A:N"></iframe>
+    </div>
+  </div>
+
+  <script>
+    function showMenu() {
+      document.getElementById('menu').style.display = 'grid';
+      document.getElementById('students-sheet').classList.remove('active');
+      document.getElementById('agencies-sheet').classList.remove('active');
+    }
+
+    function showSheet(sheetName) {
+      document.getElementById('menu').style.display = 'none';
+      document.getElementById(sheetName + '-sheet').classList.add('active');
+    }
+
+    function openGoogleSheets() {
+      window.open('https://docs.google.com/spreadsheets/d/1j1tnoI_AHuxe624nn5ET3s7oizWFmOKkkQp7YuoKK02DLr_tOQkmlscN/edit', '_blank');
+    }
+  </script>
+</body>
+</html>

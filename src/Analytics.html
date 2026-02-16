@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>분석 대시보드 - AJU E&J</title>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f5f5f5;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    header {
+      background: linear-gradient(135deg, #4285F4 0%, #34A853 100%);
+      color: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    header h1 {
+      font-size: 24px;
+      margin-bottom: 5px;
+    }
+
+    header p {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    /* 탭 네비게이션 */
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      padding: 12px 24px;
+      border: none;
+      background: #f0f0f0;
+      color: #333;
+      cursor: pointer;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.3s;
+    }
+
+    .tab-btn:hover {
+      background: #e0e0e0;
+    }
+
+    .tab-btn.active {
+      background: #4285F4;
+      color: white;
+    }
+
+    /* 필터 패널 */
+    .filters {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .filter-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .filter-group label {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: #555;
+    }
+
+    .filter-group input,
+    .filter-group select {
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    .filter-group input:focus,
+    .filter-group select:focus {
+      outline: none;
+      border-color: #4285F4;
+    }
+
+    .filter-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 15px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-primary {
+      background: #4285F4;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #3367D6;
+    }
+
+    .btn-secondary {
+      background: #34A853;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: #2D8E47;
+    }
+
+    .btn-danger {
+      background: #EA4335;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #D33B2C;
+    }
+
+    /* 콘텐츠 영역 */
+    .content {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* 차트 컨테이너 */
+    .chart-container {
+      position: relative;
+      height: 400px;
+      margin-bottom: 30px;
+    }
+
+    /* 데이터 테이블 */
+    .data-table-container {
+      overflow-x: auto;
+      margin-top: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    table th {
+      background: #f5f5f5;
+      padding: 12px;
+      text-align: left;
+      font-weight: 600;
+      color: #555;
+      border-bottom: 2px solid #ddd;
+    }
+
+    table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #eee;
+    }
+
+    table tr:hover {
+      background: #f9f9f9;
+    }
+
+    /* 로딩 스피너 */
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 40px;
+    }
+
+    .loading.active {
+      display: block;
+    }
+
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #4285F4;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 15px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* 에러 메시지 */
+    .error {
+      display: none;
+      background: #FFEBEE;
+      color: #C62828;
+      padding: 15px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      border-left: 4px solid #C62828;
+    }
+
+    .error.active {
+      display: block;
+    }
+
+    /* 성공 메시지 */
+    .success {
+      display: none;
+      background: #E8F5E9;
+      color: #2E7D32;
+      padding: 15px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      border-left: 4px solid #2E7D32;
+    }
+
+    .success.active {
+      display: block;
+    }
+
+    /* Summary 카드 */
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .summary-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .summary-card h3 {
+      font-size: 14px;
+      margin-bottom: 10px;
+      opacity: 0.9;
+    }
+
+    .summary-card p {
+      font-size: 28px;
+      font-weight: 700;
+    }
+
+    /* 반응형 */
+    @media (max-width: 768px) {
+      .container {
+        padding: 10px;
+      }
+
+      header h1 {
+        font-size: 20px;
+      }
+
+      .tabs {
+        padding: 10px;
+      }
+
+      .tab-btn {
+        padding: 10px 16px;
+        font-size: 13px;
+      }
+
+      .filter-row {
+        grid-template-columns: 1fr;
+      }
+
+      .chart-container {
+        height: 300px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- 헤더 -->
+    <header>
+      <h1>📊 분석 대시보드</h1>
+      <p>학생 데이터 분석 및 리포팅 시스템</p>
+    </header>
+
+    <!-- 에러/성공 메시지 -->
+    <div class="error" id="errorMessage"></div>
+    <div class="success" id="successMessage"></div>
+
+    <!-- 탭 네비게이션 -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('cohort')">코호트 분석</button>
+      <button class="tab-btn" onclick="switchTab('trend')">트렌드 분석</button>
+      <button class="tab-btn" onclick="switchTab('funnel')">깔때기 분석</button>
+      <button class="tab-btn" onclick="switchTab('report')">사용자 정의 리포트</button>
+    </div>
+
+    <!-- 로딩 스피너 -->
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <p>데이터를 불러오는 중...</p>
+    </div>
+
+    <!-- 콘텐츠 영역 -->
+    <div class="content">
+      <!-- 코호트 분석 탭 -->
+      <div id="cohort-tab" class="tab-content active">
+        <h2>코호트 분석</h2>
+        <p style="margin-bottom: 20px; color: #666;">입학 연도별 또는 유학원별 학생 그룹을 비교합니다.</p>
+
+        <!-- 필터 -->
+        <div class="filters">
+          <div class="filter-row">
+            <div class="filter-group">
+              <label>코호트 유형</label>
+              <select id="cohort-type">
+                <option value="year">입학 연도별</option>
+                <option value="agency">유학원별</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label>분석 지표</label>
+              <select id="cohort-metric">
+                <option value="topik_improvement">TOPIK 평균 향상도</option>
+                <option value="target_change">목표 대학 변경 횟수</option>
+                <option value="consult_count">상담 횟수</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label>시작 연도</label>
+              <input type="number" id="cohort-start-year" value="2024" min="2020" max="2026">
+            </div>
+            <div class="filter-group">
+              <label>종료 연도</label>
+              <input type="number" id="cohort-end-year" value="2026" min="2020" max="2026">
+            </div>
+          </div>
+          <div class="filter-actions">
+            <button class="btn btn-primary" onclick="runCohortAnalysis()">분석 실행</button>
+            <button class="btn btn-secondary" onclick="exportCSV('cohort')">CSV 내보내기</button>
+          </div>
+        </div>
+
+        <!-- 차트 -->
+        <div class="chart-container">
+          <canvas id="cohort-chart"></canvas>
+        </div>
+
+        <!-- 데이터 테이블 -->
+        <div class="data-table-container">
+          <table id="cohort-table">
+            <thead>
+              <tr>
+                <th>코호트</th>
+                <th>학생 수</th>
+                <th>지표 값</th>
+                <th>설명</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 트렌드 분석 탭 -->
+      <div id="trend-tab" class="tab-content">
+        <h2>트렌드 분석</h2>
+        <p style="margin-bottom: 20px; color: #666;">시계열 데이터 추이를 분석합니다.</p>
+
+        <!-- 필터 -->
+        <div class="filters">
+          <div class="filter-row">
+            <div class="filter-group">
+              <label>기간 단위</label>
+              <select id="trend-period">
+                <option value="monthly">월별</option>
+                <option value="quarterly">분기별</option>
+                <option value="yearly">연도별</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label>분석 지표</label>
+              <select id="trend-metric">
+                <option value="new_students">신규 학생 수</option>
+                <option value="topik_pass_rate">TOPIK 합격률</option>
+                <option value="consult_frequency">상담 빈도</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label>시작 날짜</label>
+              <input type="date" id="trend-start-date" value="2024-01-01">
+            </div>
+            <div class="filter-group">
+              <label>종료 날짜</label>
+              <input type="date" id="trend-end-date" value="2024-12-31">
+            </div>
+          </div>
+          <div class="filter-actions">
+            <button class="btn btn-primary" onclick="runTrendAnalysis()">분석 실행</button>
+            <button class="btn btn-secondary" onclick="exportCSV('trend')">CSV 내보내기</button>
+          </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="summary" id="trend-summary"></div>
+
+        <!-- 차트 -->
+        <div class="chart-container">
+          <canvas id="trend-chart"></canvas>
+        </div>
+
+        <!-- 데이터 테이블 -->
+        <div class="data-table-container">
+          <table id="trend-table">
+            <thead>
+              <tr>
+                <th>기간</th>
+                <th>값</th>
+                <th>변화율</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 깔때기 분석 탭 -->
+      <div id="funnel-tab" class="tab-content">
+        <h2>깔때기 분석</h2>
+        <p style="margin-bottom: 20px; color: #666;">학생의 단계별 전환율을 분석합니다 (등록 → TOPIK → 대학 입학).</p>
+
+        <!-- 필터 -->
+        <div class="filters">
+          <div class="filter-row">
+            <div class="filter-group">
+              <label>시작 날짜</label>
+              <input type="date" id="funnel-start-date" value="2024-01-01">
+            </div>
+            <div class="filter-group">
+              <label>종료 날짜</label>
+              <input type="date" id="funnel-end-date" value="2024-12-31">
+            </div>
+          </div>
+          <div class="filter-actions">
+            <button class="btn btn-primary" onclick="runFunnelAnalysis()">분석 실행</button>
+            <button class="btn btn-secondary" onclick="exportCSV('funnel')">CSV 내보내기</button>
+          </div>
+        </div>
+
+        <!-- Insights -->
+        <div class="summary" id="funnel-insights"></div>
+
+        <!-- 차트 -->
+        <div class="chart-container">
+          <canvas id="funnel-chart"></canvas>
+        </div>
+
+        <!-- 데이터 테이블 -->
+        <div class="data-table-container">
+          <table id="funnel-table">
+            <thead>
+              <tr>
+                <th>단계</th>
+                <th>학생 수</th>
+                <th>전환율</th>
+                <th>이탈률</th>
+                <th>이탈 학생 수</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 사용자 정의 리포트 탭 -->
+      <div id="report-tab" class="tab-content">
+        <h2>사용자 정의 리포트</h2>
+        <p style="margin-bottom: 20px; color: #666;">원하는 섹션을 선택하여 리포트를 생성합니다.</p>
+
+        <!-- 필터 -->
+        <div class="filters">
+          <div class="filter-row">
+            <div class="filter-group">
+              <label>리포트 템플릿</label>
+              <select id="report-template" onchange="updateReportDates()">
+                <option value="weekly">주간 리포트 (최근 7일)</option>
+                <option value="monthly">월간 리포트 (최근 30일)</option>
+                <option value="custom">사용자 정의</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label>시작 날짜</label>
+              <input type="date" id="report-start-date">
+            </div>
+            <div class="filter-group">
+              <label>종료 날짜</label>
+              <input type="date" id="report-end-date">
+            </div>
+          </div>
+
+          <div class="filter-row">
+            <div class="filter-group">
+              <label>
+                <input type="checkbox" id="include-cohort" checked> 코호트 분석 포함
+              </label>
+            </div>
+            <div class="filter-group">
+              <label>
+                <input type="checkbox" id="include-trend" checked> 트렌드 분석 포함
+              </label>
+            </div>
+            <div class="filter-group">
+              <label>
+                <input type="checkbox" id="include-funnel" checked> 깔때기 분석 포함
+              </label>
+            </div>
+            <div class="filter-group">
+              <label>
+                <input type="checkbox" id="include-students"> 학생 목록 포함
+              </label>
+            </div>
+          </div>
+
+          <div class="filter-actions">
+            <button class="btn btn-primary" onclick="generateReport()">리포트 생성</button>
+            <button class="btn btn-danger" onclick="exportPDF()">PDF 다운로드</button>
+          </div>
+        </div>
+
+        <!-- 리포트 미리보기 -->
+        <div id="report-preview"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==================== 전역 변수 ====================
+    let currentTab = 'cohort';
+    let currentData = {
+      cohort: null,
+      trend: null,
+      funnel: null,
+      report: null
+    };
+    let charts = {
+      cohort: null,
+      trend: null,
+      funnel: null
+    };
+
+    // ==================== 초기화 ====================
+    window.onload = function() {
+      // 오늘 날짜로 초기화
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('trend-end-date').value = today;
+      document.getElementById('funnel-end-date').value = today;
+      updateReportDates();
+
+      // 초기 분석 실행 (선택적)
+      // runCohortAnalysis();
+    };
+
+    // ==================== 탭 전환 ====================
+    function switchTab(tab) {
+      // 모든 탭 버튼 비활성화
+      const buttons = document.querySelectorAll('.tab-btn');
+      buttons.forEach(btn => btn.classList.remove('active'));
+
+      // 모든 탭 콘텐츠 숨기기
+      const contents = document.querySelectorAll('.tab-content');
+      contents.forEach(content => content.classList.remove('active'));
+
+      // 선택한 탭 활성화
+      event.target.classList.add('active');
+      document.getElementById(tab + '-tab').classList.add('active');
+      currentTab = tab;
+    }
+
+    // ==================== 로딩 및 메시지 ====================
+    function showLoading() {
+      document.getElementById('loading').classList.add('active');
+    }
+
+    function hideLoading() {
+      document.getElementById('loading').classList.remove('active');
+    }
+
+    function showError(message) {
+      const errorEl = document.getElementById('errorMessage');
+      errorEl.textContent = message;
+      errorEl.classList.add('active');
+      setTimeout(() => errorEl.classList.remove('active'), 5000);
+    }
+
+    function showSuccess(message) {
+      const successEl = document.getElementById('successMessage');
+      successEl.textContent = message;
+      successEl.classList.add('active');
+      setTimeout(() => successEl.classList.remove('active'), 3000);
+    }
+
+    // ==================== 코호트 분석 ====================
+    function runCohortAnalysis() {
+      showLoading();
+
+      const filters = {
+        cohortType: document.getElementById('cohort-type').value,
+        metric: document.getElementById('cohort-metric').value,
+        startYear: parseInt(document.getElementById('cohort-start-year').value),
+        endYear: parseInt(document.getElementById('cohort-end-year').value)
+      };
+
+      const sessionId = getSessionId();
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          hideLoading();
+          if (result.success) {
+            currentData.cohort = result.data;
+            renderCohortChart(result.data);
+            renderCohortTable(result.data);
+            showSuccess('코호트 분석 완료!');
+          } else {
+            showError('에러: ' + (result.errorKey || result.error));
+          }
+        })
+        .withFailureHandler(function(error) {
+          hideLoading();
+          showError('서버 오류: ' + error.message);
+        })
+        .getCohortAnalysis(sessionId, filters);
+    }
+
+    function renderCohortChart(data) {
+      const ctx = document.getElementById('cohort-chart').getContext('2d');
+
+      // 기존 차트 삭제
+      if (charts.cohort) {
+        charts.cohort.destroy();
+      }
+
+      charts.cohort = new Chart(ctx, {
+        type: 'bar',
+        data: data.chartData,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top'
+            },
+            title: {
+              display: true,
+              text: '코호트별 지표 비교'
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        }
+      });
+    }
+
+    function renderCohortTable(data) {
+      const tbody = document.querySelector('#cohort-table tbody');
+      tbody.innerHTML = '';
+
+      data.cohorts.forEach(cohort => {
+        const row = tbody.insertRow();
+        row.insertCell(0).textContent = cohort.cohortName;
+        row.insertCell(1).textContent = cohort.studentCount;
+        row.insertCell(2).textContent = cohort.metricValue.toFixed(2);
+        row.insertCell(3).textContent = cohort.metricLabel;
+      });
+    }
+
+    // ==================== 트렌드 분석 ====================
+    function runTrendAnalysis() {
+      showLoading();
+
+      const params = {
+        period: document.getElementById('trend-period').value,
+        metric: document.getElementById('trend-metric').value,
+        startDate: document.getElementById('trend-start-date').value,
+        endDate: document.getElementById('trend-end-date').value
+      };
+
+      const sessionId = getSessionId();
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          hideLoading();
+          if (result.success) {
+            currentData.trend = result.data;
+            renderTrendSummary(result.data.summary);
+            renderTrendChart(result.data);
+            renderTrendTable(result.data);
+            showSuccess('트렌드 분석 완료!');
+          } else {
+            showError('에러: ' + (result.errorKey || result.error));
+          }
+        })
+        .withFailureHandler(function(error) {
+          hideLoading();
+          showError('서버 오류: ' + error.message);
+        })
+        .getTrendAnalysis(sessionId, params);
+    }
+
+    function renderTrendSummary(summary) {
+      const container = document.getElementById('trend-summary');
+      container.innerHTML = `
+        <div class="summary-card">
+          <h3>평균</h3>
+          <p>${summary.average.toFixed(2)}</p>
+        </div>
+        <div class="summary-card">
+          <h3>최소</h3>
+          <p>${summary.min}</p>
+        </div>
+        <div class="summary-card">
+          <h3>최대</h3>
+          <p>${summary.max}</p>
+        </div>
+        <div class="summary-card">
+          <h3>총 성장률</h3>
+          <p>${summary.totalGrowth.toFixed(1)}%</p>
+        </div>
+      `;
+    }
+
+    function renderTrendChart(data) {
+      const ctx = document.getElementById('trend-chart').getContext('2d');
+
+      if (charts.trend) {
+        charts.trend.destroy();
+      }
+
+      charts.trend = new Chart(ctx, {
+        type: 'line',
+        data: data.chartData,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top'
+            },
+            title: {
+              display: true,
+              text: '시계열 추이 분석'
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        }
+      });
+    }
+
+    function renderTrendTable(data) {
+      const tbody = document.querySelector('#trend-table tbody');
+      tbody.innerHTML = '';
+
+      data.trends.forEach(trend => {
+        const row = tbody.insertRow();
+        row.insertCell(0).textContent = trend.periodLabel;
+        row.insertCell(1).textContent = trend.value.toFixed(2);
+        row.insertCell(2).textContent = trend.changeLabel;
+      });
+    }
+
+    // ==================== 깔때기 분석 ====================
+    function runFunnelAnalysis() {
+      showLoading();
+
+      const params = {
+        startDate: document.getElementById('funnel-start-date').value,
+        endDate: document.getElementById('funnel-end-date').value
+      };
+
+      const sessionId = getSessionId();
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          hideLoading();
+          if (result.success) {
+            currentData.funnel = result.data;
+            renderFunnelInsights(result.data.insights);
+            renderFunnelChart(result.data);
+            renderFunnelTable(result.data);
+            showSuccess('깔때기 분석 완료!');
+          } else {
+            showError('에러: ' + (result.errorKey || result.error));
+          }
+        })
+        .withFailureHandler(function(error) {
+          hideLoading();
+          showError('서버 오류: ' + error.message);
+        })
+        .getFunnelAnalysis(sessionId, params);
+    }
+
+    function renderFunnelInsights(insights) {
+      const container = document.getElementById('funnel-insights');
+      container.innerHTML = `
+        <div class="summary-card">
+          <h3>전체 전환율</h3>
+          <p>${insights.overallConversion.toFixed(2)}%</p>
+        </div>
+        <div class="summary-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+          <h3>Bottleneck</h3>
+          <p>${getStageLabelKR(insights.bottleneck)}</p>
+        </div>
+      `;
+    }
+
+    function renderFunnelChart(data) {
+      const ctx = document.getElementById('funnel-chart').getContext('2d');
+
+      if (charts.funnel) {
+        charts.funnel.destroy();
+      }
+
+      charts.funnel = new Chart(ctx, {
+        type: 'bar',
+        data: data.chartData,
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top'
+            },
+            title: {
+              display: true,
+              text: '단계별 전환 깔때기'
+            }
+          },
+          scales: {
+            x: {
+              beginAtZero: true
+            }
+          }
+        }
+      });
+    }
+
+    function renderFunnelTable(data) {
+      const tbody = document.querySelector('#funnel-table tbody');
+      tbody.innerHTML = '';
+
+      data.funnel.forEach(stage => {
+        const row = tbody.insertRow();
+        row.insertCell(0).textContent = stage.stageLabel;
+        row.insertCell(1).textContent = stage.count;
+        row.insertCell(2).textContent = stage.conversionRate.toFixed(2) + '%';
+        row.insertCell(3).textContent = stage.dropoffRate.toFixed(2) + '%';
+        row.insertCell(4).textContent = stage.dropoffCount;
+      });
+    }
+
+    // ==================== 사용자 정의 리포트 ====================
+    function updateReportDates() {
+      const template = document.getElementById('report-template').value;
+      const today = new Date();
+      const endDate = today.toISOString().split('T')[0];
+      let startDate;
+
+      if (template === 'weekly') {
+        const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+        startDate = weekAgo.toISOString().split('T')[0];
+      } else if (template === 'monthly') {
+        const monthAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+        startDate = monthAgo.toISOString().split('T')[0];
+      } else {
+        startDate = '2024-01-01';
+      }
+
+      document.getElementById('report-start-date').value = startDate;
+      document.getElementById('report-end-date').value = endDate;
+    }
+
+    function generateReport() {
+      showLoading();
+
+      const config = {
+        template: document.getElementById('report-template').value,
+        filters: {
+          dateFrom: document.getElementById('report-start-date').value,
+          dateTo: document.getElementById('report-end-date').value,
+          includeCohort: document.getElementById('include-cohort').checked,
+          includeTrend: document.getElementById('include-trend').checked,
+          includeFunnel: document.getElementById('include-funnel').checked,
+          includeStudentList: document.getElementById('include-students').checked
+        },
+        format: 'html'
+      };
+
+      const sessionId = getSessionId();
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          hideLoading();
+          if (result.success) {
+            currentData.report = result.data;
+            renderReportPreview(result.data);
+            showSuccess('리포트 생성 완료!');
+          } else {
+            showError('에러: ' + (result.errorKey || result.error));
+          }
+        })
+        .withFailureHandler(function(error) {
+          hideLoading();
+          showError('서버 오류: ' + error.message);
+        })
+        .generateCustomReport(sessionId, config);
+    }
+
+    function renderReportPreview(data) {
+      const container = document.getElementById('report-preview');
+      let html = `
+        <div style="border: 2px solid #ddd; padding: 20px; border-radius: 8px; margin-top: 20px; background: white;">
+          <h3>${data.reportName}</h3>
+          <p style="color: #666;">Report ID: ${data.reportId}</p>
+          <p style="color: #666;">생성일시: ${new Date(data.generatedAt).toLocaleString('ko-KR')}</p>
+          <hr style="margin: 20px 0;">
+      `;
+
+      data.sections.forEach(section => {
+        html += `<h4 style="margin-top: 20px;">${section.sectionTitle}</h4>`;
+        html += `<p style="color: #666; font-size: 14px;">섹션 타입: ${section.sectionType}</p>`;
+        // 간단한 미리보기 (실제 데이터는 PDF로 확인)
+      });
+
+      html += '</div>';
+      container.innerHTML = html;
+    }
+
+    function exportPDF() {
+      if (!currentData.report) {
+        showError('먼저 리포트를 생성해주세요.');
+        return;
+      }
+
+      showLoading();
+      const sessionId = getSessionId();
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          hideLoading();
+          if (result.success) {
+            showSuccess('PDF 생성 완료! 다운로드 링크: ' + result.data.fileUrl);
+            window.open(result.data.fileUrl, '_blank');
+          } else {
+            showError('에러: ' + (result.errorKey || result.error));
+          }
+        })
+        .withFailureHandler(function(error) {
+          hideLoading();
+          showError('서버 오류: ' + error.message);
+        })
+        .exportReportToPDF(sessionId, currentData.report);
+    }
+
+    // ==================== CSV 내보내기 ====================
+    function exportCSV(type) {
+      const data = currentData[type];
+      if (!data) {
+        showError('먼저 분석을 실행해주세요.');
+        return;
+      }
+
+      let csv = '';
+      let filename = '';
+
+      if (type === 'cohort') {
+        csv = 'Cohort,StudentCount,MetricValue,MetricLabel\n';
+        data.cohorts.forEach(row => {
+          csv += `"${row.cohortName}",${row.studentCount},${row.metricValue},"${row.metricLabel}"\n`;
+        });
+        filename = 'cohort_analysis.csv';
+      } else if (type === 'trend') {
+        csv = 'Period,Value,Change\n';
+        data.trends.forEach(row => {
+          csv += `"${row.periodLabel}",${row.value},"${row.changeLabel}"\n`;
+        });
+        filename = 'trend_analysis.csv';
+      } else if (type === 'funnel') {
+        csv = 'Stage,Count,ConversionRate,DropoffRate,DropoffCount\n';
+        data.funnel.forEach(row => {
+          csv += `"${row.stageLabel}",${row.count},${row.conversionRate},${row.dropoffRate},${row.dropoffCount}\n`;
+        });
+        filename = 'funnel_analysis.csv';
+      }
+
+      downloadCSV(csv, filename);
+      showSuccess('CSV 다운로드 완료!');
+    }
+
+    function downloadCSV(csv, filename) {
+      const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', filename);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // ==================== 유틸리티 ====================
+    function getSessionId() {
+      // 실제 구현 시 CacheService에서 세션 ID 가져오기
+      // 현재는 테스트용으로 하드코딩
+      return 'test-session-id';
+    }
+
+    function getStageLabelKR(stage) {
+      const labels = {
+        'enrollment': '등록',
+        'topik_3plus': 'TOPIK 3급 이상',
+        'university_admission': '대학 입학'
+      };
+      return labels[stage] || stage;
+    }
+  </script>
+</body>
+</html>

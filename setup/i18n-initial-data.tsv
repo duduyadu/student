@@ -1,0 +1,76 @@
+Key	Korean	Vietnamese	Category	UpdatedAt
+btn_login	로그인	Đăng nhập	btn_	2026-02-10 14:00:00
+btn_logout	로그아웃	Đăng xuất	btn_	2026-02-10 14:00:00
+btn_save	저장	Lưu	btn_	2026-02-10 14:00:00
+btn_cancel	취소	Hủy	btn_	2026-02-10 14:00:00
+btn_edit	수정	Sửa	btn_	2026-02-10 14:00:00
+btn_delete	삭제	Xóa	btn_	2026-02-10 14:00:00
+btn_view	보기	Xem	btn_	2026-02-10 14:00:00
+btn_search	검색	Tìm kiếm	btn_	2026-02-10 14:00:00
+btn_add_student	학생 추가	Thêm sinh viên	btn_	2026-02-10 14:00:00
+btn_export	내보내기	Xuất	btn_	2026-02-10 14:00:00
+btn_add	추가	Thêm	btn_	2026-02-10 14:00:00
+btn_close	닫기	Đóng	btn_	2026-02-10 14:00:00
+btn_confirm	확인	Xác nhận	btn_	2026-02-10 14:00:00
+btn_download	다운로드	Tải xuống	btn_	2026-02-10 14:00:00
+btn_upload	업로드	Tải lên	btn_	2026-02-10 14:00:00
+label_login_id	로그인 아이디	ID đăng nhập	label_	2026-02-10 14:00:00
+label_password	비밀번호	Mật khẩu	label_	2026-02-10 14:00:00
+label_name_kr	한국 이름	Tên Hàn Quốc	label_	2026-02-10 14:00:00
+label_name_vi	베트남 이름	Tên Việt Nam	label_	2026-02-10 14:00:00
+label_dob	생년월일	Ngày sinh	label_	2026-02-10 14:00:00
+label_gender	성별	Giới tính	label_	2026-02-10 14:00:00
+label_phone	연락처	Điện thoại	label_	2026-02-10 14:00:00
+label_address	주소	Địa chỉ	label_	2026-02-10 14:00:00
+label_parent_name	학부모 이름	Tên phụ huynh	label_	2026-02-10 14:00:00
+label_parent_phone	학부모 연락처	Điện thoại phụ huynh	label_	2026-02-10 14:00:00
+label_agency	유학원	Trung tâm	label_	2026-02-10 14:00:00
+label_consent	개인정보 수집 및 이용 동의	Đồng ý thu thập thông tin cá nhân	label_	2026-02-10 14:00:00
+label_email	이메일	Email	label_	2026-02-10 14:00:00
+label_status	상태	Trạng thái	label_	2026-02-10 14:00:00
+label_gpa	고교 내신	GPA trung học	label_	2026-02-10 14:00:00
+label_enrollment_date	등록일	Ngày đăng ký	label_	2026-02-10 14:00:00
+label_student_id	학생 ID	ID sinh viên	label_	2026-02-10 14:00:00
+err_required_field	필수 항목을 입력해주세요	Vui lòng nhập trường bắt buộc	err_	2026-02-10 14:00:00
+err_login_failed	로그인 실패. 아이디/비밀번호를 확인하세요	Đăng nhập thất bại. Kiểm tra ID/mật khẩu	err_	2026-02-10 14:00:00
+err_session_expired	세션이 만료되었습니다. 다시 로그인하세요	Phiên hết hạn. Đăng nhập lại	err_	2026-02-10 14:00:00
+err_permission_denied	권한이 없습니다	Không có quyền	err_	2026-02-10 14:00:00
+err_not_found	데이터를 찾을 수 없습니다	Không tìm thấy dữ liệu	err_	2026-02-10 14:00:00
+err_unknown	알 수 없는 오류가 발생했습니다	Đã xảy ra lỗi không xác định	err_	2026-02-10 14:00:00
+err_account_locked	계정이 잠겼습니다. 관리자에게 문의하세요	Tài khoản bị khóa. Liên hệ quản trị viên	err_	2026-02-10 14:00:00
+err_invalid_format	입력 형식이 올바르지 않습니다	Định dạng không hợp lệ	err_	2026-02-10 14:00:00
+err_duplicate	이미 존재하는 데이터입니다	Dữ liệu đã tồn tại	err_	2026-02-10 14:00:00
+err_max_attempts	로그인 시도 횟수를 초과했습니다	Vượt quá số lần đăng nhập	err_	2026-02-10 14:00:00
+msg_save_success	저장되었습니다	Đã lưu thành công	msg_	2026-02-10 14:00:00
+msg_delete_confirm	정말 삭제하시겠습니까?	Bạn có chắc muốn xóa?	msg_	2026-02-10 14:00:00
+msg_loading	로딩 중...	Đang tải...	msg_	2026-02-10 14:00:00
+msg_delete_success	삭제되었습니다	Đã xóa thành công	msg_	2026-02-10 14:00:00
+msg_update_success	수정되었습니다	Đã cập nhật thành công	msg_	2026-02-10 14:00:00
+msg_no_data	데이터가 없습니다	Không có dữ liệu	msg_	2026-02-10 14:00:00
+nav_dashboard	대시보드	Trang chủ	nav_	2026-02-10 14:00:00
+nav_students	학생 관리	Quản lý sinh viên	nav_	2026-02-10 14:00:00
+nav_consultations	상담 기록	Tư vấn	nav_	2026-02-10 14:00:00
+nav_settings	설정	Cài đặt	nav_	2026-02-10 14:00:00
+nav_exams	시험 성적	Kết quả thi	nav_	2026-02-10 14:00:00
+nav_admin	행정 정보	Thông tin hành chính	nav_	2026-02-10 14:00:00
+nav_audit	감사 로그	Nhật ký kiểm toán	nav_	2026-02-10 14:00:00
+title_login	로그인	Đăng nhập	title_	2026-02-10 14:00:00
+title_student_list	학생 목록	Danh sách sinh viên	title_	2026-02-10 14:00:00
+title_student_form	학생 정보 등록	Đăng ký thông tin sinh viên	title_	2026-02-10 14:00:00
+title_consultation	상담 기록	Tư vấn	title_	2026-02-10 14:00:00
+title_exam	시험 성적	Kết quả thi	title_	2026-02-10 14:00:00
+placeholder_login_id	아이디를 입력하세요	Nhập ID	placeholder_	2026-02-10 14:00:00
+placeholder_password	비밀번호를 입력하세요	Nhập mật khẩu	placeholder_	2026-02-10 14:00:00
+placeholder_search	검색어를 입력하세요	Nhập từ khóa tìm kiếm	placeholder_	2026-02-10 14:00:00
+col_student_id	학생 ID	ID sinh viên	col_	2026-02-10 14:00:00
+col_name_kr	한국 이름	Tên Hàn Quốc	col_	2026-02-10 14:00:00
+col_name_vi	베트남 이름	Tên Việt Nam	col_	2026-02-10 14:00:00
+col_agency	유학원	Trung tâm	col_	2026-02-10 14:00:00
+col_status	상태	Trạng thái	col_	2026-02-10 14:00:00
+col_actions	작업	Thao tác	col_	2026-02-10 14:00:00
+status_active	재학	Đang học	status_	2026-02-10 14:00:00
+status_graduated	졸업	Tốt nghiệp	status_	2026-02-10 14:00:00
+status_withdrawn	자퇴	Thôi học	status_	2026-02-10 14:00:00
+section_basic_info	기본 정보	Thông tin cơ bản	section_	2026-02-10 14:00:00
+section_contact	연락처	Liên hệ	section_	2026-02-10 14:00:00
+section_parent	학부모 정보	Thông tin phụ huynh	section_	2026-02-10 14:00:00
