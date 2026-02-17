@@ -3,27 +3,23 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import type { UserMeta } from '@/lib/types'
+import type { Student, UserMeta } from '@/lib/types'
 import Link from 'next/link'
 
 export default function DashboardPage() {
   const router  = useRouter()
   const [user, setUser]           = useState<UserMeta | null>(null)
   const [stats, setStats]         = useState({ students: 0, agencies: 0, consultations: 0, exams: 0 })
+  const [visaAlert, setVisaAlert] = useState<Student[]>([])
   const [loading, setLoading]     = useState(true)
 
-  useEffect(() => {
-    checkAuth()
-  }, [])
+  useEffect(() => { checkAuth() }, [])
 
   const checkAuth = async () => {
     const { data: { session } } = await supabase.auth.getSession()
-    if (!session) {
-      router.push('/login')
-      return
-    }
+    if (!session) { router.push('/login'); return }
     setUser(session.user.user_metadata as UserMeta)
-    await loadStats()
+    await Promise.all([loadStats(), loadVisaAlert()])
     setLoading(false)
   }
 
@@ -34,12 +30,24 @@ export default function DashboardPage() {
       supabase.from('consultations').select('id', { count: 'exact', head: true }),
       supabase.from('exam_results').select('id', { count: 'exact', head: true }),
     ])
-    setStats({
-      students:      s.count ?? 0,
-      agencies:      a.count ?? 0,
-      consultations: c.count ?? 0,
-      exams:         e.count ?? 0,
-    })
+    setStats({ students: s.count ?? 0, agencies: a.count ?? 0, consultations: c.count ?? 0, exams: e.count ?? 0 })
+  }
+
+  const loadVisaAlert = async () => {
+    const today   = new Date()
+    const in30    = new Date(today); in30.setDate(today.getDate() + 30)
+    const todayStr = today.toISOString().split('T')[0]
+    const in30Str  = in30.toISOString().split('T')[0]
+
+    const { data } = await supabase
+      .from('students')
+      .select('id, name_kr, name_vn, visa_expiry, student_code, status')
+      .eq('is_active', true)
+      .gte('visa_expiry', todayStr)
+      .lte('visa_expiry', in30Str)
+      .order('visa_expiry', { ascending: true })
+
+    if (data) setVisaAlert(data as Student[])
   }
 
   const handleLogout = async () => {
@@ -47,13 +55,12 @@ export default function DashboardPage() {
     router.push('/login')
   }
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-slate-500">로딩 중...</p>
-      </div>
-    )
+  const daysLeft = (expiry: string) => {
+    const diff = Math.ceil((new Date(expiry).getTime() - Date.now()) / 86400000)
+    return diff
   }
+
+  if (loading) return <div className="min-h-screen flex items-center justify-center"><p className="text-slate-500">로딩 중...</p></div>
 
   return (
     <div className="min-h-screen bg-slate-100">
@@ -67,33 +74,20 @@ export default function DashboardPage() {
             <span className="font-bold text-slate-800">AJU E&J 학생관리</span>
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-slate-500">{user?.name_kr} ({user?.role})</span>
-            <button
-              onClick={handleLogout}
-              className="text-sm text-slate-500 hover:text-red-500 transition-colors"
-            >
-              로그아웃
-            </button>
+            <span className="text-sm text-slate-500">{user?.name_kr}</span>
+            <button onClick={handleLogout} className="text-sm text-slate-500 hover:text-red-500 transition-colors">로그아웃</button>
           </div>
         </div>
       </header>
 
       {/* 네비게이션 */}
       <nav className="bg-white border-b border-slate-200">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="flex gap-6">
-            <Link href="/" className="py-3 text-sm font-medium text-blue-600 border-b-2 border-blue-600">
-              대시보드
-            </Link>
-            <Link href="/students" className="py-3 text-sm font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent hover:border-slate-300 transition-colors">
-              학생 관리
-            </Link>
-            {user?.role === 'master' && (
-              <Link href="/agencies" className="py-3 text-sm font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent hover:border-slate-300 transition-colors">
-                유학원 관리
-              </Link>
-            )}
-          </div>
+        <div className="max-w-6xl mx-auto px-6 flex gap-6">
+          <Link href="/" className="py-3 text-sm font-medium text-blue-600 border-b-2 border-blue-600">대시보드</Link>
+          <Link href="/students" className="py-3 text-sm font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent hover:border-slate-300 transition-colors">학생 관리</Link>
+          {user?.role === 'master' && (
+            <Link href="/agencies" className="py-3 text-sm font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent hover:border-slate-300 transition-colors">유학원 관리</Link>
+          )}
         </div>
       </nav>
 
@@ -102,27 +96,46 @@ export default function DashboardPage() {
         <h2 className="text-xl font-bold text-slate-800 mb-6">대시보드</h2>
 
         {/* 통계 카드 */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <StatCard label="전체 학생" value={stats.students} color="blue" />
           <StatCard label="유학원 수" value={stats.agencies} color="emerald" />
           <StatCard label="상담 기록" value={stats.consultations} color="violet" />
           <StatCard label="시험 기록" value={stats.exams} color="amber" />
         </div>
 
+        {/* 비자 만료 임박 알림 */}
+        {visaAlert.length > 0 && (
+          <div className="bg-orange-50 border border-orange-200 rounded-2xl p-5 mb-6">
+            <h3 className="text-sm font-semibold text-orange-700 mb-3 flex items-center gap-2">
+              ⚠️ 비자 만료 임박 ({visaAlert.length}명) — 30일 이내
+            </h3>
+            <div className="space-y-2">
+              {visaAlert.map(s => {
+                const days = daysLeft(s.visa_expiry!)
+                return (
+                  <Link key={s.id} href={`/students/${s.id}`}
+                    className="flex items-center justify-between bg-white rounded-xl px-4 py-2.5 hover:bg-orange-50 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <span className="font-medium text-slate-800 text-sm">{s.name_kr}</span>
+                      <span className="text-xs text-slate-400">{s.student_code ?? ''}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs text-slate-500">{s.visa_expiry}</span>
+                      <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${days <= 7 ? 'bg-red-100 text-red-600' : 'bg-orange-100 text-orange-600'}`}>
+                        D-{days}
+                      </span>
+                    </div>
+                  </Link>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
         {/* 바로가기 */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <QuickLink
-            href="/students"
-            title="학생 목록 보기"
-            desc="등록된 유학생 전체 목록을 조회합니다."
-            color="blue"
-          />
-          <QuickLink
-            href="/students/new"
-            title="학생 신규 등록"
-            desc="새로운 베트남 유학생을 등록합니다."
-            color="emerald"
-          />
+          <QuickLink href="/students" title="학생 목록 보기" desc="등록된 유학생 전체 목록을 조회합니다." color="blue" />
+          <QuickLink href="/students/new" title="학생 신규 등록" desc="새로운 베트남 유학생을 등록합니다." color="emerald" />
         </div>
       </main>
     </div>
@@ -150,10 +163,7 @@ function QuickLink({ href, title, desc, color }: { href: string; title: string; 
     emerald: 'hover:border-emerald-400 hover:bg-emerald-50',
   }
   return (
-    <Link
-      href={href}
-      className={`block bg-white rounded-2xl p-6 border-2 border-transparent transition-all ${colors[color]}`}
-    >
+    <Link href={href} className={`block bg-white rounded-2xl p-6 border-2 border-transparent transition-all ${colors[color]}`}>
       <h3 className="font-semibold text-slate-800 mb-1">{title}</h3>
       <p className="text-sm text-slate-500">{desc}</p>
     </Link>

@@ -116,6 +116,12 @@ export default function StudentDetailPage() {
     setSavingExam(false)
   }
 
+  const handleDelete = async () => {
+    if (!confirm(`${student?.name_kr} 학생을 삭제하시겠습니까?\n삭제 후 목록에서 사라집니다.`)) return
+    await supabase.from('students').update({ is_active: false }).eq('id', id)
+    router.push('/students')
+  }
+
   const handleLogout = async () => {
     await supabase.auth.signOut()
     router.push('/login')
@@ -189,9 +195,14 @@ export default function StudentDetailPage() {
               </div>
             </div>
           </div>
-          <Link href={`/students/${id}/edit`} className="text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl transition-colors">
-            수정
-          </Link>
+          <div className="flex gap-2">
+            <Link href={`/students/${id}/edit`} className="text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl transition-colors">
+              수정
+            </Link>
+            <button onClick={handleDelete} className="text-sm bg-red-50 hover:bg-red-100 text-red-600 px-4 py-2 rounded-xl transition-colors">
+              삭제
+            </button>
+          </div>
         </div>
 
         {/* 탭 */}
