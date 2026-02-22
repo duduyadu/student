@@ -16,6 +16,7 @@ function getServiceClient() {
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl
   const studentId = searchParams.get('studentId')
+  const lang = (searchParams.get('lang') ?? 'ko') as 'ko' | 'vi'
 
   if (!studentId) {
     return NextResponse.json({ error: 'studentId is required' }, { status: 400 })
@@ -70,6 +71,7 @@ export async function GET(req: NextRequest) {
     aspirationHistory: aspirationHistory ?? [],
     templates:         templates ?? [],
     generatedAt,
+    lang,
   }
 
   try {
@@ -77,7 +79,10 @@ export async function GET(req: NextRequest) {
     const element = React.createElement(LifeRecordDocument, data) as unknown as ReactElement<DocumentProps, JSXElementConstructor<DocumentProps>>
     const buffer  = await renderToBuffer(element)
 
-    const filename = `생활기록부_${student.name_kr}_${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}.pdf`
+    const dateSuffix = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`
+    const filename = lang === 'vi'
+      ? `생활기록부VI_${student.name_kr}_${dateSuffix}.pdf`
+      : `생활기록부_${student.name_kr}_${dateSuffix}.pdf`
 
     return new NextResponse(new Uint8Array(buffer), {
       status: 200,

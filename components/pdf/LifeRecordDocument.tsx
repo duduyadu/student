@@ -17,6 +17,64 @@ Font.register({
 })
 Font.registerHyphenationCallback(word => [word]) // 한글 줄바꿈 방지
 
+// ── 번역 딕셔너리 ──────────────────────
+const T = {
+  ko: {
+    title: '학 생 생 활 기 록 부',
+    subtitle: 'STUDENT LIFE RECORD BOOK',
+    orgSub: '베트남 유학생 통합 관리 플랫폼',
+    section1: '1. 학생 기본 정보',
+    nameKr: '이름 (KR)', nameVn: '이름 (VN)',
+    dob: '생년월일', gender: '성별',
+    studentCode: '학번', status: '현재 상태',
+    enrollDate: '등록일', topik: 'TOPIK 등급',
+    noTopik: '미취득',
+    langSchool: '재학 어학원', targetUniv: '목표 대학',
+    visa: '비자', visaExpiry: '만료',
+    section2: '2. 상담 이력',
+    noConsult: '공개 상담 기록이 없습니다.',
+    goal: '목표', content: '내용', improvement: '개선', nextGoal: '목표',
+    section3: '3. 선생님 종합 평가',
+    section4: '4. TOPIK 모의고사 성적',
+    examDate: '모의고사 일자', round: '회차',
+    listening: '듣기', reading: '읽기', total: '총점', level: '등급',
+    issuedAt: '발급일',
+    footerMain: '본 문서는 AJU E&J Education Co., Ltd.에서 공식 발급한 학생 생활기록부입니다.',
+    footerSub: 'This document is officially issued by AJU E&J Education Co., Ltd.',
+    stampLabel: '직인',
+    roundSuffix: '회차',
+    pointSuffix: '점',
+  },
+  vi: {
+    title: 'HỒ SƠ HỌC SINH',
+    subtitle: 'STUDENT LIFE RECORD BOOK',
+    orgSub: 'Nền tảng quản lý du học sinh Việt Nam',
+    section1: '1. Thông Tin Cơ Bản',
+    nameKr: 'Tên (KR)', nameVn: 'Tên (VN)',
+    dob: 'Ngày Sinh', gender: 'Giới Tính',
+    studentCode: 'Mã Học Sinh', status: 'Trạng Thái',
+    enrollDate: 'Ngày Nhập Học', topik: 'Cấp Độ TOPIK',
+    noTopik: 'Chưa đạt',
+    langSchool: 'Trường Ngôn Ngữ', targetUniv: 'Trường Mục Tiêu',
+    visa: 'Visa', visaExpiry: 'Hết Hạn',
+    section2: '2. Lịch Sử Tư Vấn',
+    noConsult: 'Không có lịch sử tư vấn công khai.',
+    goal: 'Mục Tiêu', content: 'Nội Dung', improvement: 'Cải Thiện', nextGoal: 'Mục Tiêu Tiếp',
+    section3: '3. Đánh Giá Tổng Hợp Của Giáo Viên',
+    section4: '4. Kết Quả Thi Thử TOPIK',
+    examDate: 'Ngày Thi', round: 'Lần Thi',
+    listening: 'Nghe', reading: 'Đọc', total: 'Tổng Điểm', level: 'Cấp Độ',
+    issuedAt: 'Ngày Cấp',
+    footerMain: 'Tài liệu này được cấp chính thức bởi AJU E&J Education Co., Ltd.',
+    footerSub: 'This document is officially issued by AJU E&J Education Co., Ltd.',
+    stampLabel: 'Con Dấu',
+    roundSuffix: 'lần',
+    pointSuffix: 'điểm',
+  },
+} as const
+
+type Lang = 'ko' | 'vi'
+
 // ── 색상 팔레트 (공식 문서 스타일) ──────────────────────
 const C = {
   bg:        '#FDFAF5',   // 크림 배경
@@ -292,12 +350,14 @@ export interface LifeRecordData {
   templates: Array<{ field_key: string; label_kr: string; max_value: number }>
   generatedAt: string
   stampImageUrl?: string
+  lang?: 'ko' | 'vi'
 }
 
 export default function LifeRecordDocument({
   student, consultations, evaluations, examResults,
-  aspirationHistory, templates, generatedAt, stampImageUrl,
+  aspirationHistory, templates, generatedAt, stampImageUrl, lang = 'ko',
 }: LifeRecordData) {
+  const tx = T[lang as Lang] ?? T.ko
   const publicConsults   = consultations.filter(c => c.is_public)
   const publicEvals      = evaluations.filter(e => e.is_public)
   const ratingTemplates  = templates.filter(t => t.field_key !== 'overall_comment')
@@ -309,71 +369,71 @@ export default function LifeRecordDocument({
         {/* ── 헤더 ── */}
         <View style={styles.header}>
           <View>
-            <Text style={styles.headerTitle}>학 생 생 활 기 록 부</Text>
-            <Text style={styles.headerSub}>STUDENT LIFE RECORD BOOK</Text>
+            <Text style={styles.headerTitle}>{tx.title}</Text>
+            <Text style={styles.headerSub}>{tx.subtitle}</Text>
           </View>
           <View>
             <Text style={styles.orgName}>AJU E&amp;J Education Co., Ltd.</Text>
-            <Text style={[styles.headerSub, { textAlign: 'right' }]}>베트남 유학생 통합 관리 플랫폼</Text>
+            <Text style={[styles.headerSub, { textAlign: 'right' }]}>{tx.orgSub}</Text>
           </View>
         </View>
 
         {/* ── 기본 정보 ── */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>1. 학생 기본 정보</Text>
+            <Text style={styles.sectionTitle}>{tx.section1}</Text>
           </View>
           <View style={styles.infoGrid}>
             <View style={styles.infoCell}>
-              <Text style={styles.infoLabel}>이름 (KR)</Text>
+              <Text style={styles.infoLabel}>{tx.nameKr}</Text>
               <Text style={styles.infoValue}>{student.name_kr}</Text>
             </View>
             <View style={styles.infoCell}>
-              <Text style={styles.infoLabel}>이름 (VN)</Text>
+              <Text style={styles.infoLabel}>{tx.nameVn}</Text>
               <Text style={styles.infoValue}>{student.name_vn}</Text>
             </View>
             <View style={styles.infoCell}>
-              <Text style={styles.infoLabel}>생년월일</Text>
+              <Text style={styles.infoLabel}>{tx.dob}</Text>
               <Text style={styles.infoValue}>{student.dob}</Text>
             </View>
             <View style={styles.infoCell}>
-              <Text style={styles.infoLabel}>성별</Text>
+              <Text style={styles.infoLabel}>{tx.gender}</Text>
               <Text style={styles.infoValue}>{student.gender === 'M' ? '남 / Nam' : '여 / Nữ'}</Text>
             </View>
             <View style={styles.infoCell}>
-              <Text style={styles.infoLabel}>학번</Text>
+              <Text style={styles.infoLabel}>{tx.studentCode}</Text>
               <Text style={styles.infoValue}>{student.student_code ?? '-'}</Text>
             </View>
             <View style={styles.infoCell}>
-              <Text style={styles.infoLabel}>현재 상태</Text>
+              <Text style={styles.infoLabel}>{tx.status}</Text>
               <Text style={styles.infoValue}>{student.status}</Text>
             </View>
             <View style={styles.infoCell}>
-              <Text style={styles.infoLabel}>등록일</Text>
+              <Text style={styles.infoLabel}>{tx.enrollDate}</Text>
               <Text style={styles.infoValue}>{student.enrollment_date ?? '-'}</Text>
             </View>
             <View style={styles.infoCell}>
-              <Text style={styles.infoLabel}>TOPIK 등급</Text>
-              <Text style={styles.infoValue}>{student.topik_level ?? '미취득'}</Text>
+              <Text style={styles.infoLabel}>{tx.topik}</Text>
+              <Text style={styles.infoValue}>{student.topik_level ?? tx.noTopik}</Text>
             </View>
             {student.language_school && (
               <View style={styles.infoCell}>
-                <Text style={styles.infoLabel}>재학 어학원</Text>
+                <Text style={styles.infoLabel}>{tx.langSchool}</Text>
                 <Text style={styles.infoValue}>{student.language_school}</Text>
               </View>
             )}
             {student.target_university && (
               <View style={styles.infoCell}>
-                <Text style={styles.infoLabel}>목표 대학</Text>
+                <Text style={styles.infoLabel}>{tx.targetUniv}</Text>
                 <Text style={styles.infoValue}>
                   {[student.target_university, student.target_major].filter(Boolean).join(' · ')}
                 </Text>
               </View>
             )}
             <View style={styles.infoCell}>
-              <Text style={styles.infoLabel}>비자</Text>
+              <Text style={styles.infoLabel}>{tx.visa}</Text>
               <Text style={styles.infoValue}>
-                {student.visa_type ?? '-'}{student.visa_expiry ? ` (만료: ${student.visa_expiry})` : ''}
+                {student.visa_type ?? '-'}{student.visa_expiry ? ` (${tx.visaExpiry}: ${student.visa_expiry})` : ''}
               </Text>
             </View>
           </View>
@@ -382,10 +442,10 @@ export default function LifeRecordDocument({
         {/* ── 상담 이력 ── */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>2. 상담 이력 ({publicConsults.length}건)</Text>
+            <Text style={styles.sectionTitle}>{tx.section2} ({publicConsults.length})</Text>
           </View>
           {publicConsults.length === 0 ? (
-            <Text style={styles.noData}>공개 상담 기록이 없습니다.</Text>
+            <Text style={styles.noData}>{tx.noConsult}</Text>
           ) : (
             publicConsults.map(c => (
               <View key={c.id} style={styles.timelineItem}>
@@ -398,12 +458,12 @@ export default function LifeRecordDocument({
                   </Text>
                   {(c.aspiration_univ || c.aspiration_major) && (
                     <Text style={styles.aspBadge}>
-                      목표: {[c.aspiration_univ, c.aspiration_major].filter(Boolean).join(' · ')}
+                      {tx.goal}: {[c.aspiration_univ, c.aspiration_major].filter(Boolean).join(' · ')}
                     </Text>
                   )}
-                  {c.summary     && <Text style={styles.timelineBody}>내용: {c.summary}</Text>}
-                  {c.improvement && <Text style={styles.timelineBody}>개선: {c.improvement}</Text>}
-                  {c.next_goal   && <Text style={styles.timelineBody}>목표: {c.next_goal}</Text>}
+                  {c.summary     && <Text style={styles.timelineBody}>{tx.content}: {c.summary}</Text>}
+                  {c.improvement && <Text style={styles.timelineBody}>{tx.improvement}: {c.improvement}</Text>}
+                  {c.next_goal   && <Text style={styles.timelineBody}>{tx.nextGoal}: {c.next_goal}</Text>}
                 </View>
               </View>
             ))
@@ -414,7 +474,7 @@ export default function LifeRecordDocument({
         {publicEvals.length > 0 && (
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>3. 선생님 종합 평가 ({publicEvals.length}건)</Text>
+              <Text style={styles.sectionTitle}>{tx.section3} ({publicEvals.length})</Text>
             </View>
             {publicEvals.map(ev => {
               const scoreEntries = ratingTemplates
@@ -450,25 +510,25 @@ export default function LifeRecordDocument({
         {examResults.length > 0 && (
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>4. TOPIK 모의고사 성적 ({examResults.length}회)</Text>
+              <Text style={styles.sectionTitle}>{tx.section4} ({examResults.length})</Text>
             </View>
             {/* 테이블 헤더 */}
             <View style={styles.examTableHeader}>
-              <Text style={[styles.examTableLabel, { width: 70 }]}>모의고사 일자</Text>
-              <Text style={[styles.examTableLabel, { width: 60 }]}>회차</Text>
-              <Text style={[styles.examTableLabel, { width: 40, textAlign: 'center' }]}>듣기</Text>
-              <Text style={[styles.examTableLabel, { width: 40, textAlign: 'center' }]}>읽기</Text>
-              <Text style={[styles.examTableLabel, { width: 50, textAlign: 'center' }]}>총점</Text>
-              <Text style={[styles.examTableLabel, { width: 40, textAlign: 'center' }]}>등급</Text>
+              <Text style={[styles.examTableLabel, { width: 70 }]}>{tx.examDate}</Text>
+              <Text style={[styles.examTableLabel, { width: 60 }]}>{tx.round}</Text>
+              <Text style={[styles.examTableLabel, { width: 40, textAlign: 'center' }]}>{tx.listening}</Text>
+              <Text style={[styles.examTableLabel, { width: 40, textAlign: 'center' }]}>{tx.reading}</Text>
+              <Text style={[styles.examTableLabel, { width: 50, textAlign: 'center' }]}>{tx.total}</Text>
+              <Text style={[styles.examTableLabel, { width: 40, textAlign: 'center' }]}>{tx.level}</Text>
             </View>
             {[...examResults].sort((a, b) => a.exam_date.localeCompare(b.exam_date)).map(e => (
               <View key={e.id} style={styles.examRow}>
                 <Text style={styles.examDate}>{e.exam_date}</Text>
-                <Text style={styles.examType}>{e.round_number ? `${e.round_number}회차` : (e.exam_type ?? '-')}</Text>
+                <Text style={styles.examType}>{e.round_number ? `${e.round_number}${tx.roundSuffix}` : (e.exam_type ?? '-')}</Text>
                 <Text style={[styles.examScore]}>{e.listening_score ?? '-'}</Text>
                 <Text style={[styles.examScore]}>{e.reading_score ?? '-'}</Text>
                 <Text style={[styles.examScore, { width: 50, fontWeight: 'bold' }]}>
-                  {e.total_score}점
+                  {e.total_score}{tx.pointSuffix}
                 </Text>
                 <Text style={styles.examLevel}>{e.level}</Text>
               </View>
@@ -479,12 +539,12 @@ export default function LifeRecordDocument({
         {/* ── 푸터 / 직인 ── */}
         <View style={styles.footer} fixed>
           <View>
-            <Text style={styles.footerText}>발급일: {generatedAt}</Text>
+            <Text style={styles.footerText}>{tx.issuedAt}: {generatedAt}</Text>
             <Text style={[styles.footerText, { marginTop: 2 }]}>
-              본 문서는 AJU E&amp;J Education Co., Ltd.에서 공식 발급한 학생 생활기록부입니다.
+              {tx.footerMain}
             </Text>
             <Text style={[styles.footerText, { marginTop: 1 }]}>
-              This document is officially issued by AJU E&amp;J Education Co., Ltd.
+              {tx.footerSub}
             </Text>
           </View>
           <View style={styles.stampArea}>
@@ -497,7 +557,7 @@ export default function LifeRecordDocument({
                 alignItems: 'center', justifyContent: 'center',
               }}>
                 <Text style={{ fontSize: 7, color: C.navy, textAlign: 'center', lineHeight: 1.4 }}>
-                  AJU E&amp;J{'\n'}EDUCATION{'\n'}직인
+                  AJU E&amp;J{'\n'}EDUCATION{'\n'}{tx.stampLabel}
                 </Text>
               </View>
             )}

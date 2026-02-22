@@ -211,17 +211,22 @@ export default function StudentDetailPage() {
   const handleExportPdf = async () => {
     setPdfLoading(true)
     try {
-      const res = await fetch(`/api/life-record-pdf?studentId=${id}`)
-      if (!res.ok) throw new Error('PDF 생성 실패')
-      const blob = await res.blob()
-      const url  = URL.createObjectURL(blob)
-      const a    = document.createElement('a')
-      a.href     = url
-      const cd   = res.headers.get('Content-Disposition') ?? ''
-      const match = cd.match(/filename\*=UTF-8''(.+)/)
-      a.download = match ? decodeURIComponent(match[1]) : `생활기록부_${student?.name_kr}.pdf`
-      a.click()
-      URL.revokeObjectURL(url)
+      const [resKo, resVi] = await Promise.all([
+        fetch(`/api/life-record-pdf?studentId=${id}&lang=ko`),
+        fetch(`/api/life-record-pdf?studentId=${id}&lang=vi`),
+      ])
+      for (const res of [resKo, resVi]) {
+        if (!res.ok) throw new Error('PDF 생성 실패')
+        const blob = await res.blob()
+        const url  = URL.createObjectURL(blob)
+        const a    = document.createElement('a')
+        a.href     = url
+        const cd   = res.headers.get('Content-Disposition') ?? ''
+        const match = cd.match(/filename\*=UTF-8''(.+)/)
+        a.download = match ? decodeURIComponent(match[1]) : `생활기록부_${student?.name_kr}.pdf`
+        a.click()
+        URL.revokeObjectURL(url)
+      }
     } catch (err) {
       alert('PDF 생성 중 오류가 발생했습니다.')
       console.error(err)
@@ -358,7 +363,7 @@ export default function StudentDetailPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h4a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
                 </svg>
               )}
-              {pdfLoading ? 'PDF 생성 중...' : '생활기록부 PDF'}
+              {pdfLoading ? 'PDF 생성 중...' : '생활기록부 PDF (KO+VI)'}
             </button>
             <Link href={`/students/${id}/edit`} className="text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl transition-colors">
               수정

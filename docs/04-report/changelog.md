@@ -6,6 +6,63 @@
 
 ---
 
+## [2026-02-22] - pdf-vi-bulk 완료 (생활기록부 다국어+일괄 다운로드)
+
+### PDCA Cycle Completion: Design → Do → Check → Report
+
+**Status**: ✅ COMPLETED (100% Design Match, 1회차 완료)
+
+### Added
+
+#### Core Features (Design 기반)
+- **생활기록부 베트남어 번역 (vi)**
+  - `lang?: 'ko' | 'vi'` prop 추가
+  - 27개 키 번역 딕셔너리 (T.ko + T.vi)
+  - LifeRecordDocument.tsx 완전 다국어화
+  - `/api/life-record-pdf?lang=ko|vi` 파라미터 지원
+
+- **생활기록부 일괄 ZIP 다운로드**
+  - `/api/life-record-pdf-bulk` POST 엔드포인트 신규
+  - jszip 기반 ZIP 생성
+  - `lang: 'ko' | 'vi' | 'both'` 옵션
+  - 생활기록부_일괄_YYYYMMDD.zip 형식
+
+- **학생 목록 다중 선택 UI**
+  - `selectedIds: Set<string>` 상태 관리
+  - thead 전체 선택 체크박스
+  - tbody 행별 선택 체크박스
+  - "PDF 일괄 다운로드 (N명)" 조건부 버튼
+
+- **학생 상세 페이지 KO+VI 병렬 다운로드**
+  - `Promise.all` 병렬 호출로 성능 개선
+  - "생활기록부 PDF (KO+VI)" 버튼
+  - 순차 다운로드 UX
+
+#### Additional Features (Design 범위 외, 자발적 추가)
+- **파일명 Sanitization**: ZIP 파일명 특수문자 제거 (`/\\:*?"<>\|`)
+- **JSON 에러 처리**: POST body 파싱 오류 graceful 처리
+- **orgSub 번역**: 조직 부제목 다국어 지원
+
+### Changed
+- `/api/life-record-pdf` 파일명: `생활기록부KO_이름_날짜.pdf` / `생활기록부VI_이름_날짜.pdf`
+- 학생 목록 테이블: 체크박스 컬럼 추가 (첫 번째 열)
+- 선택된 행: `bg-indigo-50` 배경 강조
+
+### Implementation Files
+- `components/pdf/LifeRecordDocument.tsx` (번역 딕셔너리 + lang prop)
+- `app/api/life-record-pdf/route.ts` (lang 파라미터 처리)
+- `app/api/life-record-pdf-bulk/route.ts` (신규 - ZIP 생성)
+- `app/students/[id]/page.tsx` (Promise.all 병렬 호출)
+- `app/students/page.tsx` (체크박스 UI + handleBulkPdf)
+
+### Quality Metrics
+- **Design Match Rate**: 100% (20/20 체크리스트)
+- **Iteration Count**: 0 (1회차 완료)
+- **TypeScript**: strict 모드 통과
+- **Translation**: 26개 키 + 1개 추가(orgSub) = 27개
+
+---
+
 ## [2026-02-22] - gas-student-platform PDCA 완료
 
 ### PDCA Cycle Completion: Plan → Design → Do → Check → Act → Report
