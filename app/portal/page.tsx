@@ -72,7 +72,7 @@ export default function PortalPage() {
       .single()
 
     if (!data) {
-      const meta = session.user.user_metadata as { role?: string }
+      const meta = session.user.app_metadata as { role?: string }
       if (meta?.role !== 'student') { router.push('/'); return }
       setLoading(false)
       return

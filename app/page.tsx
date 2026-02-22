@@ -1,9 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import type { Student, UserMeta } from '@/lib/types'
+import { getUserMeta } from '@/lib/auth'
 import { STATUS_COLORS, STUDENT_STATUSES } from '@/lib/constants'
 import Link from 'next/link'
 import { useLang } from '@/lib/useLang'
@@ -11,6 +12,13 @@ import { LangToggle } from '@/components/LangToggle'
 import { t, statusLabel } from '@/lib/i18n'
 
 interface StatusCount { status: string; count: number }
+
+interface HealthCheck {
+  name: string; status: 'ok' | 'error' | 'warn'; ms: number; detail?: string
+}
+interface HealthResult {
+  ok: boolean; checkedAt: string; checks: HealthCheck[]
+}
 
 export default function DashboardPage() {
   const router = useRouter()
@@ -24,17 +32,32 @@ export default function DashboardPage() {
   const [bulkApproving, setBulkApproving] = useState(false)
   const [loading, setLoading]       = useState(true)
   const [lang, toggleLang]          = useLang()
+  const [health, setHealth]         = useState<HealthResult | null>(null)
+  const [healthLoading, setHealthLoading] = useState(false)
+
+  const fetchHealth = useCallback(async () => {
+    setHealthLoading(true)
+    try {
+      const res = await fetch('/api/health')
+      setHealth(await res.json())
+    } catch {
+      setHealth(null)
+    } finally {
+      setHealthLoading(false)
+    }
+  }, [])
 
   useEffect(() => { checkAuth() }, [])
 
   const checkAuth = async () => {
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) { router.push('/login'); return }
-    const meta = session.user.user_metadata as { role?: string; name_kr?: string }
+    const meta = getUserMeta(session)
     if (meta?.role === 'student') { router.push('/portal'); return }
     setUser(meta as any)
     await Promise.all([loadStats(), loadVisaAlert(), loadStatusBreakdown(), loadPendingStudents()])
     setLoading(false)
+    if (meta?.role === 'master') fetchHealth()
   }
 
   const loadPendingStudents = async () => {
@@ -393,11 +416,74 @@ export default function DashboardPage() {
         )}
 
         {/* 바로가기 */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
           <QuickLink href="/students"     title={t('quickStudents', lang)}  desc={t('quickStudentsDesc', lang)} color="blue" />
           <QuickLink href="/students/new" title={t('quickNew', lang)}       desc={t('quickNewDesc', lang)}      color="emerald" />
           <QuickLink href="/reports"      title={t('quickReports', lang)}   desc={t('quickReportsDesc', lang)}  color="violet" />
         </div>
+
+        {/* API 상태 패널 — master 전용 */}
+        {user?.role === 'master' && (
+          <div className="bg-white rounded-2xl p-5 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-semibold text-slate-700">🔧 API 상태 모니터</h3>
+              <button
+                onClick={fetchHealth}
+                disabled={healthLoading}
+                className="text-xs px-3 py-1.5 bg-slate-100 hover:bg-slate-200 disabled:opacity-50 text-slate-600 rounded-lg transition-colors font-medium"
+              >
+                {healthLoading ? '확인 중...' : '새로고침'}
+              </button>
+            </div>
+
+            {healthLoading && !health && (
+              <div className="text-center py-6 text-slate-400 text-sm">API 상태 확인 중...</div>
+            )}
+
+            {!healthLoading && !health && (
+              <div className="text-center py-6 text-slate-400 text-sm">상태 정보를 불러올 수 없습니다.</div>
+            )}
+
+            {health && (
+              <>
+                <div className="flex items-center gap-2 mb-4">
+                  <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${health.ok ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-600'}`}>
+                    {health.ok ? '✅ 전체 정상' : '❌ 일부 오류'}
+                  </span>
+                  <span className="text-xs text-slate-400">
+                    {new Date(health.checkedAt).toLocaleTimeString('ko-KR')} 기준
+                  </span>
+                </div>
+                <div className="space-y-2">
+                  {health.checks.map((c) => (
+                    <div key={c.name} className={`flex items-center justify-between rounded-xl px-4 py-2.5 border ${
+                      c.status === 'ok'   ? 'bg-emerald-50 border-emerald-100' :
+                      c.status === 'warn' ? 'bg-yellow-50 border-yellow-200'  :
+                                           'bg-red-50 border-red-200'
+                    }`}>
+                      <div className="flex items-center gap-2">
+                        <span className="text-base">
+                          {c.status === 'ok' ? '✅' : c.status === 'warn' ? '⚠️' : '❌'}
+                        </span>
+                        <span className="text-sm font-medium text-slate-700">{c.name}</span>
+                        {c.detail && (
+                          <span className="text-xs text-slate-400 hidden sm:inline">— {c.detail}</span>
+                        )}
+                      </div>
+                      <span className={`text-xs font-mono px-2 py-0.5 rounded-md ${
+                        c.status === 'ok'   ? 'bg-emerald-100 text-emerald-700' :
+                        c.status === 'warn' ? 'bg-yellow-100 text-yellow-700'   :
+                                             'bg-red-100 text-red-600'
+                      }`}>
+                        {c.ms}ms
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        )}
       </main>
     </div>
   )

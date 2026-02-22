@@ -4,8 +4,12 @@ import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
-import type { Student, Consultation, ExamResult, UserMeta } from '@/lib/types'
+import type { Student, Consultation, ExamResult, UserMeta, TeacherEvaluation, EvaluationTemplate } from '@/lib/types'
+import { getUserMeta } from '@/lib/auth'
 import { STATUS_COLORS, TOPIK_LEVELS, CONSULT_TYPES } from '@/lib/constants'
+import ConsultTimeline from './_components/ConsultTimeline'
+import EvaluationPanel from './_components/EvaluationPanel'
+import ExamChart, { type ChartLevel } from '@/components/ExamChart'
 
 export default function StudentDetailPage() {
   const router = useRouter()
@@ -16,30 +20,39 @@ export default function StudentDetailPage() {
   const [consults, setConsults] = useState<Consultation[]>([])
   const [exams, setExams]       = useState<ExamResult[]>([])
   const [loading, setLoading]   = useState(true)
-  const [activeTab, setTab]     = useState<'info' | 'consult' | 'exam' | 'consent'>('info')
+  const [activeTab, setTab]     = useState<'info' | 'consult' | 'exam' | 'evaluation' | 'consent'>('info')
   const [consents, setConsents] = useState<{id:string; consent_date:string; consent_type:string; consent_text:string}[]>([])
   const [expandedConsent, setExpandedConsent] = useState<string | null>(null)
 
-  // 상담 추가 폼
-  const [showConsultForm, setShowConsultForm] = useState(false)
-  const [savingConsult, setSavingConsult]     = useState(false)
-  const [consult, setConsult] = useState({ consult_date: '', consult_type: '정기', summary: '', improvement: '', next_goal: '' })
+  // 선생님 평가
+  const [evaluations, setEvaluations]       = useState<TeacherEvaluation[]>([])
+  const [evalTemplates, setEvalTemplates]   = useState<EvaluationTemplate[]>([])
 
-  // 시험 추가 폼
+  // 시험 추가/수정 폼
   const [showExamForm, setShowExamForm] = useState(false)
   const [savingExam, setSavingExam]     = useState(false)
-  const [exam, setExam] = useState({ exam_date: '', exam_type: 'TOPIK', reading_score: '', listening_score: '', writing_score: '', total_score: '', level: '3급' })
+  const [editExamId, setEditExamId]     = useState<string | null>(null)
+  const [exam, setExam] = useState({ exam_date: '', exam_type: 'TOPIK', reading_score: '', listening_score: '', total_score: '', level: '2급' })
+
+  // 차트 레벨 + Excel 업로드 + AI 분석
+  const [chartLevel, setChartLevel]         = useState<ChartLevel>('trend')
+  const [excelUploading, setExcelUploading] = useState(false)
+  const [excelDate, setExcelDate]           = useState('')
+  const [excelRound, setExcelRound]         = useState('')
+  const [showExcelForm, setShowExcelForm]   = useState(false)
+  const [aiAnalysis, setAiAnalysis]         = useState<string>('')
+  const [aiLoading, setAiLoading]           = useState(false)
 
   useEffect(() => { checkAuth() }, [])
 
   const checkAuth = async () => {
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) { router.push('/login'); return }
-    const meta = session.user.user_metadata as UserMeta
+    const meta = getUserMeta(session)
     // 학생 역할은 포털로 이동
     if (meta.role === 'student') { router.push('/portal'); return }
     setUser(meta)
-    await Promise.all([loadStudent(), loadConsults(), loadExams(), loadConsents()])
+    await Promise.all([loadStudent(), loadConsults(), loadExams(), loadConsents(), loadEvaluations(), loadEvalTemplates()])
     setLoading(false)
   }
 
@@ -74,14 +87,24 @@ export default function StudentDetailPage() {
     if (data) setConsents(data)
   }
 
-  // 총점으로 등급 자동 계산
+  const loadEvaluations = async () => {
+    const { data } = await supabase
+      .from('teacher_evaluations').select('*')
+      .eq('student_id', id).order('eval_date', { ascending: false })
+    if (data) setEvaluations(data as TeacherEvaluation[])
+  }
+
+  const loadEvalTemplates = async () => {
+    const { data } = await supabase
+      .from('evaluation_templates').select('*')
+      .eq('is_active', true).order('sort_order')
+    if (data) setEvalTemplates(data as EvaluationTemplate[])
+  }
+
+  // 총점으로 등급 자동 계산 (TOPIK I 기준: 200점 만점)
   const calcLevel = (total: number): string => {
-    if (total >= 230) return '6급'
-    if (total >= 190) return '5급'
-    if (total >= 150) return '4급'
-    if (total >= 120) return '3급'
-    if (total >= 80)  return '2급'
-    if (total >= 40)  return '1급'
+    if (total >= 140) return '2급'
+    if (total >= 80)  return '1급'
     return '불합격'
   }
 
@@ -90,50 +113,42 @@ export default function StudentDetailPage() {
     setExam(prev => ({ ...prev, total_score: v, level: isNaN(n) ? prev.level : calcLevel(n) }))
   }
 
-  const handleSaveConsult = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setSavingConsult(true)
-    const { error } = await supabase.from('consultations').insert({
-      student_id:   id,
-      consult_date: consult.consult_date,
-      consult_type: consult.consult_type,
-      summary:      consult.summary      || null,
-      improvement:  consult.improvement  || null,
-      next_goal:    consult.next_goal    || null,
+  const openEditExam = (e: ExamResult) => {
+    setExam({
+      exam_date:       e.exam_date,
+      exam_type:       e.exam_type,
+      reading_score:   e.reading_score?.toString()   ?? '',
+      listening_score: e.listening_score?.toString() ?? '',
+      total_score:     e.total_score.toString(),
+      level:           e.level,
     })
-    if (!error) {
-      await loadConsults()
-      setConsult({ consult_date: '', consult_type: '정기', summary: '', improvement: '', next_goal: '' })
-      setShowConsultForm(false)
-    }
-    setSavingConsult(false)
+    setEditExamId(e.id)
+    setShowExamForm(true)
   }
 
   const handleSaveExam = async (e: React.FormEvent) => {
     e.preventDefault()
     setSavingExam(true)
-    const { error } = await supabase.from('exam_results').insert({
+    const payload = {
       student_id:      id,
       exam_date:       exam.exam_date,
       exam_type:       exam.exam_type,
       reading_score:   exam.reading_score   ? parseInt(exam.reading_score)   : null,
       listening_score: exam.listening_score ? parseInt(exam.listening_score) : null,
-      writing_score:   exam.writing_score   ? parseInt(exam.writing_score)   : null,
+      writing_score:   null,
       total_score:     parseInt(exam.total_score),
       level:           exam.level,
-    })
-    if (!error) {
-      await loadExams()
-      setExam({ exam_date: '', exam_type: 'TOPIK', reading_score: '', listening_score: '', writing_score: '', total_score: '', level: '3급' })
-      setShowExamForm(false)
     }
+    if (editExamId) {
+      await supabase.from('exam_results').update(payload).eq('id', editExamId)
+    } else {
+      await supabase.from('exam_results').insert(payload)
+    }
+    await loadExams()
+    setExam({ exam_date: '', exam_type: 'TOPIK', reading_score: '', listening_score: '', total_score: '', level: '2급' })
+    setShowExamForm(false)
+    setEditExamId(null)
     setSavingExam(false)
-  }
-
-  const handleDeleteConsult = async (consultId: string) => {
-    if (!confirm('이 상담 기록을 삭제하시겠습니까?')) return
-    await supabase.from('consultations').delete().eq('id', consultId)
-    await loadConsults()
   }
 
   const handleDeleteExam = async (examId: string) => {
@@ -142,7 +157,67 @@ export default function StudentDetailPage() {
     await loadExams()
   }
 
+  const handleExcelUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file || !excelDate) { alert('시험 날짜를 먼저 입력하세요.'); return }
+    setExcelUploading(true)
+    const fd = new FormData()
+    fd.append('file', file)
+    fd.append('studentId', id)
+    fd.append('examDate', excelDate)
+    if (excelRound) fd.append('roundNumber', excelRound)
+    const res = await fetch('/api/mock-exam-import', { method: 'POST', body: fd })
+    const json = await res.json()
+    if (res.ok) {
+      alert(json.message)
+      setShowExcelForm(false)
+      await loadExams()
+    } else {
+      alert('오류: ' + json.error)
+    }
+    setExcelUploading(false)
+    e.target.value = ''
+  }
+
+  const handleAiAnalysis = async () => {
+    setAiLoading(true)
+    setChartLevel('ai')
+    try {
+      const res  = await fetch(`/api/exam-ai-analysis?studentId=${id}`)
+      const json = await res.json()
+      if (res.ok) setAiAnalysis(json.analysis)
+      else        alert('AI 분석 오류: ' + json.error)
+    } catch {
+      alert('AI 분석 요청 실패')
+    } finally {
+      setAiLoading(false)
+    }
+  }
+
   const [photoUploading, setPhotoUploading] = useState(false)
+  const [pdfLoading, setPdfLoading] = useState(false)
+
+  const handleExportPdf = async () => {
+    setPdfLoading(true)
+    try {
+      const res = await fetch(`/api/life-record-pdf?studentId=${id}`)
+      if (!res.ok) throw new Error('PDF 생성 실패')
+      const blob = await res.blob()
+      const url  = URL.createObjectURL(blob)
+      const a    = document.createElement('a')
+      a.href     = url
+      const cd   = res.headers.get('Content-Disposition') ?? ''
+      const match = cd.match(/filename\*=UTF-8''(.+)/)
+      a.download = match ? decodeURIComponent(match[1]) : `생활기록부_${student?.name_kr}.pdf`
+      a.click()
+      URL.revokeObjectURL(url)
+    } catch (err) {
+      alert('PDF 생성 중 오류가 발생했습니다.')
+      console.error(err)
+    } finally {
+      setPdfLoading(false)
+    }
+  }
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -259,6 +334,21 @@ export default function StudentDetailPage() {
             </div>
           </div>
           <div className="flex gap-2">
+            <button
+              onClick={handleExportPdf}
+              disabled={pdfLoading}
+              className="text-sm bg-indigo-50 hover:bg-indigo-100 disabled:opacity-50 text-indigo-700 px-4 py-2 rounded-xl transition-colors flex items-center gap-1.5"
+              title="생활기록부 PDF 출력"
+            >
+              {pdfLoading ? (
+                <span className="animate-spin inline-block w-3.5 h-3.5 border-2 border-indigo-400 border-t-transparent rounded-full" />
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h4a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                </svg>
+              )}
+              {pdfLoading ? 'PDF 생성 중...' : '생활기록부 PDF'}
+            </button>
             <Link href={`/students/${id}/edit`} className="text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl transition-colors">
               수정
             </Link>
@@ -271,10 +361,11 @@ export default function StudentDetailPage() {
         {/* 탭 */}
         <div className="flex gap-1 mb-4 bg-white rounded-2xl p-1 shadow-sm w-fit">
           {([
-            { key: 'info',    label: '기본 정보',              show: true },
-            { key: 'consult', label: `상담 기록 (${consults.length})`, show: true },
-            { key: 'exam',    label: `시험 성적 (${exams.length})`,  show: true },
-            { key: 'consent', label: `개인정보 동의 (${consents.length})`, show: user?.role === 'master' },
+            { key: 'info',       label: '기본 정보',                        show: true },
+            { key: 'consult',    label: `상담 히스토리 (${consults.length})`, show: true },
+            { key: 'exam',       label: `시험 성적 (${exams.length})`,       show: true },
+            { key: 'evaluation', label: `선생님 평가 (${evaluations.length})`, show: true },
+            { key: 'consent',    label: `개인정보 동의 (${consents.length})`, show: user?.role === 'master' },
           ] as const).filter(t => t.show).map(t => (
             <button key={t.key} onClick={() => setTab(t.key)}
               className={`px-5 py-2 rounded-xl text-sm font-medium transition-colors ${activeTab === t.key ? 'bg-blue-600 text-white' : 'text-slate-500 hover:text-slate-800'}`}>
@@ -313,9 +404,12 @@ export default function StudentDetailPage() {
                 }
               </div>
             </InfoCard>
-            <InfoCard title="비자 / 체류">
-              <InfoRow label="비자 종류"   value={student.visa_type} />
-              <InfoRow label="비자 만료일" value={student.visa_expiry} />
+            <InfoCard title="비자 / 체류 / ARC">
+              <InfoRow label="비자 종류"            value={student.visa_type} />
+              <InfoRow label="비자 만료일"          value={student.visa_expiry} />
+              <InfoRow label="외국인등록번호 (ARC)" value={student.arc_number} />
+              <InfoRow label="ARC 발급일"           value={student.arc_issue_date} />
+              <InfoRow label="ARC 만료일"           value={student.arc_expiry_date} />
             </InfoCard>
             {student.notes && (
               <div className="md:col-span-2">
@@ -327,85 +421,87 @@ export default function StudentDetailPage() {
           </div>
         )}
 
-        {/* ── 상담 기록 탭 ── */}
+        {/* ── 상담 히스토리 탭 (타임라인) ── */}
         {activeTab === 'consult' && (
-          <div className="space-y-3">
-            <div className="flex justify-end">
-              <button onClick={() => setShowConsultForm(!showConsultForm)}
-                className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-xl transition-colors">
-                {showConsultForm ? '✕ 닫기' : '+ 상담 추가'}
-              </button>
-            </div>
-
-            {showConsultForm && (
-              <form onSubmit={handleSaveConsult} className="bg-white rounded-2xl p-5 shadow-sm space-y-3">
-                <h3 className="text-sm font-semibold text-slate-700 pb-2 border-b border-slate-100">상담 기록 추가</h3>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className={lbl}>상담 날짜 *</label>
-                    <input type="date" required value={consult.consult_date} onChange={e => setConsult(p => ({ ...p, consult_date: e.target.value }))} className={inp} />
-                  </div>
-                  <div>
-                    <label className={lbl}>상담 유형</label>
-                    <select value={consult.consult_type} onChange={e => setConsult(p => ({ ...p, consult_type: e.target.value }))} className={inp}>
-                      {CONSULT_TYPES.map(t => <option key={t}>{t}</option>)}
-                    </select>
-                  </div>
-                </div>
-                <div>
-                  <label className={lbl}>상담 내용</label>
-                  <textarea rows={3} value={consult.summary} onChange={e => setConsult(p => ({ ...p, summary: e.target.value }))} className={inp + ' resize-none'} placeholder="상담 내용을 입력하세요..." />
-                </div>
-                <div>
-                  <label className={lbl}>개선 사항</label>
-                  <input value={consult.improvement} onChange={e => setConsult(p => ({ ...p, improvement: e.target.value }))} className={inp} placeholder="개선할 점..." />
-                </div>
-                <div>
-                  <label className={lbl}>다음 목표</label>
-                  <input value={consult.next_goal} onChange={e => setConsult(p => ({ ...p, next_goal: e.target.value }))} className={inp} placeholder="다음 상담까지 목표..." />
-                </div>
-                <div className="flex gap-2 pt-1">
-                  <button type="button" onClick={() => setShowConsultForm(false)} className="px-4 py-2 border border-slate-200 text-slate-600 rounded-xl text-sm">취소</button>
-                  <button type="submit" disabled={savingConsult} className="px-5 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white rounded-xl text-sm font-medium">
-                    {savingConsult ? '저장 중...' : '저장'}
-                  </button>
-                </div>
-              </form>
-            )}
-
-            {consults.length === 0
-              ? <Empty text="상담 기록이 없습니다." />
-              : consults.map(c => (
-                <div key={c.id} className="bg-white rounded-2xl p-5 shadow-sm">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-slate-700">{c.consult_date}</span>
-                      {c.consult_type && <span className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">{c.consult_type}</span>}
-                    </div>
-                    <button onClick={() => handleDeleteConsult(c.id)} className="text-xs text-slate-300 hover:text-red-500 transition-colors">삭제</button>
-                  </div>
-                  {c.summary     && <p className="text-sm text-slate-700 mb-1"><span className="font-medium">상담 내용: </span>{c.summary}</p>}
-                  {c.improvement && <p className="text-sm text-slate-600 mb-1"><span className="font-medium">개선 사항: </span>{c.improvement}</p>}
-                  {c.next_goal   && <p className="text-sm text-slate-600"><span className="font-medium">다음 목표: </span>{c.next_goal}</p>}
-                </div>
-              ))
-            }
-          </div>
+          <ConsultTimeline
+            studentId={id}
+            consultations={consults}
+            onRefresh={loadConsults}
+          />
         )}
 
         {/* ── 시험 성적 탭 ── */}
         {activeTab === 'exam' && (
           <div className="space-y-3">
-            <div className="flex justify-end">
-              <button onClick={() => setShowExamForm(!showExamForm)}
-                className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-xl transition-colors">
-                {showExamForm ? '✕ 닫기' : '+ 시험 성적 추가'}
-              </button>
+            {/* 툴바 */}
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              {/* 차트 레벨 토글 */}
+              <div className="flex items-center gap-1 bg-white rounded-xl p-1 shadow-sm text-xs font-medium">
+                {(['trend', 'radar', 'ai'] as ChartLevel[]).map(lv => (
+                  <button key={lv}
+                    onClick={() => {
+                      if (lv === 'ai' && !aiAnalysis) handleAiAnalysis()
+                      else setChartLevel(lv)
+                    }}
+                    disabled={lv === 'ai' && aiLoading}
+                    className={`px-3 py-1.5 rounded-lg transition-colors disabled:opacity-60 ${chartLevel === lv ? 'bg-indigo-600 text-white' : 'text-slate-500 hover:text-slate-800'}`}>
+                    {lv === 'trend' ? '📈 추이' : lv === 'radar' ? '🕸️ 레이더' : aiLoading ? '분석 중...' : '🤖 AI 분석'}
+                  </button>
+                ))}
+              </div>
+              <div className="flex gap-2">
+                <button onClick={() => setShowExcelForm(!showExcelForm)}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white text-sm px-4 py-2 rounded-xl transition-colors">
+                  📊 Excel 업로드
+                </button>
+                <button onClick={() => {
+                  if (showExamForm) {
+                    setShowExamForm(false)
+                    setEditExamId(null)
+                    setExam({ exam_date: '', exam_type: 'TOPIK', reading_score: '', listening_score: '', total_score: '', level: '2급' })
+                  } else {
+                    setEditExamId(null)
+                    setExam({ exam_date: '', exam_type: 'TOPIK', reading_score: '', listening_score: '', total_score: '', level: '2급' })
+                    setShowExamForm(true)
+                  }
+                }}
+                  className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-xl transition-colors">
+                  {showExamForm ? '✕ 닫기' : '+ 성적 추가'}
+                </button>
+              </div>
             </div>
+
+            {/* Excel 업로드 폼 */}
+            {showExcelForm && (
+              <div className="bg-white rounded-2xl p-5 shadow-sm space-y-3 border border-emerald-100">
+                <h3 className="text-sm font-semibold text-slate-700 pb-2 border-b border-slate-100">모의고사 Excel 업로드</h3>
+                <p className="text-xs text-slate-400">Excel 형식: 학생코드, 이름, 듣기, 읽기, 합계, 등급 컬럼 포함</p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className={lbl}>시험 날짜 *</label>
+                    <input type="date" value={excelDate} onChange={e => setExcelDate(e.target.value)} className={inp} />
+                  </div>
+                  <div>
+                    <label className={lbl}>회차 (선택)</label>
+                    <input type="number" value={excelRound} onChange={e => setExcelRound(e.target.value)} className={inp} placeholder="예: 4" />
+                  </div>
+                </div>
+                <div>
+                  <label className={lbl}>Excel 파일 선택</label>
+                  <input type="file" accept=".xlsx,.xls,.csv"
+                    disabled={excelUploading || !excelDate}
+                    onChange={handleExcelUpload}
+                    className="block w-full text-sm text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-medium file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 disabled:opacity-50" />
+                </div>
+                {excelUploading && <p className="text-xs text-emerald-600 animate-pulse">업로드 중...</p>}
+              </div>
+            )}
 
             {showExamForm && (
               <form onSubmit={handleSaveExam} className="bg-white rounded-2xl p-5 shadow-sm space-y-3">
-                <h3 className="text-sm font-semibold text-slate-700 pb-2 border-b border-slate-100">시험 성적 추가</h3>
+                <h3 className="text-sm font-semibold text-slate-700 pb-2 border-b border-slate-100">
+                  {editExamId ? '시험 성적 수정' : '시험 성적 추가'}
+                </h3>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className={lbl}>시험 날짜 *</label>
@@ -416,7 +512,7 @@ export default function StudentDetailPage() {
                     <input value={exam.exam_type} onChange={e => setExam(p => ({ ...p, exam_type: e.target.value }))} className={inp} />
                   </div>
                 </div>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className={lbl}>읽기 (0-100)</label>
                     <input type="number" min="0" max="100" value={exam.reading_score} onChange={e => setExam(p => ({ ...p, reading_score: e.target.value }))} className={inp} placeholder="0" />
@@ -425,15 +521,11 @@ export default function StudentDetailPage() {
                     <label className={lbl}>듣기 (0-100)</label>
                     <input type="number" min="0" max="100" value={exam.listening_score} onChange={e => setExam(p => ({ ...p, listening_score: e.target.value }))} className={inp} placeholder="0" />
                   </div>
-                  <div>
-                    <label className={lbl}>쓰기 (0-100)</label>
-                    <input type="number" min="0" max="100" value={exam.writing_score} onChange={e => setExam(p => ({ ...p, writing_score: e.target.value }))} className={inp} placeholder="0" />
-                  </div>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className={lbl}>총점 * (0-300) — 입력 시 등급 자동 계산</label>
-                    <input type="number" required min="0" max="300" value={exam.total_score} onChange={e => handleTotalChange(e.target.value)} className={inp} placeholder="0" />
+                    <label className={lbl}>총점 * (0-200) — 입력 시 등급 자동 계산</label>
+                    <input type="number" required min="0" max="200" value={exam.total_score} onChange={e => handleTotalChange(e.target.value)} className={inp} placeholder="0" />
                   </div>
                   <div>
                     <label className={lbl}>등급</label>
@@ -443,14 +535,24 @@ export default function StudentDetailPage() {
                   </div>
                 </div>
                 <div className="flex gap-2 pt-1">
-                  <button type="button" onClick={() => setShowExamForm(false)} className="px-4 py-2 border border-slate-200 text-slate-600 rounded-xl text-sm">취소</button>
+                  <button type="button" onClick={() => {
+                    setShowExamForm(false)
+                    setEditExamId(null)
+                    setExam({ exam_date: '', exam_type: 'TOPIK', reading_score: '', listening_score: '', total_score: '', level: '2급' })
+                  }} className="px-4 py-2 border border-slate-200 text-slate-600 rounded-xl text-sm">취소</button>
                   <button type="submit" disabled={savingExam} className="px-5 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white rounded-xl text-sm font-medium">
-                    {savingExam ? '저장 중...' : '저장'}
+                    {savingExam ? '저장 중...' : (editExamId ? '수정 완료' : '저장')}
                   </button>
                 </div>
               </form>
             )}
 
+            {/* 차트 */}
+            {exams.length > 0 && (
+              <ExamChart exams={exams} chartLevel={chartLevel} aiAnalysis={aiAnalysis} />
+            )}
+
+            {/* 성적 목록 */}
             {exams.length === 0
               ? <Empty text="시험 기록이 없습니다." />
               : exams.map(e => (
@@ -462,19 +564,29 @@ export default function StudentDetailPage() {
                     </div>
                     <div className="flex items-center gap-3">
                       <span className={`text-sm font-bold px-3 py-1 rounded-full ${levelColor(e.level)}`}>{e.level}</span>
+                      <button onClick={() => openEditExam(e)} className="text-xs text-slate-300 hover:text-blue-500 transition-colors">수정</button>
                       <button onClick={() => handleDeleteExam(e.id)} className="text-xs text-slate-300 hover:text-red-500 transition-colors">삭제</button>
                     </div>
                   </div>
                   <div className="grid grid-cols-4 gap-3">
-                    <ScoreBox label="총점" value={e.total_score}     total={300} bold />
+                    <ScoreBox label="총점" value={e.total_score}     total={200} bold />
                     <ScoreBox label="읽기" value={e.reading_score}   total={100} />
                     <ScoreBox label="듣기" value={e.listening_score} total={100} />
-                    <ScoreBox label="쓰기" value={e.writing_score}   total={100} />
                   </div>
                 </div>
               ))
             }
           </div>
+        )}
+
+        {/* ── 선생님 평가 탭 ── */}
+        {activeTab === 'evaluation' && (
+          <EvaluationPanel
+            studentId={id}
+            evaluations={evaluations}
+            templates={evalTemplates}
+            onRefresh={loadEvaluations}
+          />
         )}
 
         {/* ── 개인정보 동의 탭 (master 전용) ── */}

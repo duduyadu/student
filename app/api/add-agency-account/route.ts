@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
   }
   const token = authHeader.slice(7)
   const { data: { user: caller }, error: authErr } = await supabaseAdmin.auth.getUser(token)
-  if (authErr || !caller || (caller.user_metadata as any)?.role !== 'master') {
+  if (authErr || !caller || (caller.app_metadata as any)?.role !== 'master') {
     return NextResponse.json({ error: '권한이 없습니다.' }, { status: 403 })
   }
 
@@ -28,11 +28,8 @@ export async function POST(req: NextRequest) {
     email,
     password,
     email_confirm: true,
-    user_metadata: {
-      role: 'agency',
-      agency_code,
-      name_kr: agency_name_kr ?? agency_code,
-    },
+    user_metadata: { name_kr: agency_name_kr ?? agency_code },
+    app_metadata:  { role: 'agency', agency_code },
   })
 
   if (error) {

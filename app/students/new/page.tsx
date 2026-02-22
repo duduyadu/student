@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import type { Agency, UserMeta } from '@/lib/types'
+import { getUserMeta } from '@/lib/auth'
 import { STUDENT_STATUSES } from '@/lib/constants'
 import { useLang } from '@/lib/useLang'
 import { LangToggle } from '@/components/LangToggle'
@@ -25,6 +26,7 @@ export default function NewStudentPage() {
     high_school_gpa: '', enrollment_date: '',
     target_university: '', target_major: '',
     visa_type: '', visa_expiry: '',
+    arc_number: '', arc_issue_date: '', arc_expiry_date: '',
     status: '유학전', agency_id: '', notes: '',
     language_school: '', current_university: '', current_company: '',
   })
@@ -34,7 +36,7 @@ export default function NewStudentPage() {
   const checkAuth = async () => {
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) { router.push('/login'); return }
-    const meta = session.user.user_metadata as UserMeta
+    const meta = getUserMeta(session)
     if (meta.role === 'student') { router.push('/portal'); return }
     setUser(meta)
 
@@ -99,6 +101,9 @@ export default function NewStudentPage() {
       target_major:     form.target_major      || null,
       visa_type:        form.visa_type         || null,
       visa_expiry:      form.visa_expiry       || null,
+      arc_number:       form.arc_number        || null,
+      arc_issue_date:   form.arc_issue_date    || null,
+      arc_expiry_date:  form.arc_expiry_date   || null,
       status:           form.status,
       agency_id:        form.agency_id || null,
       notes:            form.notes     || null,
@@ -109,13 +114,27 @@ export default function NewStudentPage() {
       current_company:   form.current_company   || null,
     }
 
-    const { error } = await supabase.from('students').insert(payload)
+    const { data: insertData, error } = await supabase.from('students').insert(payload).select('id').single()
 
     if (error) {
       setError(t('saveFail', lang) + error.message)
       setLoading(false)
       return
     }
+
+    // 감사 로그: 학생 등록 (앱 레벨 - 사용자 이름 포함)
+    await fetch('/api/audit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'INSERT',
+        user_name: user?.name_kr,
+        user_role: user?.role,
+        target_table: 'students',
+        target_id: insertData?.id,
+        details: { name_kr: form.name_kr, name_vn: form.name_vn },
+      }),
+    }).catch(() => {}) // 감사 로그 실패는 무시
 
     router.push('/students')
   }
@@ -280,6 +299,21 @@ export default function NewStudentPage() {
               <Field label={t('fieldVisaExpiry', lang)}>
                 <input type="date" lang={lang === 'vi' ? 'vi' : 'ko'} value={form.visa_expiry} onChange={e => set('visa_expiry', e.target.value)} className={input} />
               </Field>
+            </Row>
+            {/* 외국인등록증 (ARC) */}
+            <Row>
+              <Field label={lang === 'vi' ? 'Số thẻ ngoại kiều (ARC)' : '외국인등록번호 (ARC)'}>
+                <input type="text" value={form.arc_number} onChange={e => set('arc_number', e.target.value)} className={input} placeholder="A123456789" />
+              </Field>
+              <Field label={lang === 'vi' ? 'Ngày cấp ARC' : 'ARC 발급일'}>
+                <input type="date" lang={lang === 'vi' ? 'vi' : 'ko'} value={form.arc_issue_date} onChange={e => set('arc_issue_date', e.target.value)} className={input} />
+              </Field>
+            </Row>
+            <Row>
+              <Field label={lang === 'vi' ? 'Ngày hết hạn ARC' : 'ARC 만료일'}>
+                <input type="date" lang={lang === 'vi' ? 'vi' : 'ko'} value={form.arc_expiry_date} onChange={e => set('arc_expiry_date', e.target.value)} className={input} />
+              </Field>
+              <div />
             </Row>
           </Section>
 

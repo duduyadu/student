@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import type { Agency, UserMeta } from '@/lib/types'
+import { getUserMeta } from '@/lib/auth'
 import { useLang } from '@/lib/useLang'
 import { LangToggle } from '@/components/LangToggle'
 import { t } from '@/lib/i18n'
@@ -35,6 +36,9 @@ export default function AgenciesPage() {
   const [editSaving, setEditSaving] = useState(false)
   const [editError, setEditError]   = useState('')
 
+  // 유학원 계정 이메일 (user_id → email 매핑)
+  const [agencyEmails, setAgencyEmails] = useState<Record<string, string>>({})
+
   // 계정 추가 / 비밀번호 재설정 상태
   const [addAccountId, setAddAccountId]   = useState<string | null>(null)
   const [addAccountForm, setAddAccountForm] = useState({ email: '', password: '' })
@@ -51,7 +55,7 @@ export default function AgenciesPage() {
   const checkAuth = async () => {
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) { router.push('/login'); return }
-    const meta = session.user.user_metadata as UserMeta
+    const meta = getUserMeta(session)
     if (meta.role !== 'master') { router.push('/'); return }
     setUser(meta)
     await loadAgencies()
@@ -63,7 +67,17 @@ export default function AgenciesPage() {
       .from('agencies')
       .select('*')
       .order('agency_number')
-    if (data) setAgencies(data)
+    if (!data) return
+    setAgencies(data)
+
+    // 계정 있는 유학원의 이메일 가져오기
+    const userIds = data.filter(a => a.user_id).map(a => a.user_id!).join(',')
+    if (!userIds) return
+    const { data: { session } } = await supabase.auth.getSession()
+    const res = await fetch(`/api/agency-accounts?user_ids=${userIds}`, {
+      headers: { Authorization: `Bearer ${session?.access_token ?? ''}` },
+    })
+    if (res.ok) setAgencyEmails(await res.json())
   }
 
   const set = (field: string, value: string) => setForm(prev => ({ ...prev, [field]: value }))
@@ -397,9 +411,16 @@ export default function AgenciesPage() {
                     <span className={`text-xs px-2 py-1 rounded-full font-medium shrink-0 ${a.is_active ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>
                       {a.is_active ? t('activeStatus', lang) : t('inactiveStatus', lang)}
                     </span>
-                    <span className={`text-xs px-2 py-1 rounded-full font-medium shrink-0 ${a.user_id ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-400'}`}>
-                      {a.user_id ? '계정 있음' : '계정 없음'}
-                    </span>
+                    <div className="shrink-0 text-right">
+                      <span className={`text-xs px-2 py-1 rounded-full font-medium ${a.user_id ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-400'}`}>
+                        {a.user_id ? '계정 있음' : '계정 없음'}
+                      </span>
+                      {a.user_id && agencyEmails[a.user_id] && (
+                        <p className="text-xs text-slate-500 mt-1 font-mono">
+                          {agencyEmails[a.user_id]}
+                        </p>
+                      )}
+                    </div>
                     <div className="flex gap-2">
                       <button onClick={() => startEdit(a)}
                         className="text-xs text-slate-500 hover:text-blue-600 px-3 py-1.5 rounded-lg border border-slate-200 hover:border-blue-300 transition-colors">
@@ -456,7 +477,12 @@ export default function AgenciesPage() {
                 {/* 비밀번호 재설정 인라인 폼 */}
                 {resetId === a.id && (
                   <div className="px-5 pb-4 border-t border-slate-100 pt-4 bg-violet-50">
-                    <p className="text-xs font-semibold text-slate-600 mb-3">비밀번호 재설정</p>
+                    <p className="text-xs font-semibold text-slate-600 mb-1">비밀번호 재설정</p>
+                    {a.user_id && agencyEmails[a.user_id] && (
+                      <p className="text-xs text-slate-500 mb-3">
+                        계정 이메일: <span className="font-mono font-medium text-slate-700">{agencyEmails[a.user_id]}</span>
+                      </p>
+                    )}
                     <div className="flex gap-3 items-end">
                       <div className="flex-1">
                         <label className="block text-xs text-slate-500 mb-1">새 비밀번호 (8자 이상)</label>

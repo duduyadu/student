@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import type { Student, Agency, UserMeta } from '@/lib/types'
+import { getUserMeta } from '@/lib/auth'
 import { STATUS_COLORS, STUDENT_STATUSES } from '@/lib/constants'
 import * as XLSX from 'xlsx'
 import { useLang } from '@/lib/useLang'
@@ -27,7 +28,7 @@ export default function StudentsPage() {
   const checkAuth = async () => {
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) { router.push('/login'); return }
-    const meta = session.user.user_metadata as UserMeta
+    const meta = getUserMeta(session)
     if (meta.role === 'student') { router.push('/portal'); return }
     setUser(meta)
     await Promise.all([loadStudents(), loadAgencies()])

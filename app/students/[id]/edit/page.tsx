@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import type { Agency, UserMeta } from '@/lib/types'
+import { getUserMeta } from '@/lib/auth'
 import { STUDENT_STATUSES, TOPIK_LEVELS } from '@/lib/constants'
 
 export default function EditStudentPage() {
@@ -24,6 +25,7 @@ export default function EditStudentPage() {
     high_school_gpa: '', enrollment_date: '',
     target_university: '', target_major: '',
     visa_type: '', visa_expiry: '',
+    arc_number: '', arc_issue_date: '', arc_expiry_date: '',
     topik_level: '',
     status: '유학전', agency_id: '', notes: '',
     language_school: '', current_university: '', current_company: '',
@@ -34,7 +36,7 @@ export default function EditStudentPage() {
   const checkAuth = async () => {
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) { router.push('/login'); return }
-    const meta = session.user.user_metadata as UserMeta
+    const meta = getUserMeta(session)
     // 학생 역할은 포털로 이동
     if (meta.role === 'student') { router.push('/portal'); return }
     setUser(meta)
@@ -64,8 +66,11 @@ export default function EditStudentPage() {
         target_major:      s.target_major     ?? '',
         visa_type:         s.visa_type         ?? '',
         visa_expiry:       s.visa_expiry       ?? '',
-        topik_level:       s.topik_level       ?? '',
-        status:            s.status            ?? '유학전',
+        arc_number:        s.arc_number         ?? '',
+        arc_issue_date:    s.arc_issue_date     ?? '',
+        arc_expiry_date:   s.arc_expiry_date    ?? '',
+        topik_level:       s.topik_level        ?? '',
+        status:            s.status             ?? '유학전',
         agency_id:         s.agency_id        ?? '',
         notes:             s.notes            ?? '',
         language_school:   s.language_school   ?? '',
@@ -88,7 +93,7 @@ export default function EditStudentPage() {
     setError('')
 
     if (!form.name_kr || !form.name_vn || !form.dob) {
-      setError('이름(한국어), 이름(베트남어), 생년월일은 필수입니다.')
+      setError('이름(한국어), 이름(베트남어), 생년월일은 필수 항목입니다.')
       setSaving(false)
       return
     }
@@ -109,6 +114,9 @@ export default function EditStudentPage() {
       target_major:      form.target_major      || null,
       visa_type:         form.visa_type         || null,
       visa_expiry:       form.visa_expiry       || null,
+      arc_number:        form.arc_number        || null,
+      arc_issue_date:    form.arc_issue_date    || null,
+      arc_expiry_date:   form.arc_expiry_date   || null,
       topik_level:       form.topik_level       || null,
       status:            form.status,
       agency_id:         form.agency_id         || null,
@@ -128,6 +136,20 @@ export default function EditStudentPage() {
       setSaving(false)
       return
     }
+
+    // 감사 로그: 학생 정보 수정
+    await fetch('/api/audit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'UPDATE',
+        user_name: user?.name_kr,
+        user_role: user?.role,
+        target_table: 'students',
+        target_id: id,
+        details: { name_kr: form.name_kr },
+      }),
+    }).catch(() => {})
 
     router.push(`/students/${id}`)
   }
@@ -303,6 +325,21 @@ export default function EditStudentPage() {
               <Field label="비자 만료일">
                 <input type="date" value={form.visa_expiry} onChange={e => set('visa_expiry', e.target.value)} className={input} />
               </Field>
+            </Row>
+            {/* 외국인등록증 (ARC) */}
+            <Row>
+              <Field label="외국인등록번호 (ARC)">
+                <input type="text" value={form.arc_number} onChange={e => set('arc_number', e.target.value)} className={input} placeholder="A123456789" />
+              </Field>
+              <Field label="ARC 발급일">
+                <input type="date" value={form.arc_issue_date} onChange={e => set('arc_issue_date', e.target.value)} className={input} />
+              </Field>
+            </Row>
+            <Row>
+              <Field label="ARC 만료일">
+                <input type="date" value={form.arc_expiry_date} onChange={e => set('arc_expiry_date', e.target.value)} className={input} />
+              </Field>
+              <div />
             </Row>
           </Section>
 

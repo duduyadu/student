@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
-import type { UserMeta } from '@/lib/types'
+import type { UserMeta, AuditLog } from '@/lib/types'
+import { getUserMeta } from '@/lib/auth'
 import { STATUS_COLORS, STUDENT_STATUSES } from '@/lib/constants'
 import { useLang } from '@/lib/useLang'
 import { LangToggle } from '@/components/LangToggle'
@@ -23,15 +24,38 @@ export default function ReportsPage() {
   const [statusStats, setStatusStats]   = useState<StatusStat[]>([])
   const [agencyStats, setAgencyStats]   = useState<AgencyStat[]>([])
   const [monthStats,  setMonthStats]    = useState<MonthStat[]>([])
+  const [activeTab, setActiveTab]       = useState<'stats' | 'audit'>('stats')
+  const [auditLogs, setAuditLogs]       = useState<AuditLog[]>([])
+  const [auditLoading, setAuditLoading] = useState(false)
+  const [auditTotal, setAuditTotal]     = useState(0)
 
   useEffect(() => { checkAuth() }, [])
 
   const checkAuth = async () => {
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) { router.push('/login'); return }
-    setUser(session.user.user_metadata as UserMeta)
+    const meta = getUserMeta(session)
+    setUser(meta)
     await Promise.all([loadStatusStats(), loadAgencyStats(), loadMonthStats()])
     setLoading(false)
+  }
+
+  const loadAuditLogs = async () => {
+    setAuditLoading(true)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token ?? ''
+      const res = await fetch('/api/audit?limit=100', {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      if (res.ok) {
+        const json = await res.json()
+        setAuditLogs(json.data ?? [])
+        setAuditTotal(json.count ?? 0)
+      }
+    } finally {
+      setAuditLoading(false)
+    }
   }
 
   const handleLogout = async () => {
@@ -127,9 +151,89 @@ export default function ReportsPage() {
       </nav>
 
       <main className="max-w-6xl mx-auto px-4 md:px-6 py-6 md:py-8">
-        <h2 className="text-xl font-bold text-slate-800 mb-6">{t('reportTitle', lang)}</h2>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-bold text-slate-800">{t('reportTitle', lang)}</h2>
+          {user?.role === 'master' && (
+            <div className="flex gap-1 bg-white rounded-xl p-1 shadow-sm">
+              <button
+                onClick={() => setActiveTab('stats')}
+                className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'stats' ? 'bg-blue-600 text-white' : 'text-slate-500 hover:text-slate-800'}`}
+              >
+                통계
+              </button>
+              <button
+                onClick={() => { setActiveTab('audit'); if (auditLogs.length === 0) loadAuditLogs() }}
+                className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'audit' ? 'bg-blue-600 text-white' : 'text-slate-500 hover:text-slate-800'}`}
+              >
+                감사 로그
+              </button>
+            </div>
+          )}
+        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        {/* 감사 로그 탭 */}
+        {activeTab === 'audit' && user?.role === 'master' && (
+          <div className="bg-white rounded-2xl p-5 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-semibold text-slate-700">감사 로그 (최근 100건 / 총 {auditTotal}건)</h3>
+              <button
+                onClick={loadAuditLogs}
+                disabled={auditLoading}
+                className="text-xs text-blue-600 hover:underline disabled:opacity-50"
+              >
+                {auditLoading ? '로딩 중...' : '새로고침'}
+              </button>
+            </div>
+            {auditLoading ? (
+              <p className="text-slate-400 text-sm py-4 text-center">감사 로그 로딩 중...</p>
+            ) : auditLogs.length === 0 ? (
+              <p className="text-slate-400 text-sm py-4 text-center">감사 로그가 없습니다. (DB 트리거 미적용 시 빈 화면)</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs">
+                  <thead>
+                    <tr className="border-b border-slate-100">
+                      <th className="text-left py-2 px-2 text-slate-500 font-medium">시간</th>
+                      <th className="text-left py-2 px-2 text-slate-500 font-medium">액션</th>
+                      <th className="text-left py-2 px-2 text-slate-500 font-medium">테이블</th>
+                      <th className="text-left py-2 px-2 text-slate-500 font-medium">사용자</th>
+                      <th className="text-left py-2 px-2 text-slate-500 font-medium">역할</th>
+                      <th className="text-left py-2 px-2 text-slate-500 font-medium">상세</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {auditLogs.map(log => (
+                      <tr key={log.id} className="border-b border-slate-50 hover:bg-slate-50">
+                        <td className="py-2 px-2 text-slate-500 whitespace-nowrap">
+                          {new Date(log.created_at).toLocaleString('ko-KR', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                        </td>
+                        <td className="py-2 px-2">
+                          <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${
+                            log.action === 'INSERT' ? 'bg-emerald-100 text-emerald-700' :
+                            log.action === 'UPDATE' ? 'bg-blue-100 text-blue-700' :
+                            log.action === 'DELETE' ? 'bg-red-100 text-red-700' :
+                            log.action === 'LOGIN'  ? 'bg-violet-100 text-violet-700' :
+                            'bg-slate-100 text-slate-600'
+                          }`}>{log.action}</span>
+                        </td>
+                        <td className="py-2 px-2 text-slate-600">{log.target_table ?? '-'}</td>
+                        <td className="py-2 px-2 text-slate-600">{log.user_name ?? log.user_id?.slice(0, 8) ?? '-'}</td>
+                        <td className="py-2 px-2 text-slate-500">{log.user_role ?? '-'}</td>
+                        <td className="py-2 px-2 text-slate-400 max-w-xs truncate">
+                          {log.details ? JSON.stringify(log.details).slice(0, 60) : '-'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 통계 탭 */}
+        {(activeTab === 'stats' || user?.role !== 'master') && (
+        <><div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
 
           {/* 상태별 분포 */}
           <div className="bg-white rounded-2xl p-5 shadow-sm">
@@ -202,6 +306,8 @@ export default function ReportsPage() {
               })}
             </div>
           </div>
+        )}
+        </>
         )}
       </main>
     </div>

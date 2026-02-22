@@ -29,8 +29,22 @@ export default function LoginPage() {
       return
     }
 
-    const meta = data.user?.user_metadata as { role?: string } | undefined
-    if (meta?.role === 'student') {
+    const appMeta  = data.user?.app_metadata  as { role?: string } | undefined
+    const userMeta = data.user?.user_metadata as { name_kr?: string } | undefined
+
+    // 감사 로그: 로그인 이벤트
+    await fetch('/api/audit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'LOGIN',
+        user_id: data.user?.id,
+        user_role: appMeta?.role,
+        user_name: userMeta?.name_kr,
+      }),
+    }).catch(() => {})
+
+    if (appMeta?.role === 'student') {
       router.push('/portal')
     } else {
       router.push('/')

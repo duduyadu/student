@@ -6,6 +6,7 @@ import Link from 'next/link'
 import * as XLSX from 'xlsx'
 import { supabase } from '@/lib/supabase'
 import type { Agency, UserMeta } from '@/lib/types'
+import { getUserMeta } from '@/lib/auth'
 import { STUDENT_STATUSES } from '@/lib/constants'
 
 // 템플릿 컬럼 정의
@@ -69,7 +70,7 @@ export default function ImportPage() {
   const checkAuth = async () => {
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) { router.push('/login'); return }
-    setUser(session.user.user_metadata as UserMeta)
+    setUser(getUserMeta(session))
     const { data } = await supabase.from('agencies').select('*').eq('is_active', true).order('agency_number')
     if (data) setAgencies(data)
   }

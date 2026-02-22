@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
   if (authErr || !caller) {
     return NextResponse.json({ error: '인증 실패' }, { status: 401 })
   }
-  const callerRole = (caller.user_metadata as { role?: string })?.role
+  const callerRole = (caller.app_metadata as { role?: string })?.role
   if (callerRole !== 'master') {
     return NextResponse.json({ error: '권한이 없습니다.' }, { status: 403 })
   }
@@ -34,11 +34,8 @@ export async function POST(req: NextRequest) {
     email,
     password,
     email_confirm: true,
-    user_metadata: {
-      role: 'agency',
-      agency_code,
-      name_kr: agency_name_kr ?? agency_code,
-    },
+    user_metadata: { name_kr: agency_name_kr ?? agency_code },
+    app_metadata:  { role: 'agency', agency_code },
   })
 
   if (error) {

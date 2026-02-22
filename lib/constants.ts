@@ -8,6 +8,6 @@ export const STATUS_COLORS: Record<string, string> = {
   '취업':     'bg-emerald-100 text-emerald-700',
 }
 
-export const TOPIK_LEVELS = ['6급', '5급', '4급', '3급', '2급', '1급', '불합격'] as const
+export const TOPIK_LEVELS = ['2급', '1급', '불합격'] as const
 
 export const CONSULT_TYPES = ['정기', '비정기', '긴급'] as const
