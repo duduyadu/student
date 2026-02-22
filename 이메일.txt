@@ -1,0 +1,8 @@
+re_FmyB27cM_LEfkDtPm4Yjv77SZkYz1YZcj\                                                                                                                                        
+  api key이고 \
+  \                                                                                                                                                                               CRON_SECRET=랜덤문자열      ← 아무 문자열이나 (보안용) 이건 뭔지 모르겠네                          
+ 
+
+ RESEND_API_KEY │ re_FmyB27cM_... (Resend 이메일 발송 키) │
+  ├────────────────┼─────────────────────────────────────────┤
+  │ CRON_SECRET    │ aju2026cron (크론잡 보안 비밀번호)

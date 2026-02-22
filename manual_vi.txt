@@ -1,0 +1,309 @@
+================================================================================
+        HƯỚNG DẪN SỬ DỤNG HỆ THỐNG QUẢN LÝ HỌC SINH AJU E&J
+================================================================================
+Ngày cập nhật: Tháng 2 năm 2026
+Địa chỉ truy cập: https://aju-ej.vercel.app
+--------------------------------------------------------------------------------
+
+
+【 MỤC LỤC 】
+  1. Giới thiệu hệ thống
+  2. Phân loại người dùng
+  3. Cách đăng nhập
+  4. Hướng dẫn dành cho Quản trị viên
+     4-1. Bảng điều khiển (Dashboard)
+     4-2. Danh sách học sinh
+     4-3. Đăng ký học sinh
+     4-4. Chỉnh sửa và xem chi tiết học sinh
+     4-5. Nhập học sinh hàng loạt bằng Excel
+     4-6. Quản lý trung tâm du học
+     4-7. Báo cáo thống kê
+  5. Hướng dẫn dành cho Trung tâm du học
+  6. Hướng dẫn dành cho Học sinh (Cổng thông tin)
+  7. Thông báo hết hạn visa
+  8. Câu hỏi thường gặp (FAQ)
+
+
+================================================================================
+1. Giới thiệu hệ thống
+================================================================================
+
+Hệ thống quản lý học sinh AJU E&J là chương trình quản lý dựa trên nền tảng
+web, được xây dựng dành riêng cho trung tâm du học AJU E&J — chuyên hỗ trợ
+học sinh Việt Nam du học và làm việc tại Hàn Quốc.
+
+Chức năng chính:
+  - Đăng ký và quản lý thông tin học sinh
+  - Theo dõi ngày hết hạn visa và tự động gửi email nhắc nhở
+  - Quản lý học sinh theo từng trung tâm du học
+  - Cổng thông tin để học sinh tra cứu thông tin cá nhân
+  - Thống kê và báo cáo
+
+
+================================================================================
+2. Phân loại người dùng
+================================================================================
+
+Hệ thống có ba loại người dùng:
+
+  ┌──────────────────┬─────────────────────────────────────────────────────┐
+  │  Người dùng      │  Quyền hạn                                          │
+  ├──────────────────┼─────────────────────────────────────────────────────┤
+  │  Quản trị viên   │  Quản lý toàn bộ học sinh và trung tâm,             │
+  │  (Master)        │  tạo tài khoản, xem thống kê                        │
+  ├──────────────────┼─────────────────────────────────────────────────────┤
+  │  Trung tâm       │  Xem và quản lý học sinh thuộc trung tâm mình       │
+  │  du học          │                                                     │
+  ├──────────────────┼─────────────────────────────────────────────────────┤
+  │  Học sinh        │  Chỉ xem thông tin cá nhân (không được chỉnh sửa)   │
+  └──────────────────┴─────────────────────────────────────────────────────┘
+
+
+================================================================================
+3. Cách đăng nhập
+================================================================================
+
+1) Mở trình duyệt internet (khuyến nghị dùng Google Chrome) và nhập địa chỉ:
+   https://aju-ej.vercel.app/login
+
+2) Nhập email và mật khẩu, sau đó nhấn nút [Đăng nhập].
+
+3) Hệ thống sẽ tự động chuyển đến trang phù hợp theo quyền của bạn:
+   - Quản trị viên → Bảng điều khiển (Dashboard)
+   - Trung tâm du học → Danh sách học sinh
+   - Học sinh → Cổng thông tin cá nhân
+
+※ Nếu quên mật khẩu:
+   Tại màn hình đăng nhập, nhấn [Quên mật khẩu] — hệ thống sẽ gửi link
+   đặt lại mật khẩu về email của bạn.
+   Đối với tài khoản trung tâm du học, vui lòng liên hệ quản trị viên.
+
+
+================================================================================
+4. Hướng dẫn dành cho Quản trị viên
+================================================================================
+
+--------------------------------------------------------------------------------
+4-1. Bảng điều khiển (Dashboard)
+--------------------------------------------------------------------------------
+
+Đây là trang đầu tiên sau khi đăng nhập. Hiển thị tổng quan:
+
+  - Tổng số học sinh
+  - Số học sinh visa hết hạn trong 30 ngày tới
+  - Số học sinh theo trạng thái (Chưa du học / Học tiếng / Đại học / Đi làm)
+  - Biểu đồ tỷ lệ theo trạng thái
+
+Thanh menu trên cùng để di chuyển giữa các trang:
+  [Dashboard] [Quản lý học sinh] [Báo cáo] [Quản lý trung tâm]
+
+
+--------------------------------------------------------------------------------
+4-2. Danh sách học sinh
+--------------------------------------------------------------------------------
+
+Nhấn [Quản lý học sinh] trên menu để xem toàn bộ danh sách học sinh.
+
+  ▶ Tìm kiếm: Tìm theo tên (tiếng Hàn/tiếng Việt) hoặc số hộ chiếu
+  ▶ Lọc: Theo trạng thái, theo trung tâm du học
+  ▶ Sắp xếp: Theo ngày hết hạn visa
+  ▶ Xuất Excel: Nhấn nút [Excel] để tải file danh sách học sinh
+
+Nhấn vào thẻ học sinh để xem thông tin chi tiết.
+
+
+--------------------------------------------------------------------------------
+4-3. Đăng ký học sinh
+--------------------------------------------------------------------------------
+
+Nhấn nút [+ Thêm học sinh].
+
+Các thông tin cần nhập:
+  [Thông tin cơ bản]
+  - Tên tiếng Hàn (bắt buộc)
+  - Tên tiếng Việt (bắt buộc)
+  - Ngày sinh
+  - Số điện thoại
+  - Email
+  - Trạng thái hiện tại: Chưa du học / Học tiếng / Đại học / Đi làm
+  - Cơ sở hiện tại (hiển thị tùy theo trạng thái):
+    · Chọn "Học tiếng" → Tên trung tâm tiếng Hàn đang theo học
+    · Chọn "Đại học"   → Tên trường đại học đang theo học
+    · Chọn "Đi làm"   → Tên công ty đang làm việc
+  - Trung tâm du học phụ trách
+
+  [Thông tin visa]
+  - Số hộ chiếu
+  - Loại visa
+  - Ngày hết hạn visa (khi nhập sẽ tự động gửi thông báo)
+
+  [Khác]
+  - Email cổng thông tin (email học sinh dùng để đăng nhập)
+  - Mật khẩu ban đầu
+  - Ghi chú
+
+Sau khi nhập xong, nhấn [Lưu].
+
+
+--------------------------------------------------------------------------------
+4-4. Chỉnh sửa và xem chi tiết học sinh
+--------------------------------------------------------------------------------
+
+Nhấn vào học sinh trong danh sách để vào trang chi tiết.
+
+Bố cục tab:
+  [Thông tin cơ bản] - Tên, liên lạc, trạng thái, cơ sở
+  [Thông tin học tập] - Trung tâm tiếng/Đại học/Công ty, trung tâm du học
+  [Thông tin visa] - Số hộ chiếu, loại visa, ngày hết hạn
+  [Ghi chú] - Nội dung ghi chú
+
+Cách chỉnh sửa:
+  Nhấn [Chỉnh sửa] ở góc trên bên phải → Thay đổi nội dung → [Lưu]
+
+Vô hiệu hóa tài khoản:
+  Nhấn [Vô hiệu hóa] — học sinh sẽ bị ẩn khỏi danh sách.
+  (Dữ liệu vẫn được lưu giữ, không bị xóa)
+
+
+--------------------------------------------------------------------------------
+4-5. Nhập học sinh hàng loạt bằng Excel
+--------------------------------------------------------------------------------
+
+Có thể đăng ký nhiều học sinh cùng một lúc.
+
+1) Vào [Quản lý học sinh] → Nhấn [Nhập Excel hàng loạt]
+2) Tải file mẫu về để xem định dạng
+3) Điền thông tin học sinh vào file Excel hoặc CSV
+4) Tải file lên và nhấn [Đăng ký]
+
+
+--------------------------------------------------------------------------------
+4-6. Quản lý trung tâm du học
+--------------------------------------------------------------------------------
+
+Nhấn [Quản lý trung tâm] trên menu.
+
+  ▶ Thêm trung tâm:
+     Nhấn [+ Thêm trung tâm]
+     - Tên trung tâm (tiếng Việt): bắt buộc
+     - Tên trung tâm (tiếng Hàn), người phụ trách, số điện thoại: tùy chọn
+     - Nhập email/mật khẩu để tạo tài khoản đăng nhập ngay
+
+  ▶ Thêm tài khoản (khi có từ 2 nhân viên):
+     Nhấn [Thêm tài khoản] trên trung tâm đó
+     - Nhập email và mật khẩu → Tạo tài khoản mới cùng quyền hạn
+
+  ▶ Đặt lại mật khẩu:
+     Nhấn [Đặt lại mật khẩu] trên trung tâm có tài khoản
+     - Nhập mật khẩu mới (tối thiểu 8 ký tự) → [Đổi mật khẩu]
+
+  ▶ Vô hiệu hóa trung tâm:
+     Nhấn [Vô hiệu hóa] — trung tâm sẽ không thể đăng nhập
+
+
+--------------------------------------------------------------------------------
+4-7. Báo cáo thống kê
+--------------------------------------------------------------------------------
+
+Nhấn [Báo cáo] trên menu.
+
+  - Số học sinh theo từng trạng thái
+  - Số học sinh theo từng trung tâm du học
+  - Tình hình hết hạn visa
+
+
+================================================================================
+5. Hướng dẫn dành cho Trung tâm du học
+================================================================================
+
+Đăng nhập bằng tài khoản trung tâm du học — chỉ thấy học sinh thuộc trung tâm mình.
+
+  ▶ Xem danh sách học sinh
+  ▶ Xem chi tiết từng học sinh
+  ▶ Chỉnh sửa thông tin học sinh (tên, liên lạc, trạng thái,...)
+
+※ Tài khoản trung tâm du học KHÔNG thể xóa học sinh hoặc quản lý trung tâm khác.
+※ Để thay đổi thông tin tài khoản (email, mật khẩu), vui lòng liên hệ quản trị viên.
+
+
+================================================================================
+6. Hướng dẫn dành cho Học sinh (Cổng thông tin)
+================================================================================
+
+Địa chỉ truy cập: https://aju-ej.vercel.app/portal
+
+Học sinh đăng nhập bằng email và mật khẩu do quản trị viên cung cấp.
+
+Thông tin có thể xem:
+  - Họ tên, ngày sinh, số điện thoại
+  - Trạng thái hiện tại (Học tiếng / Đại học / Đi làm,...)
+  - Cơ sở hiện tại (Tên trung tâm tiếng / Đại học / Công ty)
+  - Loại visa và ngày hết hạn
+  - Thông tin trung tâm du học phụ trách
+
+Đổi mật khẩu:
+  Tab [Tài khoản] ở trên cùng → [Đổi mật khẩu]
+  → Nhập mật khẩu hiện tại và mật khẩu mới → [Xác nhận]
+
+Chuyển ngôn ngữ:
+  Nhấn nút [한 | Vie] ở góc trên bên phải để chuyển Hàn / Việt
+
+Hủy tài khoản:
+  Tab [Tài khoản] → [Hủy tài khoản] → Xác nhận
+  (Sau khi hủy sẽ không thể đăng nhập lại)
+
+
+================================================================================
+7. Thông báo hết hạn visa
+================================================================================
+
+Hệ thống tự động gửi email nhắc nhở đến học sinh khi visa sắp hết hạn.
+
+Thời điểm gửi:
+  - Trước 90 ngày
+  - Trước 30 ngày
+  - Trước 7 ngày
+
+※ Mỗi mốc thời gian chỉ gửi 1 lần duy nhất (không gửi trùng lặp).
+※ Học sinh phải có email được đăng ký trong hệ thống.
+※ Nội dung email được viết bằng cả tiếng Hàn và tiếng Việt.
+
+
+================================================================================
+8. Câu hỏi thường gặp (FAQ)
+================================================================================
+
+Q. Tôi quên mật khẩu, phải làm sao?
+A. Tại màn hình đăng nhập, nhấn [Quên mật khẩu] — hệ thống gửi link đặt lại
+   về email của bạn.
+   Đối với tài khoản trung tâm du học, liên hệ quản trị viên để được đặt lại.
+
+Q. Có thể xóa hoàn toàn thông tin học sinh không?
+A. Hệ thống không hỗ trợ xóa hoàn toàn. Khi nhấn [Vô hiệu hóa], học sinh sẽ
+   bị ẩn khỏi danh sách nhưng dữ liệu vẫn được lưu giữ để tránh mất mát.
+
+Q. Nhiều nhân viên trung tâm có thể đăng nhập cùng lúc không?
+A. Có. Quản trị viên có thể tạo nhiều tài khoản cho cùng một trung tâm.
+   Mỗi nhân viên dùng tài khoản riêng và có thể làm việc đồng thời.
+
+Q. Có thể dùng trên điện thoại không?
+A. Có. Hệ thống hỗ trợ trình duyệt điện thoại.
+   Khuyến nghị dùng trình duyệt Google Chrome.
+
+Q. Tôi không nhận được email thông báo visa.
+A. Vui lòng kiểm tra:
+   1) Email của học sinh đã được đăng ký trong hệ thống chưa
+   2) Ngày hết hạn visa đã nhập đúng chưa
+   3) Kiểm tra hộp thư spam/rác
+
+Q. File Excel tải về bị lỗi font chữ (tiếng Hàn bị vỡ).
+A. Khi mở file bằng Excel, hãy chọn định dạng mã hóa UTF-8.
+   Hoặc mở bằng Google Trang tính (Google Sheets) sẽ hiển thị đúng.
+
+Q. Hệ thống có dùng được khi không có internet không?
+A. Không. Đây là dịch vụ web, cần kết nối internet để sử dụng.
+
+
+================================================================================
+        Mọi thắc mắc vui lòng liên hệ quản trị viên AJU E&J.
+================================================================================

@@ -16,7 +16,9 @@ export default function StudentDetailPage() {
   const [consults, setConsults] = useState<Consultation[]>([])
   const [exams, setExams]       = useState<ExamResult[]>([])
   const [loading, setLoading]   = useState(true)
-  const [activeTab, setTab]     = useState<'info' | 'consult' | 'exam'>('info')
+  const [activeTab, setTab]     = useState<'info' | 'consult' | 'exam' | 'consent'>('info')
+  const [consents, setConsents] = useState<{id:string; consent_date:string; consent_type:string; consent_text:string}[]>([])
+  const [expandedConsent, setExpandedConsent] = useState<string | null>(null)
 
   // 상담 추가 폼
   const [showConsultForm, setShowConsultForm] = useState(false)
@@ -33,8 +35,11 @@ export default function StudentDetailPage() {
   const checkAuth = async () => {
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) { router.push('/login'); return }
-    setUser(session.user.user_metadata as UserMeta)
-    await Promise.all([loadStudent(), loadConsults(), loadExams()])
+    const meta = session.user.user_metadata as UserMeta
+    // 학생 역할은 포털로 이동
+    if (meta.role === 'student') { router.push('/portal'); return }
+    setUser(meta)
+    await Promise.all([loadStudent(), loadConsults(), loadExams(), loadConsents()])
     setLoading(false)
   }
 
@@ -43,7 +48,9 @@ export default function StudentDetailPage() {
       .from('students')
       .select('*, agency:agencies(agency_code, agency_name_kr)')
       .eq('id', id).single()
-    if (data) setStudent(data as Student)
+    // RLS가 접근을 막은 경우(타 유학원 학생) → 목록으로
+    if (!data) { router.push('/students'); return }
+    setStudent(data as Student)
   }
 
   const loadConsults = async () => {
@@ -58,6 +65,13 @@ export default function StudentDetailPage() {
       .from('exam_results').select('*')
       .eq('student_id', id).order('exam_date', { ascending: false })
     if (data) setExams(data)
+  }
+
+  const loadConsents = async () => {
+    const { data } = await supabase
+      .from('privacy_consents').select('id, consent_date, consent_type, consent_text')
+      .eq('student_id', id).order('consent_date', { ascending: false })
+    if (data) setConsents(data)
   }
 
   // 총점으로 등급 자동 계산
@@ -116,6 +130,37 @@ export default function StudentDetailPage() {
     setSavingExam(false)
   }
 
+  const handleDeleteConsult = async (consultId: string) => {
+    if (!confirm('이 상담 기록을 삭제하시겠습니까?')) return
+    await supabase.from('consultations').delete().eq('id', consultId)
+    await loadConsults()
+  }
+
+  const handleDeleteExam = async (examId: string) => {
+    if (!confirm('이 시험 성적을 삭제하시겠습니까?')) return
+    await supabase.from('exam_results').delete().eq('id', examId)
+    await loadExams()
+  }
+
+  const [photoUploading, setPhotoUploading] = useState(false)
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (file.size > 5 * 1024 * 1024) { alert('5MB 이하 이미지만 업로드 가능합니다.'); return }
+    setPhotoUploading(true)
+    const path = `${id}/profile`
+    const { error: upErr } = await supabase.storage
+      .from('student-photos')
+      .upload(path, file, { upsert: true, contentType: file.type })
+    if (upErr) { alert('업로드 실패: ' + upErr.message); setPhotoUploading(false); return }
+    const { data: { publicUrl } } = supabase.storage.from('student-photos').getPublicUrl(path)
+    const url = `${publicUrl}?t=${Date.now()}`
+    await supabase.from('students').update({ photo_url: url }).eq('id', id)
+    setStudent(prev => prev ? { ...prev, photo_url: url } : prev)
+    setPhotoUploading(false)
+  }
+
   const handleDelete = async () => {
     if (!confirm(`${student?.name_kr} 학생을 삭제하시겠습니까?\n삭제 후 목록에서 사라집니다.`)) return
     await supabase.from('students').update({ is_active: false }).eq('id', id)
@@ -160,11 +205,12 @@ export default function StudentDetailPage() {
 
       {/* 네비게이션 */}
       <nav className="bg-white border-b border-slate-200">
-        <div className="max-w-6xl mx-auto px-6 flex gap-6">
-          <Link href="/" className="py-3 text-sm font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent">대시보드</Link>
-          <Link href="/students" className="py-3 text-sm font-medium text-blue-600 border-b-2 border-blue-600">학생 관리</Link>
+        <div className="max-w-6xl mx-auto px-6 flex gap-6 overflow-x-auto">
+          <Link href="/" className="py-3 text-sm font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent whitespace-nowrap">대시보드</Link>
+          <Link href="/students" className="py-3 text-sm font-medium text-blue-600 border-b-2 border-blue-600 whitespace-nowrap">학생 관리</Link>
+          <Link href="/reports" className="py-3 text-sm font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent whitespace-nowrap">통계</Link>
           {user?.role === 'master' && (
-            <Link href="/agencies" className="py-3 text-sm font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent">유학원 관리</Link>
+            <Link href="/agencies" className="py-3 text-sm font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent whitespace-nowrap">유학원 관리</Link>
           )}
         </div>
       </nav>
@@ -176,9 +222,26 @@ export default function StudentDetailPage() {
         {/* 프로필 카드 */}
         <div className="bg-white rounded-2xl shadow-sm p-6 mb-6 flex items-start justify-between">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center">
-              <span className="text-blue-600 text-xl font-bold">{student.name_kr[0]}</span>
-            </div>
+            {/* 프로필 사진 */}
+            <label className="relative w-14 h-14 shrink-0 cursor-pointer group" title="클릭해서 사진 변경">
+              <input type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} disabled={photoUploading} />
+              {student.photo_url ? (
+                <img src={student.photo_url} alt="프로필" className="w-14 h-14 rounded-2xl object-cover" />
+              ) : (
+                <div className="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center">
+                  <span className="text-blue-600 text-xl font-bold">{student.name_kr[0]}</span>
+                </div>
+              )}
+              <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-slate-500 group-hover:bg-blue-500 rounded-full flex items-center justify-center transition-colors">
+                {photoUploading ? (
+                  <span className="text-white text-[8px]">...</span>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3 text-white" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 3H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm6 9a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
+                  </svg>
+                )}
+              </div>
+            </label>
             <div>
               <div className="flex items-center gap-2 mb-0.5">
                 <span className="font-mono text-xs text-slate-400">{student.student_code ?? '-'}</span>
@@ -208,10 +271,11 @@ export default function StudentDetailPage() {
         {/* 탭 */}
         <div className="flex gap-1 mb-4 bg-white rounded-2xl p-1 shadow-sm w-fit">
           {([
-            { key: 'info',    label: '기본 정보' },
-            { key: 'consult', label: `상담 기록 (${consults.length})` },
-            { key: 'exam',    label: `시험 성적 (${exams.length})` },
-          ] as const).map(t => (
+            { key: 'info',    label: '기본 정보',              show: true },
+            { key: 'consult', label: `상담 기록 (${consults.length})`, show: true },
+            { key: 'exam',    label: `시험 성적 (${exams.length})`,  show: true },
+            { key: 'consent', label: `개인정보 동의 (${consents.length})`, show: user?.role === 'master' },
+          ] as const).filter(t => t.show).map(t => (
             <button key={t.key} onClick={() => setTab(t.key)}
               className={`px-5 py-2 rounded-xl text-sm font-medium transition-colors ${activeTab === t.key ? 'bg-blue-600 text-white' : 'text-slate-500 hover:text-slate-800'}`}>
               {t.label}
@@ -234,6 +298,9 @@ export default function StudentDetailPage() {
               <InfoRow label="학부모 연락처 (VN)" value={student.parent_phone_vn} />
             </InfoCard>
             <InfoCard title="학업 정보">
+              {student.language_school    && <InfoRow label="재학 어학원" value={student.language_school} />}
+              {student.current_university && <InfoRow label="재학 대학교" value={student.current_university} />}
+              {student.current_company    && <InfoRow label="재직 회사"   value={student.current_company} />}
               <InfoRow label="고등학교 성적"  value={student.high_school_gpa?.toString()} />
               <InfoRow label="유학원 등록일"  value={student.enrollment_date} />
               <InfoRow label="목표 대학"      value={student.target_university} />
@@ -311,8 +378,11 @@ export default function StudentDetailPage() {
               : consults.map(c => (
                 <div key={c.id} className="bg-white rounded-2xl p-5 shadow-sm">
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-sm font-semibold text-slate-700">{c.consult_date}</span>
-                    {c.consult_type && <span className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">{c.consult_type}</span>}
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-semibold text-slate-700">{c.consult_date}</span>
+                      {c.consult_type && <span className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">{c.consult_type}</span>}
+                    </div>
+                    <button onClick={() => handleDeleteConsult(c.id)} className="text-xs text-slate-300 hover:text-red-500 transition-colors">삭제</button>
                   </div>
                   {c.summary     && <p className="text-sm text-slate-700 mb-1"><span className="font-medium">상담 내용: </span>{c.summary}</p>}
                   {c.improvement && <p className="text-sm text-slate-600 mb-1"><span className="font-medium">개선 사항: </span>{c.improvement}</p>}
@@ -390,7 +460,10 @@ export default function StudentDetailPage() {
                       <span className="text-sm font-semibold text-slate-700">{e.exam_date}</span>
                       <span className="text-xs text-slate-400">{e.exam_type}</span>
                     </div>
-                    <span className={`text-sm font-bold px-3 py-1 rounded-full ${levelColor(e.level)}`}>{e.level}</span>
+                    <div className="flex items-center gap-3">
+                      <span className={`text-sm font-bold px-3 py-1 rounded-full ${levelColor(e.level)}`}>{e.level}</span>
+                      <button onClick={() => handleDeleteExam(e.id)} className="text-xs text-slate-300 hover:text-red-500 transition-colors">삭제</button>
+                    </div>
                   </div>
                   <div className="grid grid-cols-4 gap-3">
                     <ScoreBox label="총점" value={e.total_score}     total={300} bold />
@@ -401,6 +474,41 @@ export default function StudentDetailPage() {
                 </div>
               ))
             }
+          </div>
+        )}
+
+        {/* ── 개인정보 동의 탭 (master 전용) ── */}
+        {activeTab === 'consent' && (
+          <div className="space-y-3">
+            {consents.length === 0 ? (
+              <div className="bg-white rounded-2xl shadow-sm p-8 text-center text-slate-400 text-sm">
+                동의 이력이 없습니다.
+              </div>
+            ) : consents.map(c => (
+              <div key={c.id} className="bg-white rounded-2xl shadow-sm p-5">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">
+                      {c.consent_type === 'signup' ? '가입 동의' : c.consent_type}
+                    </span>
+                    <span className="text-sm text-slate-500">
+                      {new Date(c.consent_date).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => setExpandedConsent(expandedConsent === c.id ? null : c.id)}
+                    className="text-xs text-slate-400 hover:text-blue-500"
+                  >
+                    {expandedConsent === c.id ? '접기' : '동의 내용 보기'}
+                  </button>
+                </div>
+                {expandedConsent === c.id && (
+                  <div className="mt-3 bg-slate-50 rounded-xl p-4 text-xs text-slate-600 whitespace-pre-line leading-relaxed border border-slate-100">
+                    {c.consent_text}
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         )}
       </main>

@@ -1,0 +1,1432 @@
+{
+  "timestamp": "2026-02-18T00:20:55.802Z",
+  "reason": "compaction",
+  "status": {
+    "version": "2.0",
+    "lastUpdated": "2026-02-18T00:20:55.690Z",
+    "activeFeatures": [
+      "gas-student-platform",
+      "security-and-enhancements",
+      "aju-ej",
+      "login",
+      "students",
+      "new",
+      "[id]",
+      "agencies",
+      "edit",
+      "create-agency-user",
+      "import",
+      "reports",
+      "register",
+      "portal",
+      "reset-password",
+      "reset-password-request",
+      "visa-alerts"
+    ],
+    "primaryFeature": "gas-student-platform",
+    "features": {
+      "gas-student-platform": {
+        "phase": "do",
+        "matchRate": null,
+        "iterationCount": 0,
+        "startedAt": "2026-02-10T13:10:00.000Z",
+        "doStartedAt": "2026-02-10T14:05:00.000Z",
+        "documents": {
+          "plan": "docs/01-plan/features/gas-student-platform.plan.md",
+          "design": "docs/02-design/features/gas-student-platform.design.md",
+          "schema": "docs/01-plan/schema.md",
+          "conventions": "docs/01-plan/conventions.md",
+          "claudeMd": "CLAUDE.md"
+        }
+      },
+      "security-and-enhancements": {
+        "phase": "act",
+        "phaseNumber": 5,
+        "matchRate": null,
+        "iterationCount": 0,
+        "requirements": [],
+        "documents": {},
+        "timestamps": {
+          "started": "2026-02-15T11:40:53.299Z",
+          "lastUpdated": "2026-02-15T11:40:53.300Z"
+        },
+        "previousPhase": "check",
+        "autoAdvanced": true
+      },
+      "aju-ej": {
+        "phase": "do",
+        "phaseNumber": 3,
+        "matchRate": null,
+        "iterationCount": 0,
+        "requirements": [],
+        "documents": {},
+        "timestamps": {
+          "started": "2026-02-17T02:14:50.467Z",
+          "lastUpdated": "2026-02-17T12:00:57.420Z"
+        },
+        "lastFile": "C:/projects/aju-ej/app/page.tsx"
+      },
+      "login": {
+        "phase": "do",
+        "phaseNumber": 3,
+        "matchRate": null,
+        "iterationCount": 0,
+        "requirements": [],
+        "documents": {},
+        "timestamps": {
+          "started": "2026-02-17T02:15:21.670Z",
+          "lastUpdated": "2026-02-17T11:11:14.489Z"
+        },
+        "lastFile": "C:\\projects\\aju-ej\\app\\login\\page.tsx"
+      },
+      "students": {
+        "phase": "do",
+        "phaseNumber": 3,
+        "matchRate": null,
+        "iterationCount": 0,
+        "requirements": [],
+        "documents": {},
+        "timestamps": {
+          "started": "2026-02-17T02:16:07.846Z",
+          "lastUpdated": "2026-02-17T12:01:03.610Z"
+        },
+        "lastFile": "C:/projects/aju-ej/app/students/page.tsx"
+      },
+      "new": {
+        "phase": "do",
+        "phaseNumber": 3,
+        "matchRate": null,
+        "iterationCount": 0,
+        "requirements": [],
+        "documents": {},
+        "timestamps": {
+          "started": "2026-02-17T02:16:43.240Z",
+          "lastUpdated": "2026-02-17T12:01:11.019Z"
+        },
+        "lastFile": "C:/projects/aju-ej/app/students/new/page.tsx"
+      },
+      "[id]": {
+        "phase": "do",
+        "phaseNumber": 3,
+        "matchRate": null,
+        "iterationCount": 0,
+        "requirements": [],
+        "documents": {},
+        "timestamps": {
+          "started": "2026-02-17T02:24:38.024Z",
+          "lastUpdated": "2026-02-17T06:31:49.057Z"
+        },
+        "lastFile": "C:\\projects\\aju-ej\\app\\students\\[id]\\page.tsx"
+      },
+      "agencies": {
+        "phase": "do",
+        "phaseNumber": 3,
+        "matchRate": null,
+        "iterationCount": 0,
+        "requirements": [],
+        "documents": {},
+        "timestamps": {
+          "started": "2026-02-17T02:25:12.681Z",
+          "lastUpdated": "2026-02-17T11:27:09.304Z"
+        },
+        "lastFile": "C:\\projects\\aju-ej\\app\\agencies\\page.tsx"
+      },
+      "edit": {
+        "phase": "do",
+        "phaseNumber": 3,
+        "matchRate": null,
+        "iterationCount": 0,
+        "requirements": [],
+        "documents": {},
+        "timestamps": {
+          "started": "2026-02-17T02:31:21.813Z",
+          "lastUpdated": "2026-02-17T06:29:26.927Z"
+        },
+        "lastFile": "C:\\projects\\aju-ej\\app\\students\\[id]\\edit\\page.tsx"
+      },
+      "create-agency-user": {
+        "phase": "do",
+        "phaseNumber": 3,
+        "matchRate": null,
+        "iterationCount": 0,
+        "requirements": [],
+        "documents": {},
+        "timestamps": {
+          "started": "2026-02-17T02:50:50.547Z",
+          "lastUpdated": "2026-02-17T11:26:00.239Z"
+        },
+        "lastFile": "C:\\projects\\aju-ej\\app\\api\\create-agency-user\\route.ts"
+      },
+      "import": {
+        "phase": "do",
+        "phaseNumber": 3,
+        "matchRate": null,
+        "iterationCount": 0,
+        "requirements": [],
+        "documents": {},
+        "timestamps": {
+          "started": "2026-02-17T04:00:10.569Z",
+          "lastUpdated": "2026-02-17T11:47:44.890Z"
+        },
+        "lastFile": "C:/projects/aju-ej/app/students/import/page.tsx"
+      },
+      "reports": {
+        "phase": "do",
+        "phaseNumber": 3,
+        "matchRate": null,
+        "iterationCount": 0,
+        "requirements": [],
+        "documents": {},
+        "timestamps": {
+          "started": "2026-02-17T04:07:04.001Z",
+          "lastUpdated": "2026-02-17T12:00:50.886Z"
+        },
+        "lastFile": "C:/projects/aju-ej/app/reports/page.tsx"
+      },
+      "register": {
+        "phase": "do",
+        "phaseNumber": 3,
+        "matchRate": null,
+        "iterationCount": 0,
+        "requirements": [],
+        "documents": {},
+        "timestamps": {
+          "started": "2026-02-17T04:36:09.092Z",
+          "lastUpdated": "2026-02-17T12:01:17.289Z"
+        },
+        "lastFile": "C:/projects/aju-ej/app/register/page.tsx"
+      },
+      "portal": {
+        "phase": "do",
+        "phaseNumber": 3,
+        "matchRate": null,
+        "iterationCount": 0,
+        "requirements": [],
+        "documents": {},
+        "timestamps": {
+          "started": "2026-02-17T04:37:12.199Z",
+          "lastUpdated": "2026-02-17T12:01:15.906Z"
+        },
+        "lastFile": "C:/projects/aju-ej/app/portal/page.tsx"
+      },
+      "reset-password": {
+        "phase": "do",
+        "phaseNumber": 3,
+        "matchRate": null,
+        "iterationCount": 0,
+        "requirements": [],
+        "documents": {},
+        "timestamps": {
+          "started": "2026-02-17T04:37:26.559Z",
+          "lastUpdated": "2026-02-17T04:37:26.559Z"
+        },
+        "lastFile": "C:\\projects\\aju-ej\\app\\auth\\reset-password\\page.tsx"
+      },
+      "reset-password-request": {
+        "phase": "do",
+        "phaseNumber": 3,
+        "matchRate": null,
+        "iterationCount": 0,
+        "requirements": [],
+        "documents": {},
+        "timestamps": {
+          "started": "2026-02-17T04:37:57.002Z",
+          "lastUpdated": "2026-02-17T04:37:57.002Z"
+        },
+        "lastFile": "C:\\projects\\aju-ej\\app\\auth\\reset-password-request\\page.tsx"
+      },
+      "visa-alerts": {
+        "phase": "do",
+        "phaseNumber": 3,
+        "matchRate": null,
+        "iterationCount": 0,
+        "requirements": [],
+        "documents": {},
+        "timestamps": {
+          "started": "2026-02-17T12:01:46.392Z",
+          "lastUpdated": "2026-02-18T00:20:55.690Z"
+        },
+        "lastFile": "C:/projects/aju-ej/app/api/cron/visa-alerts/route.ts"
+      }
+    },
+    "pipeline": {
+      "currentPhase": 4,
+      "level": "Dynamic",
+      "phaseHistory": [
+        {
+          "phase": 1,
+          "name": "Schema",
+          "completedAt": "2026-02-10T13:30:00.000Z"
+        },
+        {
+          "phase": 2,
+          "name": "Convention",
+          "completedAt": "2026-02-10T13:30:00.000Z"
+        },
+        {
+          "phase": 3,
+          "name": "Design",
+          "completedAt": "2026-02-10T14:00:00.000Z"
+        },
+        {
+          "phase": 4,
+          "name": "Do",
+          "startedAt": "2026-02-10T14:05:00.000Z"
+        }
+      ]
+    },
+    "session": {
+      "startedAt": "2026-02-10T13:03:57.840Z",
+      "onboardingCompleted": true,
+      "lastActivity": "2026-02-18T00:20:55.690Z"
+    },
+    "history": [
+      {
+        "action": "plan_created",
+        "feature": "gas-student-platform",
+        "timestamp": "2026-02-10T13:10:00.000Z",
+        "details": "Plan document created"
+      },
+      {
+        "action": "foundation_setup",
+        "feature": "gas-student-platform",
+        "timestamp": "2026-02-10T13:30:00.000Z",
+        "details": "CLAUDE.md, schema.md, conventions.md created"
+      },
+      {
+        "action": "design_completed",
+        "feature": "gas-student-platform",
+        "timestamp": "2026-02-10T14:00:00.000Z",
+        "details": "Design document with 11 backend services, 11 frontend components, 60+ i18n keys"
+      },
+      {
+        "action": "do_started",
+        "feature": "gas-student-platform",
+        "timestamp": "2026-02-10T14:05:00.000Z",
+        "details": "Implementation phase started - 9 phases, 17 days estimated"
+      },
+      {
+        "timestamp": "2026-02-15T11:40:53.300Z",
+        "feature": "security-and-enhancements",
+        "phase": "act",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T02:14:50.467Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T02:14:59.697Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T02:15:10.354Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T02:15:21.670Z",
+        "feature": "login",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T02:15:42.193Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T02:16:07.846Z",
+        "feature": "students",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T02:16:43.240Z",
+        "feature": "new",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T02:23:42.303Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T02:23:45.396Z",
+        "feature": "new",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T02:23:48.250Z",
+        "feature": "new",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T02:23:51.827Z",
+        "feature": "new",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T02:24:38.024Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T02:25:12.681Z",
+        "feature": "agencies",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T02:27:47.982Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T02:27:51.883Z",
+        "feature": "new",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T02:27:54.911Z",
+        "feature": "new",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T02:27:57.469Z",
+        "feature": "students",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T02:28:01.624Z",
+        "feature": "students",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T02:29:14.209Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T02:31:21.813Z",
+        "feature": "edit",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T02:31:48.040Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T02:35:18.914Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T02:39:10.147Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T02:39:13.152Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T02:39:16.257Z",
+        "feature": "edit",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T02:39:19.016Z",
+        "feature": "edit",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T02:39:26.163Z",
+        "feature": "edit",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T02:39:29.312Z",
+        "feature": "edit",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T02:39:38.599Z",
+        "feature": "edit",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T02:39:43.630Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T02:50:50.547Z",
+        "feature": "create-agency-user",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T02:51:00.977Z",
+        "feature": "agencies",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T02:51:10.960Z",
+        "feature": "agencies",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T02:54:03.409Z",
+        "feature": "agencies",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T02:58:37.263Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T02:58:46.811Z",
+        "feature": "students",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T02:58:58.628Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T03:02:26.134Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T03:03:36.521Z",
+        "feature": "new",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T03:03:40.752Z",
+        "feature": "students",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T03:03:44.496Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T03:45:08.516Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T03:45:44.223Z",
+        "feature": "students",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T03:45:49.982Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T03:45:54.708Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T03:52:49.008Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T03:52:58.349Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T03:53:04.122Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T03:53:07.024Z",
+        "feature": "students",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T03:53:09.443Z",
+        "feature": "students",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T03:53:12.773Z",
+        "feature": "students",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T03:53:27.170Z",
+        "feature": "students",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T04:00:10.569Z",
+        "feature": "import",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T04:00:16.453Z",
+        "feature": "students",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T04:06:28.477Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T04:07:04.001Z",
+        "feature": "reports",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T04:07:52.378Z",
+        "feature": "students",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T04:08:00.694Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T04:08:10.051Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T04:08:29.273Z",
+        "feature": "edit",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T04:08:34.318Z",
+        "feature": "new",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T04:14:20.477Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T04:14:27.179Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T04:14:47.991Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T04:15:46.398Z",
+        "feature": "agencies",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T04:22:00.686Z",
+        "feature": "students",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T04:34:53.444Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T04:34:54.443Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T04:35:08.857Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T04:35:18.092Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T04:36:09.092Z",
+        "feature": "register",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T04:36:25.683Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T04:36:36.468Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T04:37:12.199Z",
+        "feature": "portal",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T04:37:26.559Z",
+        "feature": "reset-password",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T04:37:31.109Z",
+        "feature": "login",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T04:37:36.851Z",
+        "feature": "login",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T04:37:41.478Z",
+        "feature": "login",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T04:37:57.002Z",
+        "feature": "reset-password-request",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T05:18:49.267Z",
+        "feature": "register",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T05:18:59.987Z",
+        "feature": "register",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T05:19:05.552Z",
+        "feature": "register",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T05:26:55.977Z",
+        "feature": "register",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T05:28:41.929Z",
+        "feature": "register",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T05:28:48.581Z",
+        "feature": "register",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T05:47:18.533Z",
+        "feature": "register",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T05:52:02.071Z",
+        "feature": "register",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T06:27:30.561Z",
+        "feature": "portal",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T06:29:22.831Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T06:29:26.927Z",
+        "feature": "edit",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T06:29:40.440Z",
+        "feature": "students",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T06:29:49.181Z",
+        "feature": "new",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T06:31:16.940Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T06:31:20.405Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T06:31:24.662Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T06:31:31.562Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T06:31:49.057Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T06:31:54.669Z",
+        "feature": "portal",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T06:32:00.169Z",
+        "feature": "portal",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T06:32:09.120Z",
+        "feature": "portal",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T10:53:27.748Z",
+        "feature": "portal",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:00:52.812Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:02:20.976Z",
+        "feature": "portal",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:02:28.106Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:02:41.912Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:02:56.150Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:09:20.004Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:09:24.359Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:10:50.275Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:10:55.673Z",
+        "feature": "portal",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:11:00.059Z",
+        "feature": "portal",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:11:14.489Z",
+        "feature": "login",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:11:57.300Z",
+        "feature": "register",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:12:03.147Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:12:07.195Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:12:11.845Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:12:20.447Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:14:24.407Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:14:26.040Z",
+        "feature": "students",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:14:29.263Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:14:30.577Z",
+        "feature": "students",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:14:33.703Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:14:34.841Z",
+        "feature": "students",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:14:38.566Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:14:40.958Z",
+        "feature": "students",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:14:44.146Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:14:49.296Z",
+        "feature": "students",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:14:52.649Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:14:54.392Z",
+        "feature": "students",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:14:57.380Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:14:59.527Z",
+        "feature": "students",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:15:04.484Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:15:07.497Z",
+        "feature": "students",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:15:10.378Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:15:11.722Z",
+        "feature": "students",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:15:15.403Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:15:16.506Z",
+        "feature": "students",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:15:19.139Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:15:20.062Z",
+        "feature": "students",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:15:23.167Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:15:26.358Z",
+        "feature": "students",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:15:31.673Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:15:36.546Z",
+        "feature": "students",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:15:40.034Z",
+        "feature": "students",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:15:43.158Z",
+        "feature": "students",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:15:47.519Z",
+        "feature": "students",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:16:08.230Z",
+        "feature": "new",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:16:12.278Z",
+        "feature": "new",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:16:15.534Z",
+        "feature": "new",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:16:21.084Z",
+        "feature": "new",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:16:26.766Z",
+        "feature": "new",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:16:30.744Z",
+        "feature": "new",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:17:01.273Z",
+        "feature": "new",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:25:49.943Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:26:00.239Z",
+        "feature": "create-agency-user",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:26:12.717Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:27:09.304Z",
+        "feature": "agencies",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:27:14.740Z",
+        "feature": "reports",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:27:18.481Z",
+        "feature": "reports",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:27:22.378Z",
+        "feature": "reports",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:27:37.773Z",
+        "feature": "reports",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:28:00.677Z",
+        "feature": "reports",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:28:04.828Z",
+        "feature": "reports",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:28:09.319Z",
+        "feature": "reports",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:28:16.451Z",
+        "feature": "reports",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:47:43.909Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:47:44.890Z",
+        "feature": "import",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T11:47:46.646Z",
+        "feature": "new",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T12:00:34.149Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T12:00:38.221Z",
+        "feature": "reports",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T12:00:39.943Z",
+        "feature": "reports",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T12:00:44.409Z",
+        "feature": "reports",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T12:00:50.886Z",
+        "feature": "reports",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T12:00:53.613Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T12:00:54.655Z",
+        "feature": "students",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T12:00:57.421Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T12:00:58.751Z",
+        "feature": "students",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T12:01:02.299Z",
+        "feature": "students",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T12:01:03.610Z",
+        "feature": "students",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T12:01:07.992Z",
+        "feature": "new",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T12:01:09.456Z",
+        "feature": "new",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T12:01:11.019Z",
+        "feature": "new",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T12:01:15.906Z",
+        "feature": "portal",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T12:01:17.289Z",
+        "feature": "register",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-17T12:01:46.392Z",
+        "feature": "visa-alerts",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-18T00:20:55.690Z",
+        "feature": "visa-alerts",
+        "phase": "do",
+        "action": "updated"
+      }
+    ]
+  }
+}

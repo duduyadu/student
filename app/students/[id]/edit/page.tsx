@@ -26,6 +26,7 @@ export default function EditStudentPage() {
     visa_type: '', visa_expiry: '',
     topik_level: '',
     status: '유학전', agency_id: '', notes: '',
+    language_school: '', current_university: '', current_company: '',
   })
 
   useEffect(() => { checkAuth() }, [])
@@ -33,7 +34,10 @@ export default function EditStudentPage() {
   const checkAuth = async () => {
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) { router.push('/login'); return }
-    setUser(session.user.user_metadata as UserMeta)
+    const meta = session.user.user_metadata as UserMeta
+    // 학생 역할은 포털로 이동
+    if (meta.role === 'student') { router.push('/portal'); return }
+    setUser(meta)
 
     const [studentRes, agenciesRes] = await Promise.all([
       supabase.from('students').select('*').eq('id', id).single(),
@@ -64,6 +68,9 @@ export default function EditStudentPage() {
         status:            s.status            ?? '유학전',
         agency_id:         s.agency_id        ?? '',
         notes:             s.notes            ?? '',
+        language_school:   s.language_school   ?? '',
+        current_university: s.current_university ?? '',
+        current_company:   s.current_company   ?? '',
       })
     } else {
       router.push('/students')
@@ -106,6 +113,9 @@ export default function EditStudentPage() {
       status:            form.status,
       agency_id:         form.agency_id         || null,
       notes:             form.notes             || null,
+      language_school:   form.language_school   || null,
+      current_university: form.current_university || null,
+      current_company:   form.current_company   || null,
     }
 
     const { error: dbError } = await supabase
@@ -151,11 +161,12 @@ export default function EditStudentPage() {
 
       {/* 네비게이션 */}
       <nav className="bg-white border-b border-slate-200">
-        <div className="max-w-6xl mx-auto px-6 flex gap-6">
-          <Link href="/" className="py-3 text-sm font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent">대시보드</Link>
-          <Link href="/students" className="py-3 text-sm font-medium text-blue-600 border-b-2 border-blue-600">학생 관리</Link>
+        <div className="max-w-6xl mx-auto px-6 flex gap-6 overflow-x-auto">
+          <Link href="/" className="py-3 text-sm font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent whitespace-nowrap">대시보드</Link>
+          <Link href="/students" className="py-3 text-sm font-medium text-blue-600 border-b-2 border-blue-600 whitespace-nowrap">학생 관리</Link>
+          <Link href="/reports" className="py-3 text-sm font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent whitespace-nowrap">통계</Link>
           {user?.role === 'master' && (
-            <Link href="/agencies" className="py-3 text-sm font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent">유학원 관리</Link>
+            <Link href="/agencies" className="py-3 text-sm font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent whitespace-nowrap">유학원 관리</Link>
           )}
         </div>
       </nav>
@@ -204,6 +215,30 @@ export default function EditStudentPage() {
                 </select>
               </Field>
             </Row>
+            {form.status !== '유학전' && (
+              <Field label={
+                form.status === '어학연수' ? '재학 중인 어학원' :
+                form.status === '대학교'   ? '재학 중인 대학교' : '재직 중인 회사'
+              }>
+                <input
+                  type="text"
+                  value={
+                    form.status === '어학연수' ? form.language_school :
+                    form.status === '대학교'   ? form.current_university : form.current_company
+                  }
+                  onChange={e => set(
+                    form.status === '어학연수' ? 'language_school' :
+                    form.status === '대학교'   ? 'current_university' : 'current_company',
+                    e.target.value
+                  )}
+                  className={input}
+                  placeholder={
+                    form.status === '어학연수' ? '예: 연세어학당' :
+                    form.status === '대학교'   ? '예: 서울대학교' : '예: 삼성전자'
+                  }
+                />
+              </Field>
+            )}
           </Section>
 
           {/* 연락처 */}

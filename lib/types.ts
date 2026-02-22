@@ -1,8 +1,8 @@
-export type UserRole = 'master' | 'agency'
+export type UserRole = 'master' | 'agency' | 'student'
 
 export interface UserMeta {
   role: UserRole
-  agency_code: string
+  agency_code?: string
   name_kr: string
 }
 
@@ -45,9 +45,15 @@ export interface Student {
   preferred_lang: string
   notes?: string
   agency_id?: string
+  language_school?: string
+  current_university?: string
+  current_company?: string
   is_active: boolean
   created_at: string
   updated_at: string
+  photo_url?: string
+  is_approved?: boolean
+  auth_user_id?: string
   agency?: Agency
 }
 
