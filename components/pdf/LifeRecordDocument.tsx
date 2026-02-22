@@ -450,12 +450,12 @@ export default function LifeRecordDocument({
         {examResults.length > 0 && (
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>4. TOPIK 성적 추이 ({examResults.length}회)</Text>
+              <Text style={styles.sectionTitle}>4. TOPIK 모의고사 성적 ({examResults.length}회)</Text>
             </View>
             {/* 테이블 헤더 */}
             <View style={styles.examTableHeader}>
-              <Text style={[styles.examTableLabel, { width: 70 }]}>시험 일자</Text>
-              <Text style={[styles.examTableLabel, { width: 60 }]}>유형</Text>
+              <Text style={[styles.examTableLabel, { width: 70 }]}>모의고사 일자</Text>
+              <Text style={[styles.examTableLabel, { width: 60 }]}>회차</Text>
               <Text style={[styles.examTableLabel, { width: 40, textAlign: 'center' }]}>듣기</Text>
               <Text style={[styles.examTableLabel, { width: 40, textAlign: 'center' }]}>읽기</Text>
               <Text style={[styles.examTableLabel, { width: 50, textAlign: 'center' }]}>총점</Text>
@@ -464,7 +464,7 @@ export default function LifeRecordDocument({
             {[...examResults].sort((a, b) => a.exam_date.localeCompare(b.exam_date)).map(e => (
               <View key={e.id} style={styles.examRow}>
                 <Text style={styles.examDate}>{e.exam_date}</Text>
-                <Text style={styles.examType}>{e.exam_type}</Text>
+                <Text style={styles.examType}>{e.round_number ? `${e.round_number}회차` : (e.exam_type ?? '-')}</Text>
                 <Text style={[styles.examScore]}>{e.listening_score ?? '-'}</Text>
                 <Text style={[styles.examScore]}>{e.reading_score ?? '-'}</Text>
                 <Text style={[styles.examScore, { width: 50, fontWeight: 'bold' }]}>
