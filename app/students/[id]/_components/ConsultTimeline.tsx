@@ -61,16 +61,28 @@ const DEFAULT_FORM: FormState = {
   next_goal:       '',
 }
 
+const PAGE_SIZE = 20
+
 export default function ConsultTimeline({ studentId, consultations, onRefresh }: Props) {
   const [showForm, setShowForm]   = useState(false)
   const [saving, setSaving]       = useState(false)
   const [form, setForm]           = useState<FormState>(DEFAULT_FORM)
   const [showPublicOnly, setShowPublicOnly] = useState(false)
   const [editId, setEditId]       = useState<string | null>(null)
+  const [visibleCount, setVisibleCount]     = useState(PAGE_SIZE)
 
-  const visible = showPublicOnly
+  const filtered = showPublicOnly
     ? consultations.filter(c => c.is_public)
     : consultations
+
+  // 필터 변경 시 더보기 초기화
+  const handleFilterChange = (publicOnly: boolean) => {
+    setShowPublicOnly(publicOnly)
+    setVisibleCount(PAGE_SIZE)
+  }
+
+  const visible = filtered.slice(0, visibleCount)
+  const remaining = filtered.length - visibleCount
 
   const openAdd = () => { setForm(DEFAULT_FORM); setEditId(null); setShowForm(true) }
   const openEdit = (c: Consultation) => {
@@ -131,13 +143,13 @@ export default function ConsultTimeline({ studentId, consultations, onRefresh }:
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-sm text-slate-500">
           <button
-            onClick={() => setShowPublicOnly(false)}
+            onClick={() => handleFilterChange(false)}
             className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${!showPublicOnly ? 'bg-slate-200 text-slate-700' : 'hover:bg-slate-100'}`}
           >
             전체 ({consultations.length})
           </button>
           <button
-            onClick={() => setShowPublicOnly(true)}
+            onClick={() => handleFilterChange(true)}
             className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${showPublicOnly ? 'bg-green-100 text-green-700' : 'hover:bg-slate-100'}`}
           >
             공개만 ({consultations.filter(c => c.is_public).length})
@@ -340,6 +352,18 @@ export default function ConsultTimeline({ studentId, consultations, onRefresh }:
               )
             })}
           </div>
+
+          {/* 더보기 버튼 */}
+          {remaining > 0 && (
+            <div className="mt-3 text-center">
+              <button
+                onClick={() => setVisibleCount(v => v + PAGE_SIZE)}
+                className="text-sm text-slate-500 hover:text-blue-600 bg-white hover:bg-blue-50 px-5 py-2 rounded-xl border border-slate-200 hover:border-blue-200 transition-colors"
+              >
+                더보기 ({remaining}개 남음)
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>

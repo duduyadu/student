@@ -4,11 +4,12 @@ import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
-import type { Student, Consultation, ExamResult, UserMeta, TeacherEvaluation, EvaluationTemplate } from '@/lib/types'
+import type { Student, Consultation, ExamResult, UserMeta, TeacherEvaluation, EvaluationTemplate, AspirationHistory } from '@/lib/types'
 import { getUserMeta } from '@/lib/auth'
 import { STATUS_COLORS, TOPIK_LEVELS, CONSULT_TYPES } from '@/lib/constants'
 import ConsultTimeline from './_components/ConsultTimeline'
 import EvaluationPanel from './_components/EvaluationPanel'
+import AspirationTracker from './_components/AspirationTracker'
 import ExamChart, { type ChartLevel } from '@/components/ExamChart'
 
 export default function StudentDetailPage() {
@@ -27,6 +28,9 @@ export default function StudentDetailPage() {
   // 선생님 평가
   const [evaluations, setEvaluations]       = useState<TeacherEvaluation[]>([])
   const [evalTemplates, setEvalTemplates]   = useState<EvaluationTemplate[]>([])
+
+  // 희망 대학 이력
+  const [aspirations, setAspirations] = useState<AspirationHistory[]>([])
 
   // 시험 추가/수정 폼
   const [showExamForm, setShowExamForm] = useState(false)
@@ -52,7 +56,7 @@ export default function StudentDetailPage() {
     // 학생 역할은 포털로 이동
     if (meta.role === 'student') { router.push('/portal'); return }
     setUser(meta)
-    await Promise.all([loadStudent(), loadConsults(), loadExams(), loadConsents(), loadEvaluations(), loadEvalTemplates()])
+    await Promise.all([loadStudent(), loadConsults(), loadExams(), loadConsents(), loadEvaluations(), loadEvalTemplates(), loadAspirations()])
     setLoading(false)
   }
 
@@ -99,6 +103,13 @@ export default function StudentDetailPage() {
       .from('evaluation_templates').select('*')
       .eq('is_active', true).order('sort_order')
     if (data) setEvalTemplates(data as EvaluationTemplate[])
+  }
+
+  const loadAspirations = async () => {
+    const { data } = await supabase
+      .from('aspiration_history').select('*')
+      .eq('student_id', id).order('changed_date', { ascending: false })
+    if (data) setAspirations(data as AspirationHistory[])
   }
 
   // 총점으로 등급 자동 계산 (TOPIK I 기준: 200점 만점)
@@ -418,6 +429,17 @@ export default function StudentDetailPage() {
                 </InfoCard>
               </div>
             )}
+
+            {/* 희망 대학 변경 이력 */}
+            <div className="md:col-span-2">
+              <div className="bg-white rounded-2xl shadow-sm p-5">
+                <AspirationTracker
+                  studentId={id}
+                  aspirations={aspirations}
+                  onRefresh={loadAspirations}
+                />
+              </div>
+            </div>
           </div>
         )}
 

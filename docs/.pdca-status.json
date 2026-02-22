@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "lastUpdated": "2026-02-22T10:30:23.856Z",
+  "lastUpdated": "2026-02-22T11:39:14.439Z",
   "activeFeatures": [
     "security-and-enhancements",
     "aju-ej",
@@ -28,7 +28,8 @@
     "exam-ai-analysis",
     "health",
     "audit",
-    "agency-accounts"
+    "agency-accounts",
+    "topik-ai-proxy"
   ],
   "primaryFeature": "gas-student-platform",
   "features": {
@@ -115,7 +116,7 @@
       "documents": {},
       "timestamps": {
         "started": "2026-02-17T02:24:38.024Z",
-        "lastUpdated": "2026-02-22T09:24:05.395Z"
+        "lastUpdated": "2026-02-22T11:09:10.798Z"
       },
       "lastFile": "C:/projects/aju-ej/app/students/[id]/page.tsx"
     },
@@ -297,9 +298,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-02-22T01:18:33.815Z",
-        "lastUpdated": "2026-02-22T01:19:16.768Z"
+        "lastUpdated": "2026-02-22T11:09:47.537Z"
       },
-      "lastFile": "/c/projects/aju-ej/app/students/[id]/_components/EvaluationPanel.tsx"
+      "lastFile": "C:/projects/aju-ej/app/students/[id]/_components/ConsultTimeline.tsx"
     },
     "pdf": {
       "phase": "do",
@@ -336,9 +337,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-02-22T02:12:08.333Z",
-        "lastUpdated": "2026-02-22T02:12:08.333Z"
+        "lastUpdated": "2026-02-22T11:39:14.439Z"
       },
-      "lastFile": "C:\\projects\\aju-ej\\app\\api\\mock-exam-import\\route.ts"
+      "lastFile": "C:/projects/aju-ej/app/api/mock-exam-import/route.ts"
     },
     "exam-ai-analysis": {
       "phase": "do",
@@ -391,6 +392,19 @@
         "lastUpdated": "2026-02-22T08:43:19.151Z"
       },
       "lastFile": "C:\\projects\\aju-ej\\app\\api\\agency-accounts\\route.ts"
+    },
+    "topik-ai-proxy": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-02-22T11:27:56.600Z",
+        "lastUpdated": "2026-02-22T11:27:56.600Z"
+      },
+      "lastFile": "C:/projects/aju-ej/app/api/topik-ai-proxy/route.ts"
     }
   },
   "pipeline": {
@@ -422,7 +436,7 @@
   "session": {
     "startedAt": "2026-02-10T13:03:57.840Z",
     "onboardingCompleted": true,
-    "lastActivity": "2026-02-22T10:30:23.856Z"
+    "lastActivity": "2026-02-22T11:39:14.439Z"
   },
   "history": [
     {
@@ -2540,6 +2554,90 @@
     {
       "timestamp": "2026-02-22T10:30:23.856Z",
       "feature": "health",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-22T10:54:40.914Z",
+      "feature": "mock-exam-import",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-22T10:54:46.164Z",
+      "feature": "mock-exam-import",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-22T10:54:50.544Z",
+      "feature": "mock-exam-import",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-22T11:08:38.153Z",
+      "feature": "_components",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-22T11:08:48.913Z",
+      "feature": "[id]",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-22T11:08:53.958Z",
+      "feature": "[id]",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-22T11:08:57.846Z",
+      "feature": "[id]",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-22T11:09:03.339Z",
+      "feature": "[id]",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-22T11:09:10.798Z",
+      "feature": "[id]",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-22T11:09:23.423Z",
+      "feature": "_components",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-22T11:09:30.618Z",
+      "feature": "_components",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-22T11:09:47.538Z",
+      "feature": "_components",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-22T11:27:56.600Z",
+      "feature": "topik-ai-proxy",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-22T11:39:14.439Z",
+      "feature": "mock-exam-import",
       "phase": "do",
       "action": "updated"
     }

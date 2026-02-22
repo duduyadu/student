@@ -22,28 +22,29 @@ function normalizeHeader(h: string): string {
   return s
 }
 
-// 총점 → 등급 자동 계산
+// 총점 → 등급 자동 계산 (TOPIK I 기준: 200점 만점)
 function calcLevel(total: number): string {
-  if (total >= 230) return '6급'
-  if (total >= 190) return '5급'
-  if (total >= 150) return '4급'
-  if (total >= 120) return '3급'
-  if (total >= 80)  return '2급'
-  if (total >= 40)  return '1급'
+  if (total >= 140) return '2급'
+  if (total >= 80)  return '1급'
   return '불합격'
+}
+
+// student_code 정규화: 다양한 포맷 허용 (26-001-001 → 26001001)
+function normalizeStudentCode(code: unknown): string {
+  return String(code ?? '').replace(/-/g, '').trim()
 }
 
 export async function POST(req: NextRequest) {
   try {
     const formData    = await req.formData()
     const file        = formData.get('file') as File | null
-    const studentId   = formData.get('studentId') as string | null
+    const studentId   = formData.get('studentId') as string | null   // 단일 학생 모드 (선택)
     const examDate    = formData.get('examDate') as string | null
     const roundNumber = formData.get('roundNumber') as string | null
 
-    if (!file || !studentId || !examDate) {
+    if (!file || !examDate) {
       return NextResponse.json(
-        { error: 'file, studentId, examDate 필수' },
+        { error: 'file, examDate 필수' },
         { status: 400 },
       )
     }
@@ -58,15 +59,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Excel 데이터가 비어 있습니다.' }, { status: 400 })
     }
 
-    // ── 2. 첫 행으로 컬럼 매핑 확인 ──────────────────
+    // ── 2. 컬럼 매핑 ──────────────────────────────────
     const firstRow  = rows[0]
     const headerMap: Record<string, string> = {}
     for (const key of Object.keys(firstRow)) {
       headerMap[key] = normalizeHeader(key)
     }
 
-    // ── 3. 단일 학생 업로드 모드 vs 전체 학생 모드 ──
-    // studentId가 있으면 해당 학생 1명만 저장
+    // ── 3. 처리 모드 결정 ─────────────────────────────
+    // - studentId 있음: 단일 학생 모드 (UI에서 사용, 첫 행만 처리)
+    // - studentId 없음: student_code 모드 (TOPIK 프로그램 Excel, 전체 행 처리)
+    const isSingleMode = Boolean(studentId)
+
     const supabase = getServiceClient()
     const inserted: unknown[] = []
     const errors:   string[]  = []
@@ -78,12 +82,37 @@ export async function POST(req: NextRequest) {
         norm[headerMap[origKey] ?? origKey] = val
       }
 
+      // ── student_id 결정 ──────────────────────────
+      let resolvedStudentId: string | null = studentId
+
+      if (!resolvedStudentId) {
+        // student_code로 학생 조회
+        const rawCode = norm.student_code
+        if (!rawCode || String(rawCode).trim() === '') {
+          errors.push(`student_code 없음, 행 건너뜀: ${JSON.stringify(norm)}`)
+          continue
+        }
+        const code = normalizeStudentCode(rawCode)
+        const { data: studentRow, error: lookupErr } = await supabase
+          .from('students')
+          .select('id')
+          .eq('student_code', code)
+          .single()
+
+        if (lookupErr || !studentRow) {
+          errors.push(`student_code '${code}' 에 해당하는 학생 없음`)
+          continue
+        }
+        resolvedStudentId = studentRow.id
+      }
+
+      // ── 점수 계산 ──────────────────────────────────
       const listening = norm.listening !== '' ? Number(norm.listening) : null
       const reading   = norm.reading   !== '' ? Number(norm.reading)   : null
-      const writing   = norm.writing   !== '' ? Number(norm.writing)   : null
       const totalRaw  = norm.total
+      // TOPIK I: 듣기 + 읽기만 (쓰기 없음), 200점 만점
       const total     = totalRaw !== '' ? Number(totalRaw) : (
-        (listening ?? 0) + (reading ?? 0) + (writing ?? 0)
+        (listening ?? 0) + (reading ?? 0)
       )
       const level     = (norm.level as string) || calcLevel(total)
 
@@ -93,14 +122,14 @@ export async function POST(req: NextRequest) {
       }
 
       const payload = {
-        student_id:      studentId,
+        student_id:      resolvedStudentId,
         exam_date:       examDate,
         exam_type:       'TOPIK 모의고사',
         exam_source:     'mock',
         round_number:    roundNumber ? parseInt(roundNumber) : null,
         listening_score: listening,
         reading_score:   reading,
-        writing_score:   writing,
+        writing_score:   null,  // TOPIK I: 쓰기 없음
         total_score:     total,
         level,
         section_scores:  {},
@@ -119,8 +148,8 @@ export async function POST(req: NextRequest) {
         inserted.push(data)
       }
 
-      // 단일 학생 모드 → 첫 행만 처리
-      break
+      // 단일 학생 모드: 첫 행만 처리
+      if (isSingleMode) break
     }
 
     return NextResponse.json({
