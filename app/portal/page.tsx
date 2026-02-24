@@ -8,13 +8,14 @@ import { STATUS_COLORS } from '@/lib/constants'
 import { t, type Lang } from '@/lib/i18n'
 import { useLang } from '@/lib/useLang'
 import { LangToggle } from '@/components/LangToggle'
+import DocumentTab from './_components/DocumentTab'
 
 export default function PortalPage() {
   const router = useRouter()
   const [student, setStudent]       = useState<Student | null>(null)
   const [loading, setLoading]       = useState(true)
   const [notApproved, setNotApproved] = useState(false)
-  const [activeTab, setActiveTab]   = useState<'info' | 'consult' | 'exam' | 'account'>('info')
+  const [activeTab, setActiveTab]   = useState<'info' | 'docs' | 'consult' | 'exam' | 'account'>('info')
   const [lang, setLang]             = useState<Lang>('ko')
 
   // 정보 수정
@@ -297,6 +298,7 @@ export default function PortalPage() {
         <div className="flex gap-1 bg-white rounded-2xl p-1 shadow-sm overflow-x-auto">
           {([
             { key: 'info',    label: t('tabInfo', lang) },
+            { key: 'docs',    label: lang === 'ko' ? '서류' : 'Hồ Sơ' },
             { key: 'consult', label: `${t('tabConsult', lang)} (${consults.length})` },
             { key: 'exam',    label: `${t('tabExam', lang)} (${exams.length})` },
             { key: 'account', label: t('tabAccount', lang) },
@@ -309,6 +311,11 @@ export default function PortalPage() {
             </button>
           ))}
         </div>
+
+        {/* ── 서류 탭 ── */}
+        {activeTab === 'docs' && student && (
+          <DocumentTab studentId={student.id} lang={lang} />
+        )}
 
         {/* ── 내 정보 탭 ── */}
         {activeTab === 'info' && (

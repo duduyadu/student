@@ -152,3 +152,40 @@ export interface AspirationHistory {
   extra_data: Record<string, unknown>
   created_at: string
 }
+
+export type DocCategory = 'identity' | 'school' | 'financial' | 'health'
+export type DocStatus   = 'pending' | 'submitted' | 'reviewing' | 'approved' | 'rejected'
+
+export interface DocumentType {
+  id:          string
+  name_kr:     string
+  name_vi:     string
+  category:    DocCategory
+  visa_types:  string[]
+  is_required: boolean
+  has_expiry:  boolean
+  sort_order:  number
+  is_active:   boolean
+  created_at:  string
+}
+
+export interface StudentDocument {
+  id:               string
+  student_id:       string
+  doc_type_id:      string
+  status:           DocStatus
+  self_checked:     boolean
+  self_checked_at?: string
+  submitted_at?:    string
+  expiry_date?:     string
+  file_url?:        string
+  file_name?:       string
+  reviewer_id?:     string
+  reviewer_name?:   string
+  reviewed_at?:     string
+  reject_reason?:   string
+  notes?:           string
+  created_at:       string
+  updated_at:       string
+  doc_type?:        DocumentType
+}

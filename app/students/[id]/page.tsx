@@ -10,6 +10,7 @@ import { STATUS_COLORS, TOPIK_LEVELS, CONSULT_TYPES } from '@/lib/constants'
 import ConsultTimeline from './_components/ConsultTimeline'
 import EvaluationPanel from './_components/EvaluationPanel'
 import AspirationTracker from './_components/AspirationTracker'
+import DocumentChecklist from './_components/DocumentChecklist'
 import ExamChart, { type ChartLevel } from '@/components/ExamChart'
 
 export default function StudentDetailPage() {
@@ -21,7 +22,7 @@ export default function StudentDetailPage() {
   const [consults, setConsults] = useState<Consultation[]>([])
   const [exams, setExams]       = useState<ExamResult[]>([])
   const [loading, setLoading]   = useState(true)
-  const [activeTab, setTab]     = useState<'info' | 'consult' | 'exam' | 'evaluation' | 'consent'>('info')
+  const [activeTab, setTab]     = useState<'info' | 'consult' | 'exam' | 'evaluation' | 'docs' | 'consent'>('info')
   const [consents, setConsents] = useState<{id:string; consent_date:string; consent_type:string; consent_text:string}[]>([])
   const [expandedConsent, setExpandedConsent] = useState<string | null>(null)
 
@@ -381,6 +382,7 @@ export default function StudentDetailPage() {
             { key: 'consult',    label: `상담 히스토리 (${consults.length})`, show: true },
             { key: 'exam',       label: `시험 성적 (${exams.length})`,       show: true },
             { key: 'evaluation', label: `선생님 평가 (${evaluations.length})`, show: true },
+            { key: 'docs',       label: '서류 체크리스트',                     show: true },
             { key: 'consent',    label: `개인정보 동의 (${consents.length})`, show: user?.role === 'master' },
           ] as const).filter(t => t.show).map(t => (
             <button key={t.key} onClick={() => setTab(t.key)}
@@ -614,6 +616,11 @@ export default function StudentDetailPage() {
             templates={evalTemplates}
             onRefresh={loadEvaluations}
           />
+        )}
+
+        {/* ── 서류 체크리스트 탭 ── */}
+        {activeTab === 'docs' && (
+          <DocumentChecklist studentId={id} />
         )}
 
         {/* ── 개인정보 동의 탭 (master 전용) ── */}
