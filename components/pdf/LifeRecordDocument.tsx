@@ -4,305 +4,463 @@ import {
 import path from 'path'
 import type { Student, Consultation, TeacherEvaluation, ExamResult, AspirationHistory } from '@/lib/types'
 
-// ── 한글 폰트 등록 ──────────────────────
+// ── 폰트 등록 ──────────────────────────────────────
 const fontPath = path.join(process.cwd(), 'public/fonts/NotoSansKR.ttf')
 Font.register({
   family: 'NotoSansKR',
   fonts: [
-    { src: fontPath, fontWeight: 'normal',  fontStyle: 'normal' },
-    { src: fontPath, fontWeight: 'bold',    fontStyle: 'normal' },
-    { src: fontPath, fontWeight: 'normal',  fontStyle: 'italic' },
-    { src: fontPath, fontWeight: 'bold',    fontStyle: 'italic' },
+    { src: fontPath, fontWeight: 'normal', fontStyle: 'normal' },
+    { src: fontPath, fontWeight: 'bold',   fontStyle: 'normal' },
+    { src: fontPath, fontWeight: 'normal', fontStyle: 'italic' },
+    { src: fontPath, fontWeight: 'bold',   fontStyle: 'italic' },
   ],
 })
-Font.registerHyphenationCallback(word => [word]) // 한글 줄바꿈 방지
+Font.registerHyphenationCallback(word => [word])
 
-// ── 번역 딕셔너리 ──────────────────────
+// ── 번역 ──────────────────────────────────────────
 const T = {
   ko: {
-    title: '학 생 생 활 기 록 부',
-    subtitle: 'STUDENT LIFE RECORD BOOK',
-    orgSub: '베트남 유학생 통합 관리 플랫폼',
-    section1: '1. 학생 기본 정보',
-    nameKr: '이름 (KR)', nameVn: '이름 (VN)',
-    dob: '생년월일', gender: '성별',
-    studentCode: '학번', status: '현재 상태',
-    enrollDate: '등록일', topik: 'TOPIK 등급',
-    noTopik: '미취득',
-    langSchool: '재학 어학원', targetUniv: '목표 대학',
-    visa: '비자', visaExpiry: '만료',
-    section2: '2. 상담 이력',
-    noConsult: '공개 상담 기록이 없습니다.',
-    goal: '목표', content: '내용', improvement: '개선', nextGoal: '목표',
-    section3: '3. 선생님 종합 평가',
-    section4: '4. TOPIK 모의고사 성적',
-    examDate: '모의고사 일자', round: '회차',
-    listening: '듣기', reading: '읽기', total: '총점', level: '등급',
-    issuedAt: '발급일',
-    footerMain: '본 문서는 AJU E&J Education Co., Ltd.에서 공식 발급한 학생 생활기록부입니다.',
-    footerSub: 'This document is officially issued by AJU E&J Education Co., Ltd.',
+    title:      '학 생 생 활 기 록 부',
+    subtitle:   'STUDENT LIFE RECORD BOOK',
+    orgSub:     '베트남 유학생 통합 관리 플랫폼',
+    section1:   '1. 학생 기본 정보',
+    nameKr:     '이름 (KR)', nameVn: '이름 (VN)',
+    dob:        '생년월일', gender: '성별',
+    studentCode:'학번',     status: '현재 상태',
+    enrollDate: '등록일',   topik:  'TOPIK 등급',
+    noTopik:    '미취득',
+    langSchool: '재학 어학원', targetUniv: '목표 대학 / 학과',
+    visa:       '비자 종류', visaExpiry: '비자 만료일',
+    section2:   '2. 상담 이력',
+    noConsult:  '공개 상담 기록이 없습니다.',
+    goal:       '목표', content: '내용', improvement: '개선사항', nextGoal: '다음 목표',
+    section3:   '3. 선생님 종합 평가',
+    noEval:     '공개 평가 기록이 없습니다.',
+    section4:   '4. TOPIK 모의고사 성적',
+    examDate:   '시험일', round: '회차',
+    listening:  '듣기', reading: '읽기', total: '총점', level: '등급',
+    noExam:     '시험 기록이 없습니다.',
+    issuedAt:   '발급일',
+    footerDoc:  '학생생활기록부',
+    footerOrg:  'AJU E&J Education Co., Ltd.',
     stampLabel: '직인',
-    roundSuffix: '회차',
-    pointSuffix: '점',
+    roundSuffix:'회차',
+    photoPlaceholder: '사진',
+    continued:  '(계속)',
   },
   vi: {
-    title: 'HỒ SƠ HỌC SINH',
-    subtitle: 'STUDENT LIFE RECORD BOOK',
-    orgSub: 'Nền tảng quản lý du học sinh Việt Nam',
-    section1: '1. Thông Tin Cơ Bản',
-    nameKr: 'Tên (KR)', nameVn: 'Tên (VN)',
-    dob: 'Ngày Sinh', gender: 'Giới Tính',
-    studentCode: 'Mã Học Sinh', status: 'Trạng Thái',
+    title:      'HỒ SƠ HỌC SINH',
+    subtitle:   'STUDENT LIFE RECORD BOOK',
+    orgSub:     'Nền tảng quản lý du học sinh Việt Nam',
+    section1:   '1. Thông Tin Cơ Bản',
+    nameKr:     'Tên (KR)', nameVn: 'Tên (VN)',
+    dob:        'Ngày Sinh', gender: 'Giới Tính',
+    studentCode:'Mã Học Sinh', status: 'Trạng Thái',
     enrollDate: 'Ngày Nhập Học', topik: 'Cấp Độ TOPIK',
-    noTopik: 'Chưa đạt',
-    langSchool: 'Trường Ngôn Ngữ', targetUniv: 'Trường Mục Tiêu',
-    visa: 'Visa', visaExpiry: 'Hết Hạn',
-    section2: '2. Lịch Sử Tư Vấn',
-    noConsult: 'Không có lịch sử tư vấn công khai.',
-    goal: 'Mục Tiêu', content: 'Nội Dung', improvement: 'Cải Thiện', nextGoal: 'Mục Tiêu Tiếp',
-    section3: '3. Đánh Giá Tổng Hợp Của Giáo Viên',
-    section4: '4. Kết Quả Thi Thử TOPIK',
-    examDate: 'Ngày Thi', round: 'Lần Thi',
-    listening: 'Nghe', reading: 'Đọc', total: 'Tổng Điểm', level: 'Cấp Độ',
-    issuedAt: 'Ngày Cấp',
-    footerMain: 'Tài liệu này được cấp chính thức bởi AJU E&J Education Co., Ltd.',
-    footerSub: 'This document is officially issued by AJU E&J Education Co., Ltd.',
+    noTopik:    'Chưa đạt',
+    langSchool: 'Trường Ngôn Ngữ', targetUniv: 'Trường / Ngành Mục Tiêu',
+    visa:       'Loại Visa', visaExpiry: 'Ngày Hết Hạn Visa',
+    section2:   '2. Lịch Sử Tư Vấn',
+    noConsult:  'Không có lịch sử tư vấn công khai.',
+    goal:       'Mục Tiêu', content: 'Nội Dung', improvement: 'Cải Thiện', nextGoal: 'Mục Tiêu Tiếp',
+    section3:   '3. Đánh Giá Tổng Hợp Của Giáo Viên',
+    noEval:     'Không có đánh giá công khai.',
+    section4:   '4. Kết Quả Thi Thử TOPIK',
+    examDate:   'Ngày Thi', round: 'Lần Thi',
+    listening:  'Nghe', reading: 'Đọc', total: 'Tổng', level: 'Cấp Độ',
+    noExam:     'Không có kết quả thi.',
+    issuedAt:   'Ngày Cấp',
+    footerDoc:  'Hồ Sơ Học Sinh',
+    footerOrg:  'AJU E&J Education Co., Ltd.',
     stampLabel: 'Con Dấu',
-    roundSuffix: 'lần',
-    pointSuffix: 'điểm',
+    roundSuffix:'lần',
+    photoPlaceholder: 'Ảnh',
+    continued:  '(tiếp)',
   },
 } as const
-
 type Lang = 'ko' | 'vi'
 
-// ── 색상 팔레트 (공식 문서 스타일) ──────────────────────
+// ── 색상 팔레트 ────────────────────────────────────
 const C = {
-  bg:        '#FDFAF5',   // 크림 배경
-  headerBg:  '#E8EAF6',   // 섹션 헤더 배경 (연한 인디고)
-  navy:      '#1A237E',   // 제목 텍스트
-  body:      '#212121',   // 본문
-  muted:     '#757575',   // 보조
-  border:    '#C5CAE9',   // 구분선
-  green:     '#2E7D32',   // 공개 배지
-  accent:    '#3949AB',   // 타임라인 강조
   white:     '#FFFFFF',
+  pageBg:    '#FFFFFF',
+  navyDark:  '#1A237E',   // 섹션 헤더 배경
+  navy:      '#283593',   // 강조 텍스트
+  body:      '#1A1A1A',   // 본문
+  muted:     '#5F6368',   // 보조 텍스트
+  labelBg:   '#F1F3F4',   // 정보 테이블 라벨 배경
+  stripe:    '#F8F9FA',   // 홀수 행 배경
+  border:    '#DADCE0',   // 테두리
+  borderDark:'#9AA0A6',   // 헤더 구분선
+  green:     '#137333',   // 2급
+  greenBg:   '#E6F4EA',
+  blue:      '#1967D2',   // 1급
+  blueBg:    '#E8F0FE',
+  red:       '#C5221F',   // 불합격
+  redBg:     '#FCE8E6',
+  gray:      '#5F6368',   // 미응시 등
+  grayBg:    '#F1F3F4',
+  barFill:   '#3949AB',   // 점수 막대 채움
+  barEmpty:  '#E8EAED',   // 점수 막대 빈칸
+  amber:     '#B45309',
+  amberBg:   '#FEF3C7',
 }
 
-const styles = StyleSheet.create({
+// ── 스타일 ─────────────────────────────────────────
+const s = StyleSheet.create({
   page: {
-    backgroundColor: C.bg,
-    paddingTop: 36, paddingBottom: 50,
+    backgroundColor: C.pageBg,
+    paddingTop: 36, paddingBottom: 56,
     paddingHorizontal: 40,
-    fontSize: 9,
+    fontSize: 11,
     color: C.body,
     fontFamily: 'NotoSansKR',
   },
-  // 헤더
-  header: {
+
+  // ── 1페이지 헤더 ──
+  mainHeader: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 6,
-    paddingBottom: 10,
-    borderBottom: `2px solid ${C.navy}`,
+    alignItems: 'flex-start',
+    marginBottom: 18,
+    paddingBottom: 14,
+    borderBottom: `2.5px solid ${C.navyDark}`,
+  },
+  mainHeaderLeft: {
+    flex: 1,
   },
   headerTitle: {
-    fontSize: 16,
+    fontSize: 22,
     fontWeight: 'bold',
-    color: C.navy,
+    color: C.navyDark,
     letterSpacing: 2,
   },
-  headerSub: {
-    fontSize: 8,
+  headerSubtitle: {
+    fontSize: 9,
+    color: C.muted,
+    marginTop: 3,
+    letterSpacing: 1,
+  },
+  headerOrg: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: C.navy,
+    marginTop: 8,
+  },
+  headerOrgSub: {
+    fontSize: 9,
     color: C.muted,
     marginTop: 2,
   },
-  orgName: {
-    fontSize: 10,
-    fontWeight: 'bold',
-    color: C.navy,
-    textAlign: 'right',
+  photoBox: {
+    width: 72,
+    height: 90,
+    border: `1px solid ${C.border}`,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: C.labelBg,
+    marginLeft: 16,
+    flexShrink: 0,
   },
-  // 섹션
+  photoImg: {
+    width: 72,
+    height: 90,
+    objectFit: 'cover',
+  },
+  photoLabel: {
+    fontSize: 8,
+    color: C.muted,
+  },
+
+  // ── 섹션 ──
   section: {
-    marginBottom: 12,
+    marginBottom: 16,
   },
   sectionHeader: {
-    backgroundColor: C.headerBg,
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    marginBottom: 6,
-    borderLeft: `3px solid ${C.accent}`,
+    backgroundColor: C.navyDark,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    marginBottom: 0,
   },
   sectionTitle: {
-    fontSize: 9,
+    fontSize: 11,
     fontWeight: 'bold',
-    color: C.navy,
+    color: C.white,
     letterSpacing: 0.5,
   },
-  // 기본정보 그리드
-  infoGrid: {
+
+  // ── 기본정보 테이블 ──
+  infoTable: {
+    border: `1px solid ${C.border}`,
+  },
+  infoRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 0,
+    borderBottom: `1px solid ${C.border}`,
+  },
+  infoRowLast: {
+    flexDirection: 'row',
   },
   infoCell: {
-    width: '50%',
+    flex: 1,
     flexDirection: 'row',
-    paddingVertical: 3,
-    paddingHorizontal: 4,
-    borderBottom: `0.5px solid ${C.border}`,
+    borderRight: `1px solid ${C.border}`,
+  },
+  infoCellLast: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  infoCellFull: {
+    flex: 2,
+    flexDirection: 'row',
   },
   infoLabel: {
-    width: 80,
+    width: 90,
+    backgroundColor: C.labelBg,
+    paddingVertical: 5,
+    paddingHorizontal: 8,
+    fontSize: 9,
     color: C.muted,
-    fontSize: 8,
+    fontWeight: 'bold',
+    borderRight: `1px solid ${C.border}`,
   },
   infoValue: {
     flex: 1,
+    paddingVertical: 5,
+    paddingHorizontal: 8,
+    fontSize: 10,
     color: C.body,
     fontWeight: 'bold',
-    fontSize: 8,
   },
-  // 타임라인
-  timelineItem: {
+
+  // ── 상담 이력 ──
+  consultItem: {
+    borderLeft: `3px solid ${C.navyDark}`,
+    paddingLeft: 12,
+    paddingTop: 6,
+    paddingBottom: 8,
+    marginTop: 8,
+    marginLeft: 2,
+  },
+  consultMeta: {
     flexDirection: 'row',
-    marginBottom: 8,
-    paddingLeft: 4,
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 4,
   },
-  timelineDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: C.accent,
-    marginTop: 2,
-    marginRight: 8,
-    flexShrink: 0,
-  },
-  timelineContent: {
-    flex: 1,
-    borderLeft: `1px solid ${C.border}`,
-    paddingLeft: 8,
-    paddingBottom: 6,
-  },
-  timelineDate: {
+  consultDate: {
+    fontSize: 10,
     fontWeight: 'bold',
-    fontSize: 8,
     color: C.navy,
-    marginBottom: 1,
   },
-  timelineMeta: {
-    fontSize: 7.5,
-    color: C.muted,
-    marginBottom: 2,
-  },
-  timelineBody: {
+  consultTag: {
+    backgroundColor: C.amberBg,
+    color: C.amber,
     fontSize: 8,
-    color: C.body,
-    lineHeight: 1.5,
+    paddingHorizontal: 5,
+    paddingVertical: 1.5,
+    borderRadius: 3,
+  },
+  consultCounselor: {
+    fontSize: 9,
+    color: C.muted,
   },
   aspBadge: {
     backgroundColor: '#EDE7F6',
     color: '#4527A0',
-    fontSize: 7.5,
-    paddingHorizontal: 5,
-    paddingVertical: 1.5,
-    borderRadius: 2,
-    marginBottom: 3,
-    alignSelf: 'flex-start',
-  },
-  // 평가 별점
-  evalBlock: {
-    marginBottom: 8,
-    padding: 6,
-    backgroundColor: C.white,
-    border: `0.5px solid ${C.border}`,
+    fontSize: 9,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
     borderRadius: 3,
-  },
-  evalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    alignSelf: 'flex-start',
     marginBottom: 4,
   },
-  evalDate: {
+  consultLine: {
+    fontSize: 10,
+    color: C.body,
+    lineHeight: 1.6,
+    marginBottom: 2,
+  },
+  consultLineLabel: {
     fontWeight: 'bold',
-    fontSize: 8,
+    color: C.navy,
+  },
+  consultDivider: {
+    borderBottom: `0.5px solid ${C.border}`,
+    marginVertical: 6,
+  },
+
+  // ── 선생님 평가 ──
+  evalBlock: {
+    border: `1px solid ${C.border}`,
+    borderRadius: 3,
+    marginTop: 8,
+    overflow: 'hidden',
+  },
+  evalHeader: {
+    backgroundColor: C.labelBg,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderBottom: `1px solid ${C.border}`,
+  },
+  evalDate: {
+    fontSize: 10,
+    fontWeight: 'bold',
     color: C.navy,
   },
   evalBy: {
-    fontSize: 7.5,
+    fontSize: 9,
     color: C.muted,
+  },
+  evalBody: {
+    padding: 10,
   },
   scoreRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 2,
+    marginBottom: 5,
   },
   scoreLabel: {
-    fontSize: 8,
-    color: C.muted,
-    width: 90,
-  },
-  starRow: {
-    flexDirection: 'row',
-    gap: 2,
-  },
-  star: {
     fontSize: 9,
-    lineHeight: 1,
+    color: C.muted,
+    width: 100,
+  },
+  barWrap: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  barTrack: {
+    flex: 1,
+    height: 8,
+    backgroundColor: C.barEmpty,
+    borderRadius: 4,
+  },
+  barFill: {
+    height: 8,
+    backgroundColor: C.barFill,
+    borderRadius: 4,
+  },
+  scoreNum: {
+    fontSize: 9,
+    color: C.muted,
+    width: 30,
+    textAlign: 'right',
   },
   evalComment: {
-    marginTop: 4,
-    fontSize: 8,
-    color: C.body,
-    lineHeight: 1.5,
-    paddingTop: 4,
+    marginTop: 6,
+    paddingTop: 6,
     borderTop: `0.5px solid ${C.border}`,
+    fontSize: 10,
+    color: C.body,
+    lineHeight: 1.6,
   },
-  // 성적 추이
-  examRow: {
+
+  // ── 시험 성적 테이블 ──
+  examTable: {
+    border: `1px solid ${C.border}`,
+    marginTop: 4,
+  },
+  examTHead: {
     flexDirection: 'row',
-    paddingVertical: 3,
-    borderBottom: `0.5px solid ${C.border}`,
-    alignItems: 'center',
+    backgroundColor: C.labelBg,
+    borderBottom: `1px solid ${C.borderDark}`,
   },
-  examDate:  { width: 70,  fontSize: 8, color: C.body },
-  examType:  { width: 60,  fontSize: 8, color: C.muted },
-  examScore: { width: 40,  fontSize: 8, color: C.body, textAlign: 'center' },
-  examLevel: {
-    width: 40,
-    fontSize: 8,
-    fontFamily: 'Helvetica-Bold',
-    color: C.navy,
-    textAlign: 'center',
-  },
-  examArrow: { flex: 1, fontSize: 7.5, color: C.muted },
-  examTableHeader: {
+  examTBody: {
     flexDirection: 'row',
-    paddingVertical: 3,
-    borderBottom: `1px solid ${C.navy}`,
-    marginBottom: 2,
   },
-  examTableLabel: {
-    fontSize: 7.5,
+  examTBodyStripe: {
+    flexDirection: 'row',
+    backgroundColor: C.stripe,
+  },
+  examTh: {
+    paddingVertical: 5,
+    paddingHorizontal: 6,
+    fontSize: 9,
     color: C.muted,
     fontWeight: 'bold',
+    textAlign: 'center',
+    borderRight: `0.5px solid ${C.border}`,
   },
-  // 직인 / 푸터
+  examTd: {
+    paddingVertical: 6,
+    paddingHorizontal: 6,
+    fontSize: 10,
+    color: C.body,
+    textAlign: 'center',
+    borderRight: `0.5px solid ${C.border}`,
+  },
+  examTdDate: {
+    paddingVertical: 6,
+    paddingHorizontal: 6,
+    fontSize: 10,
+    color: C.body,
+    textAlign: 'left',
+    borderRight: `0.5px solid ${C.border}`,
+  },
+  examTdLast: {
+    paddingVertical: 6,
+    paddingHorizontal: 6,
+    fontSize: 10,
+    color: C.body,
+    textAlign: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  // ── 등급 뱃지 ──
+  badge: {
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 3,
+    alignSelf: 'center',
+  },
+  badgeText: {
+    fontSize: 9,
+    fontWeight: 'bold',
+  },
+
+  // ── 빈 데이터 ──
+  noData: {
+    fontSize: 10,
+    color: C.muted,
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+    fontStyle: 'italic',
+  },
+
+  // ── 고정 푸터 ──
   footer: {
     position: 'absolute',
-    bottom: 30,
+    bottom: 20,
     left: 40,
     right: 40,
+    borderTop: `1px solid ${C.border}`,
+    paddingTop: 8,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-end',
-    borderTop: `1px solid ${C.border}`,
-    paddingTop: 10,
+  },
+  footerLeft: {
+    flex: 1,
+  },
+  footerCenter: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  footerRight: {
+    flex: 1,
+    alignItems: 'flex-end',
   },
   footerText: {
-    fontSize: 7.5,
+    fontSize: 8,
+    color: C.muted,
+  },
+  footerPageNum: {
+    fontSize: 9,
     color: C.muted,
   },
   stampArea: {
@@ -311,36 +469,46 @@ const styles = StyleSheet.create({
   stampText: {
     fontSize: 8,
     color: C.muted,
-    marginTop: 4,
-  },
-  noData: {
-    fontSize: 8,
-    color: C.muted,
-    fontStyle: 'italic',
-    paddingVertical: 4,
+    marginTop: 3,
   },
 })
 
-// ── 별점 렌더링 (★) ──────────────────────
-function Stars({ value, max = 5 }: { value: number; max?: number }) {
+// ── 유틸 컴포넌트 ──────────────────────────────────
+
+/** 점수 막대 그래프 */
+function ScoreBar({ value, max }: { value: number; max: number }) {
+  const pct = max > 0 ? Math.min(value / max, 1) : 0
   return (
-    <View style={styles.starRow}>
-      {Array.from({ length: max }, (_, i) => (
-        <Text key={i} style={[styles.star, { color: i < value ? '#F59E0B' : '#D1D5DB' }]}>
-          ★
-        </Text>
-      ))}
+    <View style={s.barWrap}>
+      <View style={s.barTrack}>
+        <View style={[s.barFill, { width: `${Math.round(pct * 100)}%` }]} />
+      </View>
+      <Text style={s.scoreNum}>{value}/{max}</Text>
     </View>
   )
 }
 
-// ── 카테고리 레이블 ──────────────────────
+/** 등급 뱃지 */
+function GradeBadge({ level }: { level: string }) {
+  const is2 = level.includes('2급')
+  const is1 = level.includes('1급')
+  const isFail = level === '불합격' || level === 'Không đạt'
+  const bg    = is2 ? C.greenBg : is1 ? C.blueBg : isFail ? C.redBg : C.grayBg
+  const color = is2 ? C.green  : is1 ? C.blue   : isFail ? C.red   : C.gray
+  return (
+    <View style={[s.badge, { backgroundColor: bg }]}>
+      <Text style={[s.badgeText, { color }]}>{level}</Text>
+    </View>
+  )
+}
+
+/** 카테고리 레이블 */
 const CATEGORY_LABELS: Record<string, string> = {
   score: '성적', attitude: '태도', career: '진로',
   visa: '비자', life: '생활', family: '가정', other: '기타',
 }
 
-// ── 메인 PDF 문서 컴포넌트 ──────────────────────
+// ── 타입 ──────────────────────────────────────────
 export interface LifeRecordData {
   student: Student
   consultations: Consultation[]
@@ -353,216 +521,283 @@ export interface LifeRecordData {
   lang?: 'ko' | 'vi'
 }
 
+// ── 메인 컴포넌트 ──────────────────────────────────
 export default function LifeRecordDocument({
   student, consultations, evaluations, examResults,
   aspirationHistory, templates, generatedAt, stampImageUrl, lang = 'ko',
 }: LifeRecordData) {
   const tx = T[lang as Lang] ?? T.ko
-  const publicConsults   = consultations.filter(c => c.is_public)
-  const publicEvals      = evaluations.filter(e => e.is_public)
-  const ratingTemplates  = templates.filter(t => t.field_key !== 'overall_comment')
+  const publicConsults  = consultations.filter(c => c.is_public)
+  const publicEvals     = evaluations.filter(e => e.is_public)
+  const ratingTemplates = templates.filter(t => t.field_key !== 'overall_comment')
+  const sortedExams     = [...examResults].sort((a, b) => a.exam_date.localeCompare(b.exam_date))
 
   return (
     <Document title={`학생생활기록부_${student.name_kr}`} author="AJU E&J Education">
-      <Page size="A4" style={styles.page}>
+      <Page size="A4" style={s.page}>
 
-        {/* ── 헤더 ── */}
-        <View style={styles.header}>
-          <View>
-            <Text style={styles.headerTitle}>{tx.title}</Text>
-            <Text style={styles.headerSub}>{tx.subtitle}</Text>
+        {/* ─── 고정 푸터 (모든 페이지) ─── */}
+        <View style={s.footer} fixed>
+          <View style={s.footerLeft}>
+            <Text style={s.footerText}>{tx.footerDoc} | {student.name_kr} ({student.student_code ?? '-'})</Text>
+            <Text style={[s.footerText, { marginTop: 2 }]}>{tx.issuedAt}: {generatedAt}</Text>
           </View>
-          <View>
-            <Text style={styles.orgName}>AJU E&amp;J Education Co., Ltd.</Text>
-            <Text style={[styles.headerSub, { textAlign: 'right' }]}>{tx.orgSub}</Text>
+          <View style={s.footerCenter}>
+            <Text
+              style={s.footerPageNum}
+              render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`}
+            />
+          </View>
+          <View style={s.footerRight}>
+            <View style={s.stampArea}>
+              {stampImageUrl ? (
+                <Image src={stampImageUrl} style={{ width: 44, height: 44, opacity: 0.85 }} />
+              ) : (
+                <View style={{
+                  width: 44, height: 44, borderRadius: 22,
+                  border: `1.5px solid ${C.navyDark}`,
+                  alignItems: 'center', justifyContent: 'center',
+                }}>
+                  <Text style={{ fontSize: 6.5, color: C.navyDark, textAlign: 'center', lineHeight: 1.4 }}>
+                    AJU E&amp;J{'\n'}EDU{'\n'}{tx.stampLabel}
+                  </Text>
+                </View>
+              )}
+              <Text style={s.stampText}>{tx.footerOrg}</Text>
+            </View>
           </View>
         </View>
 
-        {/* ── 기본 정보 ── */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>{tx.section1}</Text>
+        {/* ─── 1페이지 메인 헤더 ─── */}
+        <View style={s.mainHeader}>
+          <View style={s.mainHeaderLeft}>
+            <Text style={s.headerTitle}>{tx.title}</Text>
+            <Text style={s.headerSubtitle}>{tx.subtitle}</Text>
+            <Text style={s.headerOrg}>AJU E&amp;J Education Co., Ltd.</Text>
+            <Text style={s.headerOrgSub}>{tx.orgSub}</Text>
           </View>
-          <View style={styles.infoGrid}>
-            <View style={styles.infoCell}>
-              <Text style={styles.infoLabel}>{tx.nameKr}</Text>
-              <Text style={styles.infoValue}>{student.name_kr}</Text>
-            </View>
-            <View style={styles.infoCell}>
-              <Text style={styles.infoLabel}>{tx.nameVn}</Text>
-              <Text style={styles.infoValue}>{student.name_vn}</Text>
-            </View>
-            <View style={styles.infoCell}>
-              <Text style={styles.infoLabel}>{tx.dob}</Text>
-              <Text style={styles.infoValue}>{student.dob}</Text>
-            </View>
-            <View style={styles.infoCell}>
-              <Text style={styles.infoLabel}>{tx.gender}</Text>
-              <Text style={styles.infoValue}>{student.gender === 'M' ? '남 / Nam' : '여 / Nữ'}</Text>
-            </View>
-            <View style={styles.infoCell}>
-              <Text style={styles.infoLabel}>{tx.studentCode}</Text>
-              <Text style={styles.infoValue}>{student.student_code ?? '-'}</Text>
-            </View>
-            <View style={styles.infoCell}>
-              <Text style={styles.infoLabel}>{tx.status}</Text>
-              <Text style={styles.infoValue}>{student.status}</Text>
-            </View>
-            <View style={styles.infoCell}>
-              <Text style={styles.infoLabel}>{tx.enrollDate}</Text>
-              <Text style={styles.infoValue}>{student.enrollment_date ?? '-'}</Text>
-            </View>
-            <View style={styles.infoCell}>
-              <Text style={styles.infoLabel}>{tx.topik}</Text>
-              <Text style={styles.infoValue}>{student.topik_level ?? tx.noTopik}</Text>
-            </View>
-            {student.language_school && (
-              <View style={styles.infoCell}>
-                <Text style={styles.infoLabel}>{tx.langSchool}</Text>
-                <Text style={styles.infoValue}>{student.language_school}</Text>
-              </View>
+          {/* 학생 사진 */}
+          <View style={s.photoBox}>
+            {student.photo_url ? (
+              <Image src={student.photo_url} style={s.photoImg} />
+            ) : (
+              <Text style={s.photoLabel}>{tx.photoPlaceholder}</Text>
             )}
-            {student.target_university && (
-              <View style={styles.infoCell}>
-                <Text style={styles.infoLabel}>{tx.targetUniv}</Text>
-                <Text style={styles.infoValue}>
-                  {[student.target_university, student.target_major].filter(Boolean).join(' · ')}
+          </View>
+        </View>
+
+        {/* ─── 1. 기본 정보 ─── */}
+        <View style={s.section}>
+          <View style={s.sectionHeader}>
+            <Text style={s.sectionTitle}>{tx.section1}</Text>
+          </View>
+          <View style={s.infoTable}>
+            {/* 이름 행 */}
+            <View style={s.infoRow}>
+              <View style={s.infoCell}>
+                <Text style={s.infoLabel}>{tx.nameKr}</Text>
+                <Text style={[s.infoValue, { fontSize: 12, color: C.navyDark }]}>{student.name_kr}</Text>
+              </View>
+              <View style={s.infoCellLast}>
+                <Text style={s.infoLabel}>{tx.nameVn}</Text>
+                <Text style={[s.infoValue, { fontSize: 12 }]}>{student.name_vn}</Text>
+              </View>
+            </View>
+            {/* 생년월일 / 성별 */}
+            <View style={s.infoRow}>
+              <View style={s.infoCell}>
+                <Text style={s.infoLabel}>{tx.dob}</Text>
+                <Text style={s.infoValue}>{student.dob ?? '-'}</Text>
+              </View>
+              <View style={s.infoCellLast}>
+                <Text style={s.infoLabel}>{tx.gender}</Text>
+                <Text style={s.infoValue}>{student.gender === 'M' ? '남 / Nam' : '여 / Nữ'}</Text>
+              </View>
+            </View>
+            {/* 학번 / 현재상태 */}
+            <View style={s.infoRow}>
+              <View style={s.infoCell}>
+                <Text style={s.infoLabel}>{tx.studentCode}</Text>
+                <Text style={[s.infoValue, { fontFamily: 'NotoSansKR', letterSpacing: 1 }]}>
+                  {student.student_code ?? '-'}
                 </Text>
               </View>
+              <View style={s.infoCellLast}>
+                <Text style={s.infoLabel}>{tx.status}</Text>
+                <Text style={s.infoValue}>{student.status}</Text>
+              </View>
+            </View>
+            {/* 등록일 / TOPIK */}
+            <View style={s.infoRow}>
+              <View style={s.infoCell}>
+                <Text style={s.infoLabel}>{tx.enrollDate}</Text>
+                <Text style={s.infoValue}>{student.enrollment_date ?? '-'}</Text>
+              </View>
+              <View style={s.infoCellLast}>
+                <Text style={s.infoLabel}>{tx.topik}</Text>
+                <Text style={[s.infoValue, { color: student.topik_level ? C.blue : C.muted }]}>
+                  {student.topik_level ?? tx.noTopik}
+                </Text>
+              </View>
+            </View>
+            {/* 목표 대학 / 학과 */}
+            {student.target_university && (
+              <View style={s.infoRow}>
+                <View style={s.infoCellFull}>
+                  <Text style={s.infoLabel}>{tx.targetUniv}</Text>
+                  <Text style={s.infoValue}>
+                    {[student.target_university, student.target_major].filter(Boolean).join('  ·  ')}
+                  </Text>
+                </View>
+              </View>
             )}
-            <View style={styles.infoCell}>
-              <Text style={styles.infoLabel}>{tx.visa}</Text>
-              <Text style={styles.infoValue}>
-                {student.visa_type ?? '-'}{student.visa_expiry ? ` (${tx.visaExpiry}: ${student.visa_expiry})` : ''}
-              </Text>
+            {/* 재학 어학원 */}
+            {student.language_school && (
+              <View style={s.infoRow}>
+                <View style={s.infoCellFull}>
+                  <Text style={s.infoLabel}>{tx.langSchool}</Text>
+                  <Text style={s.infoValue}>{student.language_school}</Text>
+                </View>
+              </View>
+            )}
+            {/* 비자 */}
+            <View style={s.infoRowLast}>
+              <View style={s.infoCell}>
+                <Text style={s.infoLabel}>{tx.visa}</Text>
+                <Text style={s.infoValue}>{student.visa_type ?? '-'}</Text>
+              </View>
+              <View style={s.infoCellLast}>
+                <Text style={s.infoLabel}>{tx.visaExpiry}</Text>
+                <Text style={s.infoValue}>{student.visa_expiry ?? '-'}</Text>
+              </View>
             </View>
           </View>
         </View>
 
-        {/* ── 상담 이력 ── */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>{tx.section2} ({publicConsults.length})</Text>
+        {/* ─── 2. 상담 이력 ─── */}
+        <View style={s.section}>
+          <View style={s.sectionHeader}>
+            <Text style={s.sectionTitle}>{tx.section2}  ({publicConsults.length})</Text>
           </View>
           {publicConsults.length === 0 ? (
-            <Text style={styles.noData}>{tx.noConsult}</Text>
+            <Text style={s.noData}>{tx.noConsult}</Text>
           ) : (
-            publicConsults.map(c => (
-              <View key={c.id} style={styles.timelineItem}>
-                <View style={styles.timelineDot} />
-                <View style={styles.timelineContent}>
-                  <Text style={styles.timelineDate}>
-                    {c.consult_date}
-                    {c.topic_category ? `  [${CATEGORY_LABELS[c.topic_category] ?? c.topic_category}]` : ''}
-                    {c.counselor_name ? `  ·  ${c.counselor_name}` : ''}
-                  </Text>
-                  {(c.aspiration_univ || c.aspiration_major) && (
-                    <Text style={styles.aspBadge}>
-                      {tx.goal}: {[c.aspiration_univ, c.aspiration_major].filter(Boolean).join(' · ')}
+            publicConsults.map((c, idx) => (
+              <View key={c.id} style={s.consultItem} wrap={false}>
+                <View style={s.consultMeta}>
+                  <Text style={s.consultDate}>{c.consult_date}</Text>
+                  {c.topic_category && (
+                    <Text style={s.consultTag}>
+                      {CATEGORY_LABELS[c.topic_category] ?? c.topic_category}
                     </Text>
                   )}
-                  {c.summary     && <Text style={styles.timelineBody}>{tx.content}: {c.summary}</Text>}
-                  {c.improvement && <Text style={styles.timelineBody}>{tx.improvement}: {c.improvement}</Text>}
-                  {c.next_goal   && <Text style={styles.timelineBody}>{tx.nextGoal}: {c.next_goal}</Text>}
+                  {c.counselor_name && (
+                    <Text style={s.consultCounselor}>{c.counselor_name}</Text>
+                  )}
                 </View>
+                {(c.aspiration_univ || c.aspiration_major) && (
+                  <Text style={s.aspBadge}>
+                    {tx.goal}: {[c.aspiration_univ, c.aspiration_major].filter(Boolean).join('  ·  ')}
+                  </Text>
+                )}
+                {c.summary && (
+                  <Text style={s.consultLine}>
+                    <Text style={s.consultLineLabel}>{tx.content}  </Text>
+                    {c.summary}
+                  </Text>
+                )}
+                {c.improvement && (
+                  <Text style={s.consultLine}>
+                    <Text style={s.consultLineLabel}>{tx.improvement}  </Text>
+                    {c.improvement}
+                  </Text>
+                )}
+                {c.next_goal && (
+                  <Text style={s.consultLine}>
+                    <Text style={s.consultLineLabel}>{tx.nextGoal}  </Text>
+                    {c.next_goal}
+                  </Text>
+                )}
+                {idx < publicConsults.length - 1 && <View style={s.consultDivider} />}
               </View>
             ))
           )}
         </View>
 
-        {/* ── 선생님 평가 ── */}
-        {publicEvals.length > 0 && (
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>{tx.section3} ({publicEvals.length})</Text>
-            </View>
-            {publicEvals.map(ev => {
+        {/* ─── 3. 선생님 평가 ─── */}
+        <View style={s.section}>
+          <View style={s.sectionHeader}>
+            <Text style={s.sectionTitle}>{tx.section3}  ({publicEvals.length})</Text>
+          </View>
+          {publicEvals.length === 0 ? (
+            <Text style={s.noData}>{tx.noEval}</Text>
+          ) : (
+            publicEvals.map(ev => {
               const scoreEntries = ratingTemplates
                 .map(t => ({ label: t.label_kr, value: Number(ev.scores[t.field_key] ?? 0), max: t.max_value }))
-                .filter(s => s.value > 0)
+                .filter(entry => entry.value > 0)
               return (
-                <View key={ev.id} style={styles.evalBlock}>
-                  <View style={styles.evalHeader}>
-                    <Text style={styles.evalDate}>
-                      {ev.eval_date}{ev.eval_period ? `  ${ev.eval_period}` : ''}
+                <View key={ev.id} style={s.evalBlock} wrap={false}>
+                  <View style={s.evalHeader}>
+                    <Text style={s.evalDate}>
+                      {ev.eval_date}{ev.eval_period ? `  ·  ${ev.eval_period}` : ''}
                     </Text>
-                    <Text style={styles.evalBy}>{ev.evaluator_name}</Text>
+                    <Text style={s.evalBy}>{ev.evaluator_name}</Text>
                   </View>
-                  {scoreEntries.map(s => (
-                    <View key={s.label} style={styles.scoreRow}>
-                      <Text style={styles.scoreLabel}>{s.label}</Text>
-                      <Stars value={s.value} max={s.max} />
-                      <Text style={{ fontSize: 7.5, color: C.muted, marginLeft: 4 }}>
-                        {s.value}/{s.max}
-                      </Text>
-                    </View>
-                  ))}
-                  {ev.overall_comment && (
-                    <Text style={styles.evalComment}>{ev.overall_comment}</Text>
-                  )}
+                  <View style={s.evalBody}>
+                    {scoreEntries.map(entry => (
+                      <View key={entry.label} style={s.scoreRow}>
+                        <Text style={s.scoreLabel}>{entry.label}</Text>
+                        <ScoreBar value={entry.value} max={entry.max} />
+                      </View>
+                    ))}
+                    {ev.overall_comment && (
+                      <Text style={s.evalComment}>{ev.overall_comment}</Text>
+                    )}
+                  </View>
                 </View>
               )
-            })}
-          </View>
-        )}
+            })
+          )}
+        </View>
 
-        {/* ── 시험 성적 ── */}
-        {examResults.length > 0 && (
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>{tx.section4} ({examResults.length})</Text>
-            </View>
-            {/* 테이블 헤더 */}
-            <View style={styles.examTableHeader}>
-              <Text style={[styles.examTableLabel, { width: 70 }]}>{tx.examDate}</Text>
-              <Text style={[styles.examTableLabel, { width: 60 }]}>{tx.round}</Text>
-              <Text style={[styles.examTableLabel, { width: 40, textAlign: 'center' }]}>{tx.listening}</Text>
-              <Text style={[styles.examTableLabel, { width: 40, textAlign: 'center' }]}>{tx.reading}</Text>
-              <Text style={[styles.examTableLabel, { width: 50, textAlign: 'center' }]}>{tx.total}</Text>
-              <Text style={[styles.examTableLabel, { width: 40, textAlign: 'center' }]}>{tx.level}</Text>
-            </View>
-            {[...examResults].sort((a, b) => a.exam_date.localeCompare(b.exam_date)).map(e => (
-              <View key={e.id} style={styles.examRow}>
-                <Text style={styles.examDate}>{e.exam_date}</Text>
-                <Text style={styles.examType}>{e.round_number ? `${e.round_number}${tx.roundSuffix}` : (e.exam_type ?? '-')}</Text>
-                <Text style={[styles.examScore]}>{e.listening_score ?? '-'}</Text>
-                <Text style={[styles.examScore]}>{e.reading_score ?? '-'}</Text>
-                <Text style={[styles.examScore, { width: 50, fontWeight: 'bold' }]}>
-                  {e.total_score}{tx.pointSuffix}
-                </Text>
-                <Text style={styles.examLevel}>{e.level}</Text>
+        {/* ─── 4. TOPIK 모의고사 ─── */}
+        <View style={s.section}>
+          <View style={s.sectionHeader}>
+            <Text style={s.sectionTitle}>{tx.section4}  ({sortedExams.length})</Text>
+          </View>
+          {sortedExams.length === 0 ? (
+            <Text style={s.noData}>{tx.noExam}</Text>
+          ) : (
+            <View style={s.examTable}>
+              {/* 테이블 헤더 */}
+              <View style={s.examTHead}>
+                <Text style={[s.examTh, { width: '20%', textAlign: 'left' }]}>{tx.examDate}</Text>
+                <Text style={[s.examTh, { width: '16%' }]}>{tx.round}</Text>
+                <Text style={[s.examTh, { width: '16%' }]}>{tx.listening}</Text>
+                <Text style={[s.examTh, { width: '16%' }]}>{tx.reading}</Text>
+                <Text style={[s.examTh, { width: '16%' }]}>{tx.total}</Text>
+                <Text style={[s.examTh, { width: '16%', borderRight: 'none' }]}>{tx.level}</Text>
               </View>
-            ))}
-          </View>
-        )}
-
-        {/* ── 푸터 / 직인 ── */}
-        <View style={styles.footer} fixed>
-          <View>
-            <Text style={styles.footerText}>{tx.issuedAt}: {generatedAt}</Text>
-            <Text style={[styles.footerText, { marginTop: 2 }]}>
-              {tx.footerMain}
-            </Text>
-            <Text style={[styles.footerText, { marginTop: 1 }]}>
-              {tx.footerSub}
-            </Text>
-          </View>
-          <View style={styles.stampArea}>
-            {stampImageUrl ? (
-              <Image src={stampImageUrl} style={{ width: 60, height: 60, opacity: 0.85 }} />
-            ) : (
-              <View style={{
-                width: 60, height: 60, borderRadius: 30,
-                border: `2px solid ${C.navy}`,
-                alignItems: 'center', justifyContent: 'center',
-              }}>
-                <Text style={{ fontSize: 7, color: C.navy, textAlign: 'center', lineHeight: 1.4 }}>
-                  AJU E&amp;J{'\n'}EDUCATION{'\n'}{tx.stampLabel}
-                </Text>
-              </View>
-            )}
-            <Text style={styles.stampText}>AJU E&amp;J Education</Text>
-          </View>
+              {/* 테이블 바디 */}
+              {sortedExams.map((e, idx) => (
+                <View key={e.id} style={idx % 2 === 0 ? s.examTBody : s.examTBodyStripe} wrap={false}>
+                  <Text style={[s.examTdDate, { width: '20%' }]}>{e.exam_date}</Text>
+                  <Text style={[s.examTd, { width: '16%' }]}>
+                    {e.round_number ? `${e.round_number}${tx.roundSuffix}` : (e.exam_type ?? '-')}
+                  </Text>
+                  <Text style={[s.examTd, { width: '16%' }]}>{e.listening_score ?? '-'}</Text>
+                  <Text style={[s.examTd, { width: '16%' }]}>{e.reading_score ?? '-'}</Text>
+                  <Text style={[s.examTd, { width: '16%', fontWeight: 'bold', color: C.navy }]}>
+                    {e.total_score}점
+                  </Text>
+                  <View style={[s.examTdLast, { width: '16%' }]}>
+                    <GradeBadge level={e.level} />
+                  </View>
+                </View>
+              ))}
+            </View>
+          )}
         </View>
 
       </Page>
