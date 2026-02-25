@@ -318,6 +318,16 @@ export default function StudentsPage() {
                       onChange={() => toggleSelect(s.id)}
                       className="w-4 h-4 mt-1 rounded border-2 border-slate-400 text-indigo-600 focus:ring-indigo-500 cursor-pointer shrink-0"
                     />
+                    {/* 프로필 사진 썸네일 */}
+                    <div className="w-9 h-9 rounded-full overflow-hidden bg-slate-200 shrink-0 mt-0.5">
+                      {s.photo_url ? (
+                        <img src={s.photo_url} alt={s.name_kr} className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="w-full h-full flex items-center justify-center text-slate-400 text-sm font-medium">
+                          {s.name_kr.charAt(0)}
+                        </span>
+                      )}
+                    </div>
                     <Link href={`/students/${s.id}`} className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-0.5">
                         <span className="font-semibold text-slate-800 truncate">{s.name_kr}</span>
@@ -352,6 +362,7 @@ export default function StudentsPage() {
                         <span className="text-[10px] text-slate-400 font-medium">전체</span>
                       </div>
                     </th>
+                    <th className="w-14 px-4 py-3"></th>
                     <th className="text-left text-xs font-medium text-slate-500 px-6 py-3">{t('colCode', lang)}</th>
                     <th className="text-left text-xs font-medium text-slate-500 px-6 py-3">{t('colNameKr', lang)}</th>
                     <th className="text-left text-xs font-medium text-slate-500 px-6 py-3">{t('colNameVn', lang)}</th>
@@ -371,6 +382,18 @@ export default function StudentsPage() {
                           onChange={() => toggleSelect(s.id)}
                           className="w-4 h-4 rounded border-2 border-slate-400 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
                         />
+                      </td>
+                      {/* 프로필 사진 썸네일 */}
+                      <td className="px-4 py-3">
+                        <div className="w-8 h-8 rounded-full overflow-hidden bg-slate-200 mx-auto">
+                          {s.photo_url ? (
+                            <img src={s.photo_url} alt={s.name_kr} className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="w-full h-full flex items-center justify-center text-slate-400 text-xs font-medium">
+                              {s.name_kr.charAt(0)}
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className="px-6 py-4 font-mono text-sm text-slate-400">{s.student_code ?? '-'}</td>
                       <td className="px-6 py-4 font-medium text-slate-800">{s.name_kr}</td>

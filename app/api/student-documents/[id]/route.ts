@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 import type { DocStatus } from '@/lib/types'
+import { sendDocStatusEmail } from '@/lib/email'
 
 function getServiceClient() {
   return createClient(
@@ -106,5 +107,34 @@ export async function PATCH(
     .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  // 승인/반려 시 이메일 발송 (비동기, 실패해도 무시)
+  const newStatus = updates.status as DocStatus | undefined
+  if (newStatus === 'approved' || newStatus === 'rejected') {
+    supabase
+      .from('students')
+      .select('name_kr, email')
+      .eq('id', doc.student_id)
+      .single()
+      .then(({ data: student }) => {
+        if (!student?.email) return
+        supabase
+          .from('student_documents')
+          .select('doc_type:document_types(name_kr)')
+          .eq('id', id)
+          .single()
+          .then(({ data: docWithType }) => {
+            const docName = (docWithType?.doc_type as any)?.name_kr ?? '서류'
+            sendDocStatusEmail({
+              to:           student.email!,
+              studentName:  student.name_kr,
+              docNameKr:    docName,
+              status:       newStatus,
+              rejectReason: updates.reject_reason as string | undefined,
+            })
+          })
+      })
+  }
+
   return NextResponse.json(updated)
 }
