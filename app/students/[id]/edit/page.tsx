@@ -17,6 +17,8 @@ export default function EditStudentPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving]   = useState(false)
   const [error, setError]     = useState('')
+  const [photoUrl, setPhotoUrl]       = useState<string | null>(null)
+  const [photoUploading, setPhotoUploading] = useState(false)
 
   const [form, setForm] = useState({
     name_kr: '', name_vn: '', dob: '', gender: 'M',
@@ -50,6 +52,7 @@ export default function EditStudentPage() {
 
     if (studentRes.data) {
       const s = studentRes.data
+      setPhotoUrl(s.photo_url ?? null)
       setForm({
         name_kr:           s.name_kr          ?? '',
         name_vn:           s.name_vn          ?? '',
@@ -86,6 +89,24 @@ export default function EditStudentPage() {
   }
 
   const set = (field: string, value: string) => setForm(prev => ({ ...prev, [field]: value }))
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (file.size > 5 * 1024 * 1024) { alert('5MB 이하 이미지만 업로드 가능합니다.'); return }
+    setPhotoUploading(true)
+    const path = `${id}/profile`
+    const { error: upErr } = await supabase.storage
+      .from('student-photos')
+      .upload(path, file, { upsert: true, contentType: file.type })
+    if (upErr) { alert('업로드 실패: ' + upErr.message); setPhotoUploading(false); return }
+    const { data: { publicUrl } } = supabase.storage.from('student-photos').getPublicUrl(path)
+    const url = `${publicUrl}?t=${Date.now()}`
+    await supabase.from('students').update({ photo_url: url }).eq('id', id)
+    setPhotoUrl(url)
+    setPhotoUploading(false)
+    e.target.value = ''
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -201,6 +222,39 @@ export default function EditStudentPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* 프로필 사진 */}
+          <div className="bg-white rounded-2xl p-6 shadow-sm">
+            <h3 className="text-sm font-semibold text-slate-700 mb-4 pb-2 border-b border-slate-100">프로필 사진</h3>
+            <div className="flex items-center gap-6">
+              <label className="relative w-24 h-24 shrink-0 cursor-pointer group" title="클릭해서 사진 변경">
+                <input type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} disabled={photoUploading} />
+                {photoUrl ? (
+                  <img src={photoUrl} alt="프로필" className="w-24 h-24 rounded-2xl object-cover border border-slate-200" />
+                ) : (
+                  <div className="w-24 h-24 bg-blue-50 rounded-2xl flex items-center justify-center border-2 border-dashed border-blue-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 text-blue-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  </div>
+                )}
+                <div className="absolute -bottom-1.5 -right-1.5 w-7 h-7 bg-blue-600 group-hover:bg-blue-700 rounded-full flex items-center justify-center shadow-sm transition-colors">
+                  {photoUploading ? (
+                    <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin inline-block" />
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5 text-white" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 3H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm6 9a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
+                    </svg>
+                  )}
+                </div>
+              </label>
+              <div className="text-sm text-slate-500 space-y-1">
+                <p className="font-medium text-slate-700">사진을 클릭해서 업로드</p>
+                <p>JPG, PNG, WebP · 5MB 이하</p>
+                <p className="text-xs text-slate-400">생활기록부 PDF에 증명사진으로 표시됩니다.</p>
+              </div>
+            </div>
+          </div>
+
           {/* 기본 정보 */}
           <Section title="기본 정보">
             <Row>

@@ -18,6 +18,8 @@ export default function NewStudentPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError]     = useState('')
   const [lang, toggleLang]    = useLang()
+  const [photoFile, setPhotoFile]   = useState<File | null>(null)
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null)
 
   const [form, setForm] = useState({
     name_kr: '', name_vn: '', dob: '', gender: 'M',
@@ -45,6 +47,14 @@ export default function NewStudentPage() {
   }
 
   const set = (field: string, value: string) => setForm(prev => ({ ...prev, [field]: value }))
+
+  const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (file.size > 5 * 1024 * 1024) { alert('5MB 이하 이미지만 업로드 가능합니다.'); return }
+    setPhotoFile(file)
+    setPhotoPreview(URL.createObjectURL(file))
+  }
 
   const generateStudentCode = async (agencyId: string): Promise<string> => {
     const now     = new Date()
@@ -122,6 +132,18 @@ export default function NewStudentPage() {
       return
     }
 
+    // 사진 업로드 (선택)
+    if (photoFile && insertData?.id) {
+      const path = `${insertData.id}/profile`
+      const { error: upErr } = await supabase.storage
+        .from('student-photos')
+        .upload(path, photoFile, { upsert: true, contentType: photoFile.type })
+      if (!upErr) {
+        const { data: { publicUrl } } = supabase.storage.from('student-photos').getPublicUrl(path)
+        await supabase.from('students').update({ photo_url: `${publicUrl}?t=${Date.now()}` }).eq('id', insertData.id)
+      }
+    }
+
     // 감사 로그: 학생 등록 (앱 레벨 - 사용자 이름 포함)
     await fetch('/api/audit', {
       method: 'POST',
@@ -180,6 +202,36 @@ export default function NewStudentPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* 프로필 사진 */}
+          <div className="bg-white rounded-2xl p-6 shadow-sm">
+            <h3 className="text-sm font-semibold text-slate-700 mb-4 pb-2 border-b border-slate-100">
+              {lang === 'vi' ? 'Ảnh hồ sơ (tùy chọn)' : '프로필 사진 (선택)'}
+            </h3>
+            <div className="flex items-center gap-6">
+              <label className="relative w-24 h-24 shrink-0 cursor-pointer group">
+                <input type="file" accept="image/*" className="hidden" onChange={handlePhotoSelect} />
+                {photoPreview ? (
+                  <img src={photoPreview} alt="미리보기" className="w-24 h-24 rounded-2xl object-cover border border-slate-200" />
+                ) : (
+                  <div className="w-24 h-24 bg-blue-50 rounded-2xl flex items-center justify-center border-2 border-dashed border-blue-200 group-hover:border-blue-400 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 text-blue-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
+                    </svg>
+                  </div>
+                )}
+              </label>
+              <div className="text-sm text-slate-500 space-y-1">
+                <p className="font-medium text-slate-700">
+                  {lang === 'vi' ? 'Nhấp để chọn ảnh' : '클릭해서 사진 선택'}
+                </p>
+                <p>JPG, PNG, WebP · 5MB 이하</p>
+                <p className="text-xs text-slate-400">
+                  {lang === 'vi' ? 'Ảnh sẽ hiển thị trong PDF hồ sơ học sinh.' : '생활기록부 PDF에 증명사진으로 표시됩니다.'}
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* 기본 정보 */}
           <Section title={t('sectionBasic', lang)}>
             <Row>
