@@ -212,22 +212,21 @@ export default function StudentDetailPage() {
   const handleExportPdf = async () => {
     setPdfLoading(true)
     try {
-      const [resKo, resVi] = await Promise.all([
-        fetch(`/api/life-record-pdf?studentId=${id}&lang=ko`),
-        fetch(`/api/life-record-pdf?studentId=${id}&lang=vi`),
-      ])
-      for (const res of [resKo, resVi]) {
-        if (!res.ok) throw new Error('PDF 생성 실패')
-        const blob = await res.blob()
-        const url  = URL.createObjectURL(blob)
-        const a    = document.createElement('a')
-        a.href     = url
-        const cd   = res.headers.get('Content-Disposition') ?? ''
-        const match = cd.match(/filename\*=UTF-8''(.+)/)
-        a.download = match ? decodeURIComponent(match[1]) : `생활기록부_${student?.name_kr}.pdf`
-        a.click()
-        URL.revokeObjectURL(url)
-      }
+      const res = await fetch('/api/life-record-pdf-bulk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ studentIds: [id], lang: 'both' }),
+      })
+      if (!res.ok) throw new Error('PDF 생성 실패')
+      const blob = await res.blob()
+      const url  = URL.createObjectURL(blob)
+      const a    = document.createElement('a')
+      a.href     = url
+      const cd   = res.headers.get('Content-Disposition') ?? ''
+      const match = cd.match(/filename\*=UTF-8''(.+)/)
+      a.download = match ? decodeURIComponent(match[1]) : `생활기록부_${student?.name_kr}.zip`
+      a.click()
+      URL.revokeObjectURL(url)
     } catch (err) {
       alert('PDF 생성 중 오류가 발생했습니다.')
       console.error(err)
