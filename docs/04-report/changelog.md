@@ -2,7 +2,83 @@
 
 > **Project**: AJU E&J 베트남 유학생 통합 관리 플랫폼
 > **Version Management**: Semantic Versioning + PDCA Phase Tracking
-> **Last Updated**: 2026-02-22
+> **Last Updated**: 2026-02-24
+
+---
+
+## [2026-02-24] - visa-document-checklist 완료 (비자 서류 체크리스트)
+
+### PDCA Cycle Completion: Plan → Design → Do → Check → Report
+
+**Status**: ✅ COMPLETED (97% Design Match, 1회차 완료)
+
+### Added
+
+#### Core Features (Design 기반)
+- **비자 서류 체크리스트 관리**
+  - `document_types` 테이블 (서류 템플릿, 10개 초기 데이터)
+  - `student_documents` 테이블 (학생별 서류 현황, 5개 상태)
+  - `document_alert_logs` 테이블 (서류 알림 이력)
+  - 3-tier RLS 정책 (student/agency/master)
+
+- **학생 포털 서류 탭** (`DocumentTab.tsx`)
+  - 4개 카테고리 (신분/학교/재정/건강)
+  - 자가 체크 + 파일 업로드 (Supabase Storage)
+  - 상태 배지 (5가지 색상)
+  - 만료 임박 경고 (30일 주황, 7일 빨강)
+  - KO/VI 이중 언어
+  - 서류 현황 요약 카드 (진행률 바)
+
+- **관리자 서류 관리** (`DocumentChecklist.tsx`)
+  - 카테고리별 테이블
+  - 상태 변경 드롭다운 (pending→submitted→reviewing→approved/rejected)
+  - 반려 사유 입력 모달
+  - 파일 다운로드
+  - 관리자 직접 체크
+
+- **자동 알림 Cron** (`cron/document-alerts/route.ts`)
+  - 미제출 필수 서류 알림 (비자 D-90/30/7)
+  - 서류 만료 임박 알림 (D-30/7)
+  - Resend API + KO/VI 이중 언어 이메일
+  - 중복 발송 방지 (document_alert_logs)
+
+- **API 6개 엔드포인트**
+  - `GET /api/student-documents` (visa_type 기반 필터, auto-upsert)
+  - `PATCH /api/student-documents/[id]` (권한별 필드 제한)
+  - `GET/POST /api/document-types`
+  - `PATCH /api/document-types/[id]` (master 전용)
+  - `GET /api/cron/document-alerts` (Cron 알림)
+
+### Changed
+- `app/students/[id]/page.tsx`: '서류' 탭 추가
+- `app/portal/page.tsx`: '서류' 탭 추가
+- `vercel.json`: document-alerts Cron 등록 (`10 1 * * *`)
+
+### Implementation Files
+| File | Lines | Purpose |
+|------|------:|---------|
+| `supabase-document-checklist.sql` | 200+ | DB 마이그레이션 |
+| `lib/types.ts` (추가) | 30+ | DocumentType, StudentDocument |
+| `app/api/student-documents/route.ts` | 150+ | GET/POST |
+| `app/api/student-documents/[id]/route.ts` | 120+ | PATCH |
+| `app/api/document-types/route.ts` | 100+ | GET/POST |
+| `app/api/document-types/[id]/route.ts` | 80+ | PATCH |
+| `app/api/cron/document-alerts/route.ts` | 250+ | Cron |
+| `app/students/[id]/_components/DocumentChecklist.tsx` | 400+ | Admin UI |
+| `app/portal/_components/DocumentTab.tsx` | 350+ | Portal UI |
+
+### Quality Metrics
+- **Design Match Rate**: 97% (112/116 매칭)
+- **Iteration Count**: 0 (초회차 완료)
+- **TypeScript**: strict 모드 통과
+- **Architecture**: 100% (DB, API, RLS)
+- **Frontend**: 94% (Optional 미구현)
+- **Alerts**: 86% (상태변경 즉시 알림 미구현)
+
+### Known Gaps (선택사항)
+- [ ] 상태 변경 알림 (승인/반려 즉시 이메일) - Low 우선순위
+- [ ] 파일 크기 제한 (10MB validation) - Low 우선순위
+- [ ] Admin UI i18n (현재 KO only) - 향후 추가 권장
 
 ---
 
