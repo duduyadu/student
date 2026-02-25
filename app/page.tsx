@@ -13,6 +13,14 @@ import { t, statusLabel } from '@/lib/i18n'
 
 interface StatusCount { status: string; count: number }
 
+interface DocStats {
+  pending: number
+  submitted: number
+  reviewing: number
+  approved: number
+  rejected: number
+}
+
 interface HealthCheck {
   name: string; status: 'ok' | 'error' | 'warn'; ms: number; detail?: string
 }
@@ -34,6 +42,7 @@ export default function DashboardPage() {
   const [lang, toggleLang]          = useLang()
   const [health, setHealth]         = useState<HealthResult | null>(null)
   const [healthLoading, setHealthLoading] = useState(false)
+  const [docStats, setDocStats]     = useState<DocStats | null>(null)
 
   const fetchHealth = useCallback(async () => {
     setHealthLoading(true)
@@ -55,7 +64,7 @@ export default function DashboardPage() {
     const meta = getUserMeta(session)
     if (meta?.role === 'student') { router.push('/portal'); return }
     setUser(meta as any)
-    await Promise.all([loadStats(), loadVisaAlert(), loadStatusBreakdown(), loadPendingStudents()])
+    await Promise.all([loadStats(), loadVisaAlert(), loadStatusBreakdown(), loadPendingStudents(), loadDocStats()])
     setLoading(false)
     if (meta?.role === 'master') fetchHealth()
   }
@@ -162,6 +171,20 @@ export default function DashboardPage() {
       .lte('visa_expiry', in90.toISOString().split('T')[0])
       .order('visa_expiry', { ascending: true })
     if (data) setVisaAlert60(data as Student[])
+  }
+
+  const loadDocStats = async () => {
+    const { data } = await supabase
+      .from('student_documents')
+      .select('status, student:students!inner(is_active)')
+      .eq('student.is_active', true)
+    if (!data) return
+    const counts = { pending: 0, submitted: 0, reviewing: 0, approved: 0, rejected: 0 }
+    data.forEach(r => {
+      const s = r.status as keyof typeof counts
+      if (s in counts) counts[s]++
+    })
+    setDocStats(counts)
   }
 
   const loadStatusBreakdown = async () => {
@@ -292,6 +315,75 @@ export default function DashboardPage() {
           <StatCard label={t('statConsults', lang)}  value={stats.consultations} color="violet" />
           <StatCard label={t('statNewMonth', lang)}  value={stats.thisMonth}     color="amber" />
         </div>
+
+        {/* 서류 현황 카드 */}
+        {docStats !== null && (
+          <div className="bg-white rounded-2xl p-5 shadow-sm mb-5">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-semibold text-slate-700">
+                {lang === 'vi' ? '📋 Trạng thái hồ sơ' : '📋 비자 서류 현황'}
+              </h3>
+              <Link href="/students" className="text-xs text-blue-500 hover:text-blue-700">
+                {lang === 'vi' ? '자세히 →' : '학생 목록 →'}
+              </Link>
+            </div>
+            <div className="grid grid-cols-5 gap-2">
+              <DocStatItem
+                label={lang === 'vi' ? '미제출' : '미제출'}
+                value={docStats.pending}
+                bg="bg-slate-50" text="text-slate-600" bar="bg-slate-400"
+                total={docStats.pending + docStats.submitted + docStats.reviewing + docStats.approved + docStats.rejected}
+              />
+              <DocStatItem
+                label={lang === 'vi' ? '제출됨' : '제출됨'}
+                value={docStats.submitted}
+                bg="bg-blue-50" text="text-blue-700" bar="bg-blue-500"
+                total={docStats.pending + docStats.submitted + docStats.reviewing + docStats.approved + docStats.rejected}
+              />
+              <DocStatItem
+                label={lang === 'vi' ? '검토중' : '검토중'}
+                value={docStats.reviewing}
+                bg="bg-amber-50" text="text-amber-700" bar="bg-amber-400"
+                total={docStats.pending + docStats.submitted + docStats.reviewing + docStats.approved + docStats.rejected}
+              />
+              <DocStatItem
+                label={lang === 'vi' ? '승인' : '승인'}
+                value={docStats.approved}
+                bg="bg-emerald-50" text="text-emerald-700" bar="bg-emerald-500"
+                total={docStats.pending + docStats.submitted + docStats.reviewing + docStats.approved + docStats.rejected}
+              />
+              <DocStatItem
+                label={lang === 'vi' ? '반려' : '반려'}
+                value={docStats.rejected}
+                bg="bg-red-50" text="text-red-600" bar="bg-red-400"
+                total={docStats.pending + docStats.submitted + docStats.reviewing + docStats.approved + docStats.rejected}
+              />
+            </div>
+            {/* 통합 진행 바 */}
+            {(() => {
+              const total = docStats.pending + docStats.submitted + docStats.reviewing + docStats.approved + docStats.rejected
+              if (total === 0) return null
+              const approvedPct  = Math.round(docStats.approved  / total * 100)
+              const reviewingPct = Math.round(docStats.reviewing / total * 100)
+              const submittedPct = Math.round(docStats.submitted / total * 100)
+              const rejectedPct  = Math.round(docStats.rejected  / total * 100)
+              return (
+                <div className="mt-4">
+                  <div className="flex h-2 rounded-full overflow-hidden bg-slate-100 gap-0.5">
+                    {approvedPct  > 0 && <div className="bg-emerald-500 transition-all duration-500" style={{ width: `${approvedPct}%` }} />}
+                    {reviewingPct > 0 && <div className="bg-amber-400  transition-all duration-500" style={{ width: `${reviewingPct}%` }} />}
+                    {submittedPct > 0 && <div className="bg-blue-500   transition-all duration-500" style={{ width: `${submittedPct}%` }} />}
+                    {rejectedPct  > 0 && <div className="bg-red-400    transition-all duration-500" style={{ width: `${rejectedPct}%` }} />}
+                  </div>
+                  <div className="flex justify-between mt-1">
+                    <span className="text-xs text-slate-400">전체 {total}건</span>
+                    <span className="text-xs text-emerald-600 font-medium">승인 {approvedPct}%</span>
+                  </div>
+                </div>
+              )
+            })()}
+          </div>
+        )}
 
         {/* 상태별 분포 + 차트 (Feature 6) */}
         {stats.students > 0 && (
@@ -500,6 +592,22 @@ function StatCard({ label, value, color }: { label: string; value: number; color
     <div className={`rounded-2xl p-4 md:p-5 ${colors[color]}`}>
       <p className="text-xs md:text-sm font-medium opacity-70">{label}</p>
       <p className="text-2xl md:text-3xl font-bold mt-1">{value}</p>
+    </div>
+  )
+}
+
+function DocStatItem({ label, value, bg, text, bar, total }: {
+  label: string; value: number; bg: string; text: string; bar: string; total: number
+}) {
+  const pct = total > 0 ? Math.round(value / total * 100) : 0
+  return (
+    <div className={`rounded-xl p-3 ${bg} text-center`}>
+      <p className={`text-xs font-medium ${text} opacity-75 mb-1 truncate`}>{label}</p>
+      <p className={`text-2xl font-bold ${text}`}>{value}</p>
+      <div className="mt-2 h-1 bg-white/60 rounded-full overflow-hidden">
+        <div className={`h-full ${bar} rounded-full transition-all duration-500`} style={{ width: `${pct}%` }} />
+      </div>
+      <p className={`text-xs ${text} opacity-60 mt-0.5`}>{pct}%</p>
     </div>
   )
 }
