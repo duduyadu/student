@@ -252,13 +252,18 @@ export default function StudentsPage() {
         {/* 검색 + 필터 */}
         <div className="flex flex-wrap gap-2 mb-4">
           <input
+            id="student-search"
+            name="student-search"
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder={t('searchName', lang)}
+            autoComplete="off"
             className="flex-1 min-w-48 px-4 py-2 border border-slate-200 rounded-xl bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
           />
           <select
+            id="agency-filter"
+            name="agency-filter"
             value={agencyFilter}
             onChange={e => setAgencyFilter(e.target.value)}
             className="px-3 py-2 border border-slate-200 rounded-xl bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
@@ -271,6 +276,8 @@ export default function StudentsPage() {
             ))}
           </select>
           <select
+            id="status-filter"
+            name="status-filter"
             value={statusFilter}
             onChange={e => setStatusFilter(e.target.value)}
             className="px-3 py-2 border border-slate-200 rounded-xl bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
@@ -292,11 +299,26 @@ export default function StudentsPage() {
           <>
             {/* 모바일: 카드 목록 */}
             <div className="md:hidden space-y-2">
+              {/* 모바일 전체선택 */}
+              <div className="flex items-center gap-2 px-1 mb-1">
+                <input
+                  type="checkbox"
+                  checked={filtered.length > 0 && selectedIds.size === filtered.length}
+                  onChange={toggleSelectAll}
+                  className="w-4 h-4 rounded border-2 border-slate-400 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                />
+                <span className="text-xs text-slate-500">전체 선택 ({selectedIds.size}/{filtered.length})</span>
+              </div>
               {filtered.map(s => (
-                <Link key={s.id} href={`/students/${s.id}`}
-                  className="block bg-white rounded-2xl px-4 py-3.5 shadow-sm hover:bg-slate-50 transition-colors">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex-1 min-w-0">
+                <div key={s.id} className={`bg-white rounded-2xl px-4 py-3.5 shadow-sm transition-colors ${selectedIds.has(s.id) ? 'ring-2 ring-indigo-400 bg-indigo-50' : ''}`}>
+                  <div className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.has(s.id)}
+                      onChange={() => toggleSelect(s.id)}
+                      className="w-4 h-4 mt-1 rounded border-2 border-slate-400 text-indigo-600 focus:ring-indigo-500 cursor-pointer shrink-0"
+                    />
+                    <Link href={`/students/${s.id}`} className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-0.5">
                         <span className="font-semibold text-slate-800 truncate">{s.name_kr}</span>
                         <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium shrink-0 ${statusColor(s.status)}`}>{slabel(s.status, lang)}</span>
@@ -307,10 +329,10 @@ export default function StudentsPage() {
                         {s.student_code && <span className="ml-2 font-mono">{s.student_code}</span>}
                         {placement(s) && <span className="ml-2 text-blue-500">{placement(s)}</span>}
                       </p>
-                    </div>
+                    </Link>
                     <span className="text-slate-300 text-sm mt-1">›</span>
                   </div>
-                </Link>
+                </div>
               ))}
             </div>
 
