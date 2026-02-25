@@ -219,22 +219,21 @@ export default function StudentsPage() {
         <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
           <h2 className="text-xl font-bold text-slate-800">{t('studentList', lang)} <span className="text-slate-400 font-normal text-base">({filtered.length}명)</span></h2>
           <div className="flex flex-wrap gap-2">
-            {selectedIds.size > 0 && (
-              <button
-                onClick={handleBulkPdf}
-                disabled={bulkPdfLoading}
-                className="bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-sm font-medium px-3 py-2 rounded-xl transition-colors flex items-center gap-1.5"
-              >
-                {bulkPdfLoading ? (
-                  <span className="animate-spin inline-block w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full" />
-                ) : (
-                  <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h4a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-                  </svg>
-                )}
-                {bulkPdfLoading ? 'ZIP 생성 중...' : `PDF 일괄 다운로드 (${selectedIds.size}명)`}
-              </button>
-            )}
+            <button
+              onClick={handleBulkPdf}
+              disabled={bulkPdfLoading || selectedIds.size === 0}
+              className="bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-medium px-3 py-2 rounded-xl transition-colors flex items-center gap-1.5"
+              title={selectedIds.size === 0 ? '학생을 먼저 선택하세요' : `${selectedIds.size}명 PDF 다운로드`}
+            >
+              {bulkPdfLoading ? (
+                <span className="animate-spin inline-block w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full" />
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h4a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                </svg>
+              )}
+              {bulkPdfLoading ? 'ZIP 생성 중...' : selectedIds.size > 0 ? `PDF 다운로드 (${selectedIds.size}명)` : 'PDF 일괄 다운로드'}
+            </button>
             <button
               onClick={handleExport}
               className="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium px-3 py-2 rounded-xl transition-colors"
@@ -320,13 +319,16 @@ export default function StudentsPage() {
               <table className="w-full">
                 <thead>
                   <tr className="bg-slate-50 border-b border-slate-100">
-                    <th className="px-4 py-3 w-10">
-                      <input
-                        type="checkbox"
-                        checked={filtered.length > 0 && selectedIds.size === filtered.length}
-                        onChange={toggleSelectAll}
-                        className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-                      />
+                    <th className="px-4 py-3 w-14 text-center">
+                      <div className="flex flex-col items-center gap-1">
+                        <input
+                          type="checkbox"
+                          checked={filtered.length > 0 && selectedIds.size === filtered.length}
+                          onChange={toggleSelectAll}
+                          className="w-4 h-4 rounded border-2 border-slate-400 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                        />
+                        <span className="text-[10px] text-slate-400 font-medium">전체</span>
+                      </div>
                     </th>
                     <th className="text-left text-xs font-medium text-slate-500 px-6 py-3">{t('colCode', lang)}</th>
                     <th className="text-left text-xs font-medium text-slate-500 px-6 py-3">{t('colNameKr', lang)}</th>
@@ -340,12 +342,12 @@ export default function StudentsPage() {
                 <tbody className="divide-y divide-slate-50">
                   {filtered.map(s => (
                     <tr key={s.id} className={`hover:bg-slate-50 transition-colors ${selectedIds.has(s.id) ? 'bg-indigo-50' : ''}`}>
-                      <td className="px-4 py-4">
+                      <td className="px-4 py-4 text-center">
                         <input
                           type="checkbox"
                           checked={selectedIds.has(s.id)}
                           onChange={() => toggleSelect(s.id)}
-                          className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                          className="w-4 h-4 rounded border-2 border-slate-400 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
                         />
                       </td>
                       <td className="px-6 py-4 font-mono text-sm text-slate-400">{s.student_code ?? '-'}</td>
