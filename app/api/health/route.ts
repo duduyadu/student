@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { getServiceClient } from '@/lib/supabaseServer'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 
 interface CheckResult {
@@ -25,10 +25,7 @@ export async function GET() {
   // ── 1. Supabase DB ─────────────────────────────────────────
   {
     const { ms, error } = await measure(async () => {
-      const sb = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      )
+      const sb = getServiceClient()
       const { error } = await sb.from('students').select('id', { count: 'exact', head: true })
       if (error) throw new Error(error.message)
     })
@@ -91,9 +88,10 @@ export async function GET() {
 
   const allOk = checks.every(c => c.status !== 'error')
 
+  // detail 필드 제거 — 내부 오류 메시지/API 키 상태 외부 노출 방지
   return NextResponse.json({
     ok:        allOk,
     checkedAt: new Date().toISOString(),
-    checks,
+    checks:    checks.map(({ name, status, ms }) => ({ name, status, ms })),
   })
 }

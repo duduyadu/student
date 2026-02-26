@@ -1,15 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { getServiceClient, getAnonClient } from '@/lib/supabaseServer'
 
-const serviceClient = () =>
-  createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  )
+const serviceClient = getServiceClient
 
 // POST /api/audit — 감사 로그 기록 (LOGIN/LOGOUT 등 앱 레벨 이벤트)
 export async function POST(req: NextRequest) {
   try {
+    // Bearer 토큰 인증
+    const authHeader = req.headers.get('authorization')
+    const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null
+    if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const { data: { user }, error: authErr } = await getAnonClient().auth.getUser(token)
+    if (authErr || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
     const body = await req.json() as {
       action: string
       user_id?: string

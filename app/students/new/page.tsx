@@ -4,16 +4,16 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
-import type { Agency, UserMeta } from '@/lib/types'
-import { getUserMeta } from '@/lib/auth'
+import type { Agency } from '@/lib/types'
 import { STUDENT_STATUSES } from '@/lib/constants'
 import { useLang } from '@/lib/useLang'
-import { LangToggle } from '@/components/LangToggle'
 import { t } from '@/lib/i18n'
+import { useAdminAuth } from '@/lib/useAdminAuth'
+import { AppLayout } from '@/components/Layout/AppLayout'
 
 export default function NewStudentPage() {
   const router = useRouter()
-  const [user, setUser]       = useState<UserMeta | null>(null)
+  const { user, handleLogout } = useAdminAuth()
   const [agencies, setAgencies] = useState<Agency[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError]     = useState('')
@@ -33,18 +33,12 @@ export default function NewStudentPage() {
     language_school: '', current_university: '', current_company: '',
   })
 
-  useEffect(() => { checkAuth() }, [])
-
-  const checkAuth = async () => {
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session) { router.push('/login'); return }
-    const meta = getUserMeta(session)
-    if (meta.role === 'student') { router.push('/portal'); return }
-    setUser(meta)
-
-    const { data } = await supabase.from('agencies').select('*').eq('is_active', true).order('agency_number')
-    if (data) setAgencies(data)
-  }
+  useEffect(() => {
+    if (!user) return
+    supabase.from('agencies').select('*').eq('is_active', true).order('agency_number')
+      .then(({ data }) => { if (data) setAgencies(data) })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user])
 
   const set = (field: string, value: string) => setForm(prev => ({ ...prev, [field]: value }))
 
@@ -145,9 +139,13 @@ export default function NewStudentPage() {
     }
 
     // 감사 로그: 학생 등록 (앱 레벨 - 사용자 이름 포함)
+    const { data: { session } } = await supabase.auth.getSession()
     await fetch('/api/audit', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session?.access_token ?? ''}`,
+      },
       body: JSON.stringify({
         action: 'INSERT',
         user_name: user?.name_kr,
@@ -161,39 +159,8 @@ export default function NewStudentPage() {
     router.push('/students')
   }
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut()
-    router.push('/login')
-  }
-
   return (
-    <div className="min-h-screen bg-slate-100">
-      {/* 헤더 */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center">
-              <span className="text-white text-sm font-bold">AE</span>
-            </div>
-            <span className="font-bold text-slate-800">{t('appTitle', lang)}</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <LangToggle lang={lang} onToggle={toggleLang} />
-            <span className="text-sm text-slate-500">{user?.name_kr}</span>
-            <button onClick={handleLogout} className="text-sm text-slate-500 hover:text-red-500">{t('logout', lang)}</button>
-          </div>
-        </div>
-      </header>
-
-      {/* 네비게이션 */}
-      <nav className="bg-white border-b border-slate-200">
-        <div className="max-w-6xl mx-auto px-6 flex gap-6 overflow-x-auto">
-          <Link href="/" className="py-3 text-sm font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent whitespace-nowrap">{t('navDashboard', lang)}</Link>
-          <Link href="/students" className="py-3 text-sm font-medium text-blue-600 border-b-2 border-blue-600 whitespace-nowrap">{t('navStudents', lang)}</Link>
-          <Link href="/reports" className="py-3 text-sm font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent whitespace-nowrap">{t('navReports', lang)}</Link>
-        </div>
-      </nav>
-
+    <AppLayout user={user} lang={lang} onToggleLang={toggleLang} onLogout={handleLogout} activeNav="students">
       {/* 메인 */}
       <main className="max-w-3xl mx-auto px-6 py-8">
         <div className="flex items-center gap-3 mb-6">
@@ -398,7 +365,7 @@ export default function NewStudentPage() {
           </div>
         </form>
       </main>
-    </div>
+    </AppLayout>
   )
 }
 

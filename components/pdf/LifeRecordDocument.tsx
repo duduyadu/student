@@ -40,11 +40,16 @@ const T = {
     examDate:   '시험일', round: '회차',
     listening:  '듣기', reading: '읽기', total: '총점', level: '등급',
     noExam:     '시험 기록이 없습니다.',
+    section5:   '5. 목표 대학 변경 이력',
+    noAspiration: '변경 이력이 없습니다.',
+    aspDate:    '변경일', aspTarget: '목표 대학 / 학과', aspReason: '변경 사유',
     issuedAt:   '발급일',
     footerDoc:  '학생생활기록부',
     footerOrg:  'AJU E&J Education Co., Ltd.',
     stampLabel: '직인',
     roundSuffix:'회차',
+    scoreUnit:  '점',
+    genderM:    '남성', genderF: '여성',
     photoPlaceholder: '사진',
     continued:  '(계속)',
   },
@@ -58,8 +63,8 @@ const T = {
     studentCode:'Mã Học Sinh', status: 'Trạng Thái',
     enrollDate: 'Ngày Nhập Học', topik: 'Cấp Độ TOPIK',
     noTopik:    'Chưa đạt',
-    langSchool: 'Trường Ngôn Ngữ', targetUniv: 'Trường / Ngành Mục Tiêu',
-    visa:       'Loại Visa', visaExpiry: 'Ngày Hết Hạn Visa',
+    langSchool: 'Trường NN', targetUniv: 'Trường / Ngành Mục Tiêu',
+    visa:       'Loại Visa', visaExpiry: 'Hết Hạn Visa',
     section2:   '2. Lịch Sử Tư Vấn',
     noConsult:  'Không có lịch sử tư vấn công khai.',
     goal:       'Mục Tiêu', content: 'Nội Dung', improvement: 'Cải Thiện', nextGoal: 'Mục Tiêu Tiếp',
@@ -69,11 +74,16 @@ const T = {
     examDate:   'Ngày Thi', round: 'Lần Thi',
     listening:  'Nghe', reading: 'Đọc', total: 'Tổng', level: 'Cấp Độ',
     noExam:     'Không có kết quả thi.',
+    section5:   '5. Lịch Sử Trường Mục Tiêu',
+    noAspiration: 'Không có lịch sử thay đổi.',
+    aspDate:    'Ngày TĐ', aspTarget: 'Trường / Ngành Mục Tiêu', aspReason: 'Lý Do',
     issuedAt:   'Ngày Cấp',
     footerDoc:  'Hồ Sơ Học Sinh',
     footerOrg:  'AJU E&J Education Co., Ltd.',
     stampLabel: 'Con Dấu',
     roundSuffix:'lần',
+    scoreUnit:  ' điểm',
+    genderM:    'Nam', genderF: 'Nữ',
     photoPlaceholder: 'Ảnh',
     continued:  '(tiếp)',
   },
@@ -423,6 +433,66 @@ const s = StyleSheet.create({
     fontWeight: 'bold',
   },
 
+  // ── 희망대학 이력 테이블 ──
+  aspTable: {
+    border: `1px solid ${C.border}`,
+    marginTop: 4,
+  },
+  aspTHead: {
+    flexDirection: 'row',
+    backgroundColor: C.labelBg,
+    borderBottom: `1px solid ${C.borderDark}`,
+  },
+  aspTBody: {
+    flexDirection: 'row',
+  },
+  aspTBodyStripe: {
+    flexDirection: 'row',
+    backgroundColor: C.stripe,
+  },
+  aspTh: {
+    paddingVertical: 5,
+    paddingHorizontal: 6,
+    fontSize: 9,
+    color: C.muted,
+    fontWeight: 'bold',
+    borderRight: `0.5px solid ${C.border}`,
+  },
+  aspTd: {
+    paddingVertical: 6,
+    paddingHorizontal: 6,
+    fontSize: 10,
+    color: C.body,
+    borderRight: `0.5px solid ${C.border}`,
+  },
+  aspTdLast: {
+    paddingVertical: 6,
+    paddingHorizontal: 6,
+    fontSize: 10,
+    color: C.muted,
+  },
+
+  // ── 헤더 로고 박스 ──
+  logoBox: {
+    width: 28,
+    height: 28,
+    backgroundColor: C.navyDark,
+    borderRadius: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 8,
+  },
+  logoText: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: C.white,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
+  },
+
   // ── 빈 데이터 ──
   noData: {
     fontSize: 10,
@@ -503,9 +573,14 @@ function GradeBadge({ level }: { level: string }) {
 }
 
 /** 카테고리 레이블 */
-const CATEGORY_LABELS: Record<string, string> = {
-  score: '성적', attitude: '태도', career: '진로',
-  visa: '비자', life: '생활', family: '가정', other: '기타',
+const CATEGORY_LABELS: Record<string, { ko: string; vi: string }> = {
+  score:    { ko: '성적', vi: 'Điểm số' },
+  attitude: { ko: '태도', vi: 'Thái độ' },
+  career:   { ko: '진로', vi: 'Nghề nghiệp' },
+  visa:     { ko: '비자', vi: 'Visa' },
+  life:     { ko: '생활', vi: 'Sinh hoạt' },
+  family:   { ko: '가정', vi: 'Gia đình' },
+  other:    { ko: '기타', vi: 'Khác' },
 }
 
 // ── 타입 ──────────────────────────────────────────
@@ -573,8 +648,15 @@ export default function LifeRecordDocument({
           <View style={s.mainHeaderLeft}>
             <Text style={s.headerTitle}>{tx.title}</Text>
             <Text style={s.headerSubtitle}>{tx.subtitle}</Text>
-            <Text style={s.headerOrg}>AJU E&amp;J Education Co., Ltd.</Text>
-            <Text style={s.headerOrgSub}>{tx.orgSub}</Text>
+            <View style={s.headerRow}>
+              <View style={s.logoBox}>
+                <Text style={s.logoText}>AE</Text>
+              </View>
+              <View>
+                <Text style={s.headerOrg}>AJU E&amp;J Education Co., Ltd.</Text>
+                <Text style={s.headerOrgSub}>{tx.orgSub}</Text>
+              </View>
+            </View>
           </View>
           {/* 학생 사진 */}
           <View style={s.photoBox}>
@@ -611,7 +693,7 @@ export default function LifeRecordDocument({
               </View>
               <View style={s.infoCellLast}>
                 <Text style={s.infoLabel}>{tx.gender}</Text>
-                <Text style={s.infoValue}>{student.gender === 'M' ? '남 / Nam' : '여 / Nữ'}</Text>
+                <Text style={s.infoValue}>{student.gender === 'M' ? tx.genderM : tx.genderF}</Text>
               </View>
             </View>
             {/* 학번 / 현재상태 */}
@@ -688,7 +770,7 @@ export default function LifeRecordDocument({
                   <Text style={s.consultDate}>{c.consult_date}</Text>
                   {c.topic_category && (
                     <Text style={s.consultTag}>
-                      {CATEGORY_LABELS[c.topic_category] ?? c.topic_category}
+                      {CATEGORY_LABELS[c.topic_category]?.[lang as Lang] ?? c.topic_category}
                     </Text>
                   )}
                   {c.counselor_name && (
@@ -789,7 +871,7 @@ export default function LifeRecordDocument({
                   <Text style={[s.examTd, { width: '16%' }]}>{e.listening_score ?? '-'}</Text>
                   <Text style={[s.examTd, { width: '16%' }]}>{e.reading_score ?? '-'}</Text>
                   <Text style={[s.examTd, { width: '16%', fontWeight: 'bold', color: C.navy }]}>
-                    {e.total_score}점
+                    {e.total_score}{tx.scoreUnit}
                   </Text>
                   <View style={[s.examTdLast, { width: '16%' }]}>
                     <GradeBadge level={e.level} />
@@ -799,6 +881,37 @@ export default function LifeRecordDocument({
             </View>
           )}
         </View>
+
+        {/* ─── 5. 목표 대학 변경 이력 ─── */}
+        {aspirationHistory.length > 0 && (
+          <View style={s.section}>
+            <View style={s.sectionHeader}>
+              <Text style={s.sectionTitle}>{tx.section5}  ({aspirationHistory.length})</Text>
+            </View>
+            {aspirationHistory.length === 0 ? (
+              <Text style={s.noData}>{tx.noAspiration}</Text>
+            ) : (
+              <View style={s.aspTable}>
+                {/* 헤더 */}
+                <View style={s.aspTHead}>
+                  <Text style={[s.aspTh, { width: '20%' }]}>{tx.aspDate}</Text>
+                  <Text style={[s.aspTh, { width: '45%' }]}>{tx.aspTarget}</Text>
+                  <Text style={[s.aspTh, { width: '35%', borderRight: 'none' }]}>{tx.aspReason}</Text>
+                </View>
+                {/* 바디 */}
+                {aspirationHistory.map((a, idx) => (
+                  <View key={a.id} style={idx % 2 === 0 ? s.aspTBody : s.aspTBodyStripe} wrap={false}>
+                    <Text style={[s.aspTd, { width: '20%' }]}>{a.changed_date}</Text>
+                    <Text style={[s.aspTd, { width: '45%' }]}>
+                      {[a.university, a.major].filter(Boolean).join('  ·  ') || '-'}
+                    </Text>
+                    <Text style={[s.aspTdLast, { width: '35%' }]}>{a.reason ?? '-'}</Text>
+                  </View>
+                ))}
+              </View>
+            )}
+          </View>
+        )}
 
       </Page>
     </Document>

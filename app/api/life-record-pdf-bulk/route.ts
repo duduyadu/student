@@ -1,17 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { renderToBuffer, type DocumentProps } from '@react-pdf/renderer'
-import { createClient } from '@supabase/supabase-js'
 import JSZip from 'jszip'
 import LifeRecordDocument from '@/components/pdf/LifeRecordDocument'
 import type { LifeRecordData } from '@/components/pdf/LifeRecordDocument'
 import React from 'react'
 import type { ReactElement, JSXElementConstructor } from 'react'
-
-function getServiceClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY!
-  return createClient(url, key)
-}
+import { getServiceClient, getAnonClient } from '@/lib/supabaseServer'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function fetchStudentData(supabase: any, studentId: string) {
@@ -53,6 +47,18 @@ async function generatePdfBuffer(data: LifeRecordData): Promise<Buffer> {
 }
 
 export async function POST(req: NextRequest) {
+  // 인증 검증
+  const authHeader = req.headers.get('authorization')
+  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null
+  if (!token) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+  const anonClient = getAnonClient()
+  const { data: { user }, error: authError } = await anonClient.auth.getUser(token)
+  if (authError || !user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   let body: { studentIds?: string[]; lang?: 'ko' | 'vi' | 'both' }
   try {
     body = await req.json()
@@ -65,8 +71,24 @@ export async function POST(req: NextRequest) {
   if (!studentIds || !Array.isArray(studentIds) || studentIds.length === 0) {
     return NextResponse.json({ error: 'studentIds is required' }, { status: 400 })
   }
+  if (studentIds.length > 50) {
+    return NextResponse.json({ error: '최대 50명까지 일괄 다운로드 가능합니다.' }, { status: 400 })
+  }
 
   const supabase = getServiceClient()
+
+  // 역할 기반 소속 검증 (agency는 자기 학생만 필터링)
+  const role = (user.app_metadata as { role?: string })?.role ?? 'agency'
+  const agencyCode = (user.app_metadata as { agency_code?: string })?.agency_code
+  let allowedIds = studentIds
+  if (role === 'agency' && agencyCode) {
+    const { data: sts } = await supabase
+      .from('students').select('id').in('id', studentIds).eq('agency_code', agencyCode)
+    allowedIds = (sts ?? []).map(s => s.id)
+    if (allowedIds.length === 0) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+  }
   const now = new Date()
   const generatedAt = now.toLocaleDateString('ko-KR', {
     year: 'numeric', month: 'long', day: 'numeric',
@@ -75,7 +97,7 @@ export async function POST(req: NextRequest) {
 
   const zip = new JSZip()
 
-  for (const studentId of studentIds) {
+  for (const studentId of allowedIds) {
     const { student, consultations, evaluations, examResults, aspirationHistory, templates } =
       await fetchStudentData(supabase, studentId)
 

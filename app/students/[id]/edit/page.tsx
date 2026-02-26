@@ -4,15 +4,19 @@ import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
-import type { Agency, UserMeta } from '@/lib/types'
-import { getUserMeta } from '@/lib/auth'
+import type { Agency } from '@/lib/types'
 import { STUDENT_STATUSES, TOPIK_LEVELS } from '@/lib/constants'
+import { t } from '@/lib/i18n'
+import { useLang } from '@/lib/useLang'
+import { useAdminAuth } from '@/lib/useAdminAuth'
+import { AppLayout } from '@/components/Layout/AppLayout'
 
 export default function EditStudentPage() {
   const router = useRouter()
   const { id } = useParams() as { id: string }
+  const [lang, toggleLang] = useLang()
+  const { user, handleLogout } = useAdminAuth()
 
-  const [user, setUser]       = useState<UserMeta | null>(null)
   const [agencies, setAgencies] = useState<Agency[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving]   = useState(false)
@@ -33,20 +37,12 @@ export default function EditStudentPage() {
     language_school: '', current_university: '', current_company: '',
   })
 
-  useEffect(() => { checkAuth() }, [])
-
-  const checkAuth = async () => {
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session) { router.push('/login'); return }
-    const meta = getUserMeta(session)
-    // 학생 역할은 포털로 이동
-    if (meta.role === 'student') { router.push('/portal'); return }
-    setUser(meta)
-
-    const [studentRes, agenciesRes] = await Promise.all([
+  useEffect(() => {
+    if (!user) return
+    Promise.all([
       supabase.from('students').select('*').eq('id', id).single(),
       supabase.from('agencies').select('*').eq('is_active', true).order('agency_number'),
-    ])
+    ]).then(([studentRes, agenciesRes]) => {
 
     if (agenciesRes.data) setAgencies(agenciesRes.data)
 
@@ -86,20 +82,22 @@ export default function EditStudentPage() {
     }
 
     setLoading(false)
-  }
+    })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user])
 
   const set = (field: string, value: string) => setForm(prev => ({ ...prev, [field]: value }))
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    if (file.size > 5 * 1024 * 1024) { alert('5MB 이하 이미지만 업로드 가능합니다.'); return }
+    if (file.size > 5 * 1024 * 1024) { alert(t('photoSizeLimit', lang)); return }
     setPhotoUploading(true)
     const path = `${id}/profile`
     const { error: upErr } = await supabase.storage
       .from('student-photos')
       .upload(path, file, { upsert: true, contentType: file.type })
-    if (upErr) { alert('업로드 실패: ' + upErr.message); setPhotoUploading(false); return }
+    if (upErr) { alert(t('uploadFail', lang) + upErr.message); setPhotoUploading(false); return }
     const { data: { publicUrl } } = supabase.storage.from('student-photos').getPublicUrl(path)
     const url = `${publicUrl}?t=${Date.now()}`
     await supabase.from('students').update({ photo_url: url }).eq('id', id)
@@ -114,7 +112,7 @@ export default function EditStudentPage() {
     setError('')
 
     if (!form.name_kr || !form.name_vn || !form.dob) {
-      setError('이름(한국어), 이름(베트남어), 생년월일은 필수 항목입니다.')
+      setError(t('requiredMsg', lang))
       setSaving(false)
       return
     }
@@ -153,15 +151,19 @@ export default function EditStudentPage() {
       .eq('id', id)
 
     if (dbError) {
-      setError('저장 실패: ' + dbError.message)
+      setError(t('saveFail', lang) + dbError.message)
       setSaving(false)
       return
     }
 
     // 감사 로그: 학생 정보 수정
+    const { data: { session } } = await supabase.auth.getSession()
     await fetch('/api/audit', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session?.access_token ?? ''}`,
+      },
       body: JSON.stringify({
         action: 'UPDATE',
         user_name: user?.name_kr,
@@ -175,58 +177,25 @@ export default function EditStudentPage() {
     router.push(`/students/${id}`)
   }
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut()
-    router.push('/login')
-  }
-
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center"><p className="text-slate-400">로딩 중...</p></div>
+    return <div className="min-h-screen flex items-center justify-center"><p className="text-slate-400">{t('loading', lang)}</p></div>
   }
 
   return (
-    <div className="min-h-screen bg-slate-100">
-      {/* 헤더 */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center">
-              <span className="text-white text-sm font-bold">AE</span>
-            </div>
-            <span className="font-bold text-slate-800">AJU E&J 학생관리</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-slate-500">{user?.name_kr}</span>
-            <button onClick={handleLogout} className="text-sm text-slate-500 hover:text-red-500">로그아웃</button>
-          </div>
-        </div>
-      </header>
-
-      {/* 네비게이션 */}
-      <nav className="bg-white border-b border-slate-200">
-        <div className="max-w-6xl mx-auto px-6 flex gap-6 overflow-x-auto">
-          <Link href="/" className="py-3 text-sm font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent whitespace-nowrap">대시보드</Link>
-          <Link href="/students" className="py-3 text-sm font-medium text-blue-600 border-b-2 border-blue-600 whitespace-nowrap">학생 관리</Link>
-          <Link href="/reports" className="py-3 text-sm font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent whitespace-nowrap">통계</Link>
-          {user?.role === 'master' && (
-            <Link href="/agencies" className="py-3 text-sm font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent whitespace-nowrap">유학원 관리</Link>
-          )}
-        </div>
-      </nav>
-
+    <AppLayout user={user} lang={lang} onToggleLang={toggleLang} onLogout={handleLogout} activeNav="students">
       {/* 메인 */}
       <main className="max-w-3xl mx-auto px-6 py-8">
         <div className="flex items-center gap-3 mb-6">
-          <Link href={`/students/${id}`} className="text-slate-400 hover:text-slate-600 text-sm">← 상세보기로</Link>
-          <h2 className="text-xl font-bold text-slate-800">학생 정보 수정</h2>
+          <Link href={`/students/${id}`} className="text-slate-400 hover:text-slate-600 text-sm">{t('backToDetail', lang)}</Link>
+          <h2 className="text-xl font-bold text-slate-800">{t('editStudentTitle', lang)}</h2>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* 프로필 사진 */}
           <div className="bg-white rounded-2xl p-6 shadow-sm">
-            <h3 className="text-sm font-semibold text-slate-700 mb-4 pb-2 border-b border-slate-100">프로필 사진</h3>
+            <h3 className="text-sm font-semibold text-slate-700 mb-4 pb-2 border-b border-slate-100">{t('profilePhoto', lang)}</h3>
             <div className="flex items-center gap-6">
-              <label className="relative w-24 h-24 shrink-0 cursor-pointer group" title="클릭해서 사진 변경">
+              <label className="relative w-24 h-24 shrink-0 cursor-pointer group" title={t('clickToUpload', lang)}>
                 <input type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} disabled={photoUploading} />
                 {photoUrl ? (
                   <img src={photoUrl} alt="프로필" className="w-24 h-24 rounded-2xl object-cover border border-slate-200" />
@@ -248,44 +217,44 @@ export default function EditStudentPage() {
                 </div>
               </label>
               <div className="text-sm text-slate-500 space-y-1">
-                <p className="font-medium text-slate-700">사진을 클릭해서 업로드</p>
-                <p>JPG, PNG, WebP · 5MB 이하</p>
-                <p className="text-xs text-slate-400">생활기록부 PDF에 증명사진으로 표시됩니다.</p>
+                <p className="font-medium text-slate-700">{t('clickToUpload', lang)}</p>
+                <p>{t('photoFormatHint', lang)}</p>
+                <p className="text-xs text-slate-400">{t('pdfPhotoNote', lang)}</p>
               </div>
             </div>
           </div>
 
           {/* 기본 정보 */}
-          <Section title="기본 정보">
+          <Section title={t('basicInfo', lang)}>
             <Row>
-              <Field label="한국 이름 *">
+              <Field label={`${t('fieldNameKr', lang)} *`}>
                 <input type="text" value={form.name_kr} onChange={e => set('name_kr', e.target.value)} className={input} placeholder="홍길동" />
               </Field>
-              <Field label="베트남 이름 *">
+              <Field label={`${t('fieldNameVn', lang)} *`}>
                 <input type="text" value={form.name_vn} onChange={e => set('name_vn', e.target.value)} className={input} placeholder="Nguyen Van A" />
               </Field>
             </Row>
             <Row>
-              <Field label="생년월일 *">
+              <Field label={`${t('dob', lang)} *`}>
                 <input type="date" value={form.dob} onChange={e => set('dob', e.target.value)} className={input} />
               </Field>
-              <Field label="성별">
+              <Field label={t('fieldGender', lang)}>
                 <select value={form.gender} onChange={e => set('gender', e.target.value)} className={input}>
-                  <option value="M">남 (M)</option>
-                  <option value="F">여 (F)</option>
+                  <option value="M">{t('genderM', lang)}</option>
+                  <option value="F">{t('genderF', lang)}</option>
                 </select>
               </Field>
             </Row>
             <Row>
-              <Field label="유학원">
+              <Field label={t('fieldAgencyAdmin', lang)}>
                 <select value={form.agency_id} onChange={e => set('agency_id', e.target.value)} className={input}>
-                  <option value="">선택 안 함</option>
+                  <option value="">{t('noSelect', lang)}</option>
                   {agencies.map(a => (
                     <option key={a.id} value={a.id}>{a.agency_name_kr} ({a.agency_code})</option>
                   ))}
                 </select>
               </Field>
-              <Field label="유학 단계">
+              <Field label={t('fieldStudyStep', lang)}>
                 <select value={form.status} onChange={e => set('status', e.target.value)} className={input}>
                   {STUDENT_STATUSES.map(s => <option key={s}>{s}</option>)}
                 </select>
@@ -293,8 +262,8 @@ export default function EditStudentPage() {
             </Row>
             {form.status !== '유학전' && (
               <Field label={
-                form.status === '어학연수' ? '재학 중인 어학원' :
-                form.status === '대학교'   ? '재학 중인 대학교' : '재직 중인 회사'
+                form.status === '어학연수' ? t('languageSchool', lang) :
+                form.status === '대학교'   ? t('currentUniv', lang) : t('currentCompany', lang)
               }>
                 <input
                   type="text"
@@ -318,79 +287,78 @@ export default function EditStudentPage() {
           </Section>
 
           {/* 연락처 */}
-          <Section title="연락처">
+          <Section title={t('sectionContact', lang)}>
             <Row>
-              <Field label="한국 연락처">
+              <Field label={t('fieldPhoneKr', lang)}>
                 <input type="tel" value={form.phone_kr} onChange={e => set('phone_kr', e.target.value)} className={input} placeholder="010-1234-5678" />
               </Field>
-              <Field label="베트남 연락처">
+              <Field label={t('phoneVn', lang)}>
                 <input type="tel" value={form.phone_vn} onChange={e => set('phone_vn', e.target.value)} className={input} placeholder="+84-123-456-789" />
               </Field>
             </Row>
-            <Field label="이메일">
+            <Field label={t('email', lang)}>
               <input type="email" value={form.email} onChange={e => set('email', e.target.value)} className={input} placeholder="student@example.com" />
             </Field>
           </Section>
 
           {/* 학부모 정보 */}
-          <Section title="학부모 정보">
+          <Section title={t('sectionParent', lang)}>
             <Row>
-              <Field label="학부모 이름 (VN)">
+              <Field label={t('fieldParentName', lang)}>
                 <input type="text" value={form.parent_name_vn} onChange={e => set('parent_name_vn', e.target.value)} className={input} />
               </Field>
-              <Field label="학부모 연락처 (VN)">
+              <Field label={t('fieldParentPhone', lang)}>
                 <input type="tel" value={form.parent_phone_vn} onChange={e => set('parent_phone_vn', e.target.value)} className={input} />
               </Field>
             </Row>
           </Section>
 
           {/* 학업 정보 */}
-          <Section title="학업 정보">
+          <Section title={t('sectionStudy', lang)}>
             <Row>
-              <Field label="고등학교 성적 (GPA)">
+              <Field label={t('fieldGpa', lang)}>
                 <input type="number" step="0.01" min="0" max="10" value={form.high_school_gpa} onChange={e => set('high_school_gpa', e.target.value)} className={input} placeholder="예: 8.5" />
               </Field>
-              <Field label="토픽 등급">
+              <Field label={t('topikLevel', lang)}>
                 <select value={form.topik_level} onChange={e => set('topik_level', e.target.value)} className={input}>
-                  <option value="">없음</option>
+                  <option value="">{t('noTopik', lang)}</option>
                   {TOPIK_LEVELS.map(l => <option key={l}>{l}</option>)}
                 </select>
               </Field>
             </Row>
             <Row>
-              <Field label="유학원 등록일">
+              <Field label={t('fieldEnrollDate', lang)}>
                 <input type="date" value={form.enrollment_date} onChange={e => set('enrollment_date', e.target.value)} className={input} />
               </Field>
-              <Field label="목표 대학">
+              <Field label={t('fieldTargetUniv', lang)}>
                 <input type="text" value={form.target_university} onChange={e => set('target_university', e.target.value)} className={input} placeholder="서울대학교" />
               </Field>
             </Row>
-            <Field label="목표 학과">
+            <Field label={t('fieldTargetMajor', lang)}>
               <input type="text" value={form.target_major} onChange={e => set('target_major', e.target.value)} className={input} placeholder="컴퓨터공학과" />
             </Field>
           </Section>
 
           {/* 비자/체류 */}
-          <Section title="비자 / 체류">
+          <Section title={t('sectionVisa', lang)}>
             <Row>
-              <Field label="비자 종류">
+              <Field label={t('fieldVisaType', lang)}>
                 <input type="text" value={form.visa_type} onChange={e => set('visa_type', e.target.value)} className={input} placeholder="D-4-1" />
               </Field>
-              <Field label="비자 만료일">
+              <Field label={t('fieldVisaExpiry', lang)}>
                 <input type="date" value={form.visa_expiry} onChange={e => set('visa_expiry', e.target.value)} className={input} />
               </Field>
             </Row>
-            {/* 외국인등록증 (ARC) */}
             <Row>
-              <Field label="외국인등록번호 (ARC)">
+              <Field label={t('arcNumber', lang)}>
                 <input type="text" value={form.arc_number} onChange={e => set('arc_number', e.target.value)} className={input} placeholder="A123456789" />
               </Field>
-              <Field label="ARC 발급일">
+              <Field label={t('arcIssueDate', lang)}>
                 <input type="date" value={form.arc_issue_date} onChange={e => set('arc_issue_date', e.target.value)} className={input} />
               </Field>
             </Row>
             <Row>
-              <Field label="ARC 만료일">
+              <Field label={t('arcExpiry', lang)}>
                 <input type="date" value={form.arc_expiry_date} onChange={e => set('arc_expiry_date', e.target.value)} className={input} />
               </Field>
               <div />
@@ -398,13 +366,13 @@ export default function EditStudentPage() {
           </Section>
 
           {/* 비고 */}
-          <Section title="비고">
+          <Section title={t('sectionNotes', lang)}>
             <textarea
               value={form.notes}
               onChange={e => set('notes', e.target.value)}
               rows={4}
               className={input + ' resize-none'}
-              placeholder="특이사항, 추가 메모..."
+              placeholder={t('fieldNotes', lang)}
             />
           </Section>
 
@@ -414,19 +382,19 @@ export default function EditStudentPage() {
 
           <div className="flex gap-3 pb-8">
             <Link href={`/students/${id}`} className="flex-1 text-center py-3 border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 transition-colors font-medium">
-              취소
+              {t('cancelBtn2', lang)}
             </Link>
             <button
               type="submit"
               disabled={saving}
               className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-semibold py-3 rounded-xl transition-colors"
             >
-              {saving ? '저장 중...' : '수정 완료'}
+              {saving ? t('saving', lang) : t('saveComplete', lang)}
             </button>
           </div>
         </form>
       </main>
-    </div>
+    </AppLayout>
   )
 }
 

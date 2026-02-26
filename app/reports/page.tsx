@@ -1,23 +1,21 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
-import type { UserMeta, AuditLog } from '@/lib/types'
-import { getUserMeta } from '@/lib/auth'
+import type { AuditLog } from '@/lib/types'
 import { STATUS_COLORS, STUDENT_STATUSES } from '@/lib/constants'
 import { useLang } from '@/lib/useLang'
-import { LangToggle } from '@/components/LangToggle'
 import { t, statusLabel, monthLabel } from '@/lib/i18n'
+import { useAdminAuth } from '@/lib/useAdminAuth'
+import { AppLayout } from '@/components/Layout/AppLayout'
 
 interface AgencyStat { name: string; count: number }
 interface MonthStat  { month: number; count: number }
 interface StatusStat { status: string; count: number }
 
 export default function ReportsPage() {
-  const router = useRouter()
-  const [user, setUser]       = useState<UserMeta | null>(null)
+  const { user, handleLogout } = useAdminAuth()
   const [loading, setLoading] = useState(true)
   const [total, setTotal]     = useState(0)
   const [lang, toggleLang]    = useLang()
@@ -29,16 +27,12 @@ export default function ReportsPage() {
   const [auditLoading, setAuditLoading] = useState(false)
   const [auditTotal, setAuditTotal]     = useState(0)
 
-  useEffect(() => { checkAuth() }, [])
-
-  const checkAuth = async () => {
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session) { router.push('/login'); return }
-    const meta = getUserMeta(session)
-    setUser(meta)
-    await Promise.all([loadStatusStats(), loadAgencyStats(), loadMonthStats()])
-    setLoading(false)
-  }
+  useEffect(() => {
+    if (!user) return
+    Promise.all([loadStatusStats(), loadAgencyStats(), loadMonthStats()])
+      .then(() => setLoading(false))
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user])
 
   const loadAuditLogs = async () => {
     setAuditLoading(true)
@@ -56,11 +50,6 @@ export default function ReportsPage() {
     } finally {
       setAuditLoading(false)
     }
-  }
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut()
-    router.push('/login')
   }
 
   const loadStatusStats = async () => {
@@ -120,36 +109,7 @@ export default function ReportsPage() {
   if (loading) return <div className="min-h-screen flex items-center justify-center"><p className="text-slate-400">{t('loading', lang)}</p></div>
 
   return (
-    <div className="min-h-screen bg-slate-100">
-      {/* 헤더 */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center">
-              <span className="text-white text-sm font-bold">AE</span>
-            </div>
-            <span className="font-bold text-slate-800">{t('appTitle', lang)}</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <LangToggle lang={lang} onToggle={toggleLang} />
-            <span className="text-sm text-slate-500">{user?.name_kr}</span>
-            <button onClick={handleLogout} className="text-sm text-slate-500 hover:text-red-500">{t('logout', lang)}</button>
-          </div>
-        </div>
-      </header>
-
-      {/* 네비게이션 */}
-      <nav className="bg-white border-b border-slate-200">
-        <div className="max-w-6xl mx-auto px-6 flex gap-6 overflow-x-auto">
-          <Link href="/" className="py-3 text-sm font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent whitespace-nowrap">{t('navDashboard', lang)}</Link>
-          <Link href="/students" className="py-3 text-sm font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent whitespace-nowrap">{t('navStudents', lang)}</Link>
-          <Link href="/reports" className="py-3 text-sm font-medium text-blue-600 border-b-2 border-blue-600 whitespace-nowrap">{t('navReports', lang)}</Link>
-          {user?.role === 'master' && (
-            <Link href="/agencies" className="py-3 text-sm font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent whitespace-nowrap">{t('navAgencies', lang)}</Link>
-          )}
-        </div>
-      </nav>
-
+    <AppLayout user={user} lang={lang} onToggleLang={toggleLang} onLogout={handleLogout} activeNav="reports">
       <main className="max-w-6xl mx-auto px-4 md:px-6 py-6 md:py-8">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-slate-800">{t('reportTitle', lang)}</h2>
@@ -310,7 +270,7 @@ export default function ReportsPage() {
         </>
         )}
       </main>
-    </div>
+    </AppLayout>
   )
 }
 

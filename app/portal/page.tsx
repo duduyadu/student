@@ -298,7 +298,7 @@ export default function PortalPage() {
         <div className="flex gap-1 bg-white rounded-2xl p-1 shadow-sm overflow-x-auto">
           {([
             { key: 'info',    label: t('tabInfo', lang) },
-            { key: 'docs',    label: lang === 'ko' ? '서류' : 'Hồ Sơ' },
+            { key: 'docs',    label: t('tabDocs', lang) },
             { key: 'consult', label: `${t('tabConsult', lang)} (${consults.length})` },
             { key: 'exam',    label: `${t('tabExam', lang)} (${exams.length})` },
             { key: 'account', label: t('tabAccount', lang) },
@@ -404,12 +404,12 @@ export default function PortalPage() {
                 {(student.language_school || student.current_university || student.current_company) && (
                   <div className="bg-white rounded-2xl shadow-sm p-6">
                     <h4 className="text-sm font-semibold text-slate-700 mb-3 pb-2 border-b border-slate-100">
-                      {lang === 'vi' ? 'Cơ sở hiện tại' : '현재 소속'}
+                      {t('currentAffiliation', lang)}
                     </h4>
                     <div className="grid grid-cols-2 gap-4 text-sm">
-                      {student.language_school    && <InfoRow label={lang === 'vi' ? 'Trung tâm tiếng Hàn' : '재학 어학원'} value={student.language_school} />}
-                      {student.current_university && <InfoRow label={lang === 'vi' ? 'Trường đại học'       : '재학 대학교'} value={student.current_university} />}
-                      {student.current_company    && <InfoRow label={lang === 'vi' ? 'Công ty'              : '재직 회사'}   value={student.current_company} />}
+                      {student.language_school    && <InfoRow label={t('languageSchool', lang)} value={student.language_school} />}
+                      {student.current_university && <InfoRow label={t('currentUniv', lang)}    value={student.current_university} />}
+                      {student.current_company    && <InfoRow label={t('currentCompany', lang)} value={student.current_company} />}
                     </div>
                   </div>
                 )}
@@ -555,33 +555,29 @@ export default function PortalPage() {
             {/* 탈퇴 (Feature 3) */}
             <div className="bg-white rounded-2xl shadow-sm p-6">
               <h4 className="text-sm font-semibold text-slate-700 mb-3 pb-2 border-b border-slate-100">
-                {lang === 'vi' ? 'Xóa tài khoản' : '계정 탈퇴'}
+                {t('accountWithdraw', lang)}
               </h4>
               {!showWithdrawConfirm ? (
                 <div>
-                  <p className="text-xs text-slate-400 mb-3">
-                    {lang === 'vi'
-                      ? 'Sau khi xóa tài khoản, bạn sẽ không thể đăng nhập. Liên hệ quản trị viên để khôi phục.'
-                      : '탈퇴 후 로그인이 불가능합니다. 복구가 필요하면 관리자에게 문의하세요.'}
-                  </p>
+                  <p className="text-xs text-slate-400 mb-3">{t('withdrawDesc', lang)}</p>
                   <button onClick={() => setShowWithdrawConfirm(true)}
                     className="text-sm text-red-500 border border-red-200 hover:bg-red-50 px-4 py-2 rounded-xl transition-colors">
-                    {lang === 'vi' ? 'Yêu cầu xóa tài khoản' : '탈퇴 요청'}
+                    {t('withdrawBtn', lang)}
                   </button>
                 </div>
               ) : (
                 <div>
                   <p className="text-sm font-medium text-red-600 mb-3">
-                    {lang === 'vi' ? '정말 탈퇴하시겠습니까? / Bạn có chắc chắn muốn xóa tài khoản?' : '정말 탈퇴하시겠습니까?'}
+                    {t('withdrawConfirm', lang)}
                   </p>
                   <div className="flex gap-2">
                     <button onClick={() => setShowWithdrawConfirm(false)} disabled={withdrawing}
                       className="flex-1 border border-slate-200 text-slate-600 py-2.5 rounded-xl text-sm hover:bg-slate-50">
-                      {lang === 'vi' ? 'Hủy' : '취소'}
+                      {t('cancel', lang)}
                     </button>
                     <button onClick={handleWithdraw} disabled={withdrawing}
                       className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-red-300 text-white py-2.5 rounded-xl text-sm font-semibold">
-                      {withdrawing ? (lang === 'vi' ? '처리 중...' : '처리 중...') : (lang === 'vi' ? 'Xác nhận xóa' : '탈퇴 확인')}
+                      {withdrawing ? t('processing', lang) : t('withdrawConfirmBtn', lang)}
                     </button>
                   </div>
                 </div>

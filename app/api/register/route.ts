@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { getServiceClient } from '@/lib/supabaseServer'
 
-const adminClient = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+const adminClient = getServiceClient()
 
 const PRIVACY_TEXT = `AJU E&J는 유학 관리 서비스 제공을 위해 아래와 같이 개인정보를 수집·이용합니다.
 

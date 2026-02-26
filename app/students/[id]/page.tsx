@@ -4,9 +4,12 @@ import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
-import type { Student, Consultation, ExamResult, UserMeta, TeacherEvaluation, EvaluationTemplate, AspirationHistory } from '@/lib/types'
-import { getUserMeta } from '@/lib/auth'
+import type { Student, Consultation, ExamResult, TeacherEvaluation, EvaluationTemplate, AspirationHistory } from '@/lib/types'
 import { STATUS_COLORS, TOPIK_LEVELS, CONSULT_TYPES } from '@/lib/constants'
+import { useLang } from '@/lib/useLang'
+import { t, statusLabel } from '@/lib/i18n'
+import { useAdminAuth } from '@/lib/useAdminAuth'
+import { AppLayout } from '@/components/Layout/AppLayout'
 import ConsultTimeline from './_components/ConsultTimeline'
 import EvaluationPanel from './_components/EvaluationPanel'
 import AspirationTracker from './_components/AspirationTracker'
@@ -16,8 +19,8 @@ import ExamChart, { type ChartLevel } from '@/components/ExamChart'
 export default function StudentDetailPage() {
   const router = useRouter()
   const { id } = useParams() as { id: string }
+  const { user, handleLogout } = useAdminAuth()
 
-  const [user, setUser]         = useState<UserMeta | null>(null)
   const [student, setStudent]   = useState<Student | null>(null)
   const [consults, setConsults] = useState<Consultation[]>([])
   const [exams, setExams]       = useState<ExamResult[]>([])
@@ -48,18 +51,12 @@ export default function StudentDetailPage() {
   const [aiAnalysis, setAiAnalysis]         = useState<string>('')
   const [aiLoading, setAiLoading]           = useState(false)
 
-  useEffect(() => { checkAuth() }, [])
-
-  const checkAuth = async () => {
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session) { router.push('/login'); return }
-    const meta = getUserMeta(session)
-    // 학생 역할은 포털로 이동
-    if (meta.role === 'student') { router.push('/portal'); return }
-    setUser(meta)
-    await Promise.all([loadStudent(), loadConsults(), loadExams(), loadConsents(), loadEvaluations(), loadEvalTemplates(), loadAspirations()])
-    setLoading(false)
-  }
+  useEffect(() => {
+    if (!user) return
+    Promise.all([loadStudent(), loadConsults(), loadExams(), loadConsents(), loadEvaluations(), loadEvalTemplates(), loadAspirations()])
+      .then(() => setLoading(false))
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user])
 
   const loadStudent = async () => {
     const { data } = await supabase
@@ -206,15 +203,20 @@ export default function StudentDetailPage() {
     }
   }
 
+  const [lang, toggleLang] = useLang()
   const [photoUploading, setPhotoUploading] = useState(false)
   const [pdfLoading, setPdfLoading] = useState(false)
 
   const handleExportPdf = async () => {
     setPdfLoading(true)
     try {
+      const { data: { session: pdfSession } } = await supabase.auth.getSession()
       const res = await fetch('/api/life-record-pdf-bulk', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(pdfSession ? { 'Authorization': `Bearer ${pdfSession.access_token}` } : {}),
+        },
         body: JSON.stringify({ studentIds: [id], lang: 'both' }),
       })
       if (!res.ok) throw new Error('PDF 생성 실패')
@@ -258,11 +260,6 @@ export default function StudentDetailPage() {
     router.push('/students')
   }
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut()
-    router.push('/login')
-  }
-
   const levelColor = (level: string) => {
     const map: Record<string, string> = {
       '6급': 'bg-blue-100 text-blue-700', '5급': 'bg-indigo-100 text-indigo-700',
@@ -273,42 +270,14 @@ export default function StudentDetailPage() {
     return map[level] ?? 'bg-slate-100 text-slate-600'
   }
 
-  if (loading) return <Centered><p className="text-slate-400">로딩 중...</p></Centered>
+  if (loading) return <Centered><p className="text-slate-400">{t('loading', lang)}</p></Centered>
   if (!student) return <Centered><p className="text-slate-400">학생 정보를 찾을 수 없습니다.</p></Centered>
 
   return (
-    <div className="min-h-screen bg-slate-100">
-      {/* 헤더 */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center">
-              <span className="text-white text-sm font-bold">AE</span>
-            </div>
-            <span className="font-bold text-slate-800">AJU E&J 학생관리</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-slate-500">{user?.name_kr}</span>
-            <button onClick={handleLogout} className="text-sm text-slate-500 hover:text-red-500">로그아웃</button>
-          </div>
-        </div>
-      </header>
-
-      {/* 네비게이션 */}
-      <nav className="bg-white border-b border-slate-200">
-        <div className="max-w-6xl mx-auto px-6 flex gap-6 overflow-x-auto">
-          <Link href="/" className="py-3 text-sm font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent whitespace-nowrap">대시보드</Link>
-          <Link href="/students" className="py-3 text-sm font-medium text-blue-600 border-b-2 border-blue-600 whitespace-nowrap">학생 관리</Link>
-          <Link href="/reports" className="py-3 text-sm font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent whitespace-nowrap">통계</Link>
-          {user?.role === 'master' && (
-            <Link href="/agencies" className="py-3 text-sm font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent whitespace-nowrap">유학원 관리</Link>
-          )}
-        </div>
-      </nav>
-
+    <AppLayout user={user} lang={lang} onToggleLang={toggleLang} onLogout={handleLogout} activeNav="students">
       <main className="max-w-6xl mx-auto px-6 py-8">
         {/* 뒤로가기 */}
-        <Link href="/students" className="text-slate-400 hover:text-slate-600 text-sm mb-4 inline-block">← 목록으로</Link>
+        <Link href="/students" className="text-slate-400 hover:text-slate-600 text-sm mb-4 inline-block">{t('backToList', lang)}</Link>
 
         {/* 프로필 카드 */}
         <div className="bg-white rounded-2xl shadow-sm p-6 mb-6 flex items-start justify-between">
@@ -341,7 +310,7 @@ export default function StudentDetailPage() {
               <p className="text-slate-500 text-sm">{student.name_vn}</p>
               <div className="flex items-center gap-2 mt-1">
                 <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_COLORS[student.status] ?? 'bg-slate-100 text-slate-600'}`}>
-                  {student.status}
+                  {statusLabel(student.status, lang)}
                 </span>
                 {(student.agency as any)?.agency_name_kr && (
                   <span className="text-xs text-slate-400">{(student.agency as any).agency_name_kr}</span>
@@ -363,30 +332,30 @@ export default function StudentDetailPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h4a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
                 </svg>
               )}
-              {pdfLoading ? 'PDF 생성 중...' : '생활기록부 PDF (KO+VI)'}
+              {pdfLoading ? t('pdfGenerating', lang) : t('pdfBtn', lang)}
             </button>
             <Link href={`/students/${id}/edit`} className="text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl transition-colors">
-              수정
+              {t('editBtn', lang)}
             </Link>
             <button onClick={handleDelete} className="text-sm bg-red-50 hover:bg-red-100 text-red-600 px-4 py-2 rounded-xl transition-colors">
-              삭제
+              {t('deleteBtn', lang)}
             </button>
           </div>
         </div>
 
         {/* 탭 */}
-        <div className="flex gap-1 mb-4 bg-white rounded-2xl p-1 shadow-sm w-fit">
+        <div className="flex gap-1 mb-4 bg-white rounded-2xl p-1 shadow-sm overflow-x-auto max-w-full">
           {([
-            { key: 'info',       label: '기본 정보',                        show: true },
-            { key: 'consult',    label: `상담 히스토리 (${consults.length})`, show: true },
-            { key: 'exam',       label: `시험 성적 (${exams.length})`,       show: true },
-            { key: 'evaluation', label: `선생님 평가 (${evaluations.length})`, show: true },
-            { key: 'docs',       label: '서류 체크리스트',                     show: true },
-            { key: 'consent',    label: `개인정보 동의 (${consents.length})`, show: user?.role === 'master' },
-          ] as const).filter(t => t.show).map(t => (
-            <button key={t.key} onClick={() => setTab(t.key)}
-              className={`px-5 py-2 rounded-xl text-sm font-medium transition-colors ${activeTab === t.key ? 'bg-blue-600 text-white' : 'text-slate-500 hover:text-slate-800'}`}>
-              {t.label}
+            { key: 'info',       label: t('tabInfoDetail', lang),                                      show: true },
+            { key: 'consult',    label: `${t('tabConsultHist', lang)} (${consults.length})`,           show: true },
+            { key: 'exam',       label: `${t('tabExamDetail', lang)} (${exams.length})`,               show: true },
+            { key: 'evaluation', label: `${t('tabEvaluation', lang)} (${evaluations.length})`,         show: true },
+            { key: 'docs',       label: t('tabDocChecklist', lang),                                    show: true },
+            { key: 'consent',    label: `${t('tabConsentAdmin', lang)} (${consents.length})`,          show: user?.role === 'master' },
+          ] as const).filter(tab => tab.show).map(tab => (
+            <button key={tab.key} onClick={() => setTab(tab.key)}
+              className={`px-5 py-2 rounded-xl text-sm font-medium transition-colors whitespace-nowrap ${activeTab === tab.key ? 'bg-blue-600 text-white' : 'text-slate-500 hover:text-slate-800'}`}>
+              {tab.label}
             </button>
           ))}
         </div>
@@ -394,39 +363,39 @@ export default function StudentDetailPage() {
         {/* ── 기본 정보 탭 ── */}
         {activeTab === 'info' && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <InfoCard title="개인 정보">
-              <InfoRow label="생년월일"      value={student.dob} />
-              <InfoRow label="성별"          value={student.gender === 'M' ? '남성' : '여성'} />
-              <InfoRow label="이메일"        value={student.email} />
-              <InfoRow label="한국 연락처"   value={student.phone_kr} />
-              <InfoRow label="베트남 연락처" value={student.phone_vn} />
+            <InfoCard title={t('sectionPersonal', lang)}>
+              <InfoRow label={t('dob', lang)}      value={student.dob} />
+              <InfoRow label={t('gender', lang)}   value={student.gender === 'M' ? t('maleLabel', lang) : t('femaleLabel', lang)} />
+              <InfoRow label={t('email', lang)}    value={student.email} />
+              <InfoRow label={t('phoneKr', lang)}  value={student.phone_kr} />
+              <InfoRow label={t('phoneVn', lang)}  value={student.phone_vn} />
             </InfoCard>
-            <InfoCard title="학부모 정보">
-              <InfoRow label="학부모 이름 (VN)"   value={student.parent_name_vn} />
-              <InfoRow label="학부모 연락처 (VN)" value={student.parent_phone_vn} />
+            <InfoCard title={t('sectionParent', lang)}>
+              <InfoRow label={t('fieldParentName', lang)}  value={student.parent_name_vn} />
+              <InfoRow label={t('fieldParentPhone', lang)} value={student.parent_phone_vn} />
             </InfoCard>
-            <InfoCard title="학업 정보">
-              {student.language_school    && <InfoRow label="재학 어학원" value={student.language_school} />}
-              {student.current_university && <InfoRow label="재학 대학교" value={student.current_university} />}
-              {student.current_company    && <InfoRow label="재직 회사"   value={student.current_company} />}
-              <InfoRow label="고등학교 성적"  value={student.high_school_gpa?.toString()} />
-              <InfoRow label="유학원 등록일"  value={student.enrollment_date} />
-              <InfoRow label="목표 대학"      value={student.target_university} />
-              <InfoRow label="목표 학과"      value={student.target_major} />
+            <InfoCard title={t('sectionStudy', lang)}>
+              {student.language_school    && <InfoRow label={t('languageSchool', lang)} value={student.language_school} />}
+              {student.current_university && <InfoRow label={t('currentUniv', lang)}    value={student.current_university} />}
+              {student.current_company    && <InfoRow label={t('currentCompany', lang)} value={student.current_company} />}
+              <InfoRow label={t('highSchoolGpa', lang)}    value={student.high_school_gpa?.toString()} />
+              <InfoRow label={t('fieldEnrollDate', lang)}  value={student.enrollment_date} />
+              <InfoRow label={t('fieldTargetUniv', lang)}  value={student.target_university} />
+              <InfoRow label={t('fieldTargetMajor', lang)} value={student.target_major} />
               <div className="flex justify-between text-sm items-center">
-                <span className="text-slate-400">토픽 등급</span>
+                <span className="text-slate-400">{t('topikLevel', lang)}</span>
                 {student.topik_level
                   ? <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${levelColor(student.topik_level)}`}>{student.topik_level}</span>
                   : <span className="text-slate-700 font-medium">-</span>
                 }
               </div>
             </InfoCard>
-            <InfoCard title="비자 / 체류 / ARC">
-              <InfoRow label="비자 종류"            value={student.visa_type} />
-              <InfoRow label="비자 만료일"          value={student.visa_expiry} />
-              <InfoRow label="외국인등록번호 (ARC)" value={student.arc_number} />
-              <InfoRow label="ARC 발급일"           value={student.arc_issue_date} />
-              <InfoRow label="ARC 만료일"           value={student.arc_expiry_date} />
+            <InfoCard title={t('sectionVisaArc', lang)}>
+              <InfoRow label={t('fieldVisaType', lang)}   value={student.visa_type} />
+              <InfoRow label={t('fieldVisaExpiry', lang)} value={student.visa_expiry} />
+              <InfoRow label={t('arcNumber', lang)}       value={student.arc_number} />
+              <InfoRow label={t('arcIssueDate', lang)}    value={student.arc_issue_date} />
+              <InfoRow label={t('arcExpiry', lang)}       value={student.arc_expiry_date} />
             </InfoCard>
             {student.notes && (
               <div className="md:col-span-2">
@@ -596,7 +565,7 @@ export default function StudentDetailPage() {
                       <button onClick={() => handleDeleteExam(e.id)} className="text-xs text-slate-300 hover:text-red-500 transition-colors">삭제</button>
                     </div>
                   </div>
-                  <div className="grid grid-cols-4 gap-3">
+                  <div className="grid grid-cols-3 gap-3">
                     <ScoreBox label="총점" value={e.total_score}     total={200} bold />
                     <ScoreBox label="읽기" value={e.reading_score}   total={100} />
                     <ScoreBox label="듣기" value={e.listening_score} total={100} />
@@ -657,7 +626,7 @@ export default function StudentDetailPage() {
           </div>
         )}
       </main>
-    </div>
+    </AppLayout>
   )
 }
 

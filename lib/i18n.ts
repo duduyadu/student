@@ -239,6 +239,98 @@ export const T = {
   agencyRequired:   { ko: '유학원명 (베트남어)은 필수입니다.',
                       vi: 'Tên trung tâm (Tiếng Việt) là bắt buộc.' },
   accountCreateFail:{ ko: '계정 생성 실패: ',         vi: 'Tạo tài khoản thất bại: ' },
+
+  // ─── 유학원 관리 - 계정 인라인 폼 ───
+  hasAccount:       { ko: '계정 있음',                vi: 'Có tài khoản' },
+  noAccount:        { ko: '계정 없음',                vi: 'Chưa có tài khoản' },
+  addAccountBtn:    { ko: '계정 추가',                vi: 'Thêm tài khoản' },
+  resetPwBtn:       { ko: '비밀번호 재설정',           vi: 'Đặt lại mật khẩu' },
+  addAccountTitle:  { ko: '새 계정 추가 (이메일 + 비밀번호)', vi: 'Thêm tài khoản mới (email + mật khẩu)' },
+  accountEmailLbl:  { ko: '이메일',                   vi: 'Email' },
+  accountPwLbl:     { ko: '비밀번호 (8자 이상)',       vi: 'Mật khẩu (ít nhất 8 ký tự)' },
+  resetPwTitle:     { ko: '비밀번호 재설정',           vi: 'Đặt lại mật khẩu' },
+  accountEmailInfo: { ko: '계정 이메일',               vi: 'Email tài khoản' },
+  newPasswordLbl:   { ko: '새 비밀번호 (8자 이상)',    vi: 'Mật khẩu mới (ít nhất 8 ký tự)' },
+  createAccountBtn: { ko: '계정 생성',                vi: 'Tạo tài khoản' },
+  pwChangeBtn:      { ko: '변경',                     vi: 'Thay đổi' },
+  resetPwMin8:      { ko: '8자 이상 비밀번호를 입력하세요.', vi: 'Vui lòng nhập mật khẩu ít nhất 8 ký tự.' },
+  noLinkedAccount:  { ko: '연결된 계정이 없습니다.',   vi: 'Không có tài khoản liên kết.' },
+  pwChanged2:       { ko: '비밀번호가 변경되었습니다.', vi: 'Mật khẩu đã được thay đổi.' },
+
+  // ─── 대시보드 - 서류 현황 ───
+  docStatusTitle:   { ko: '비자 서류 현황',            vi: 'Trạng thái hồ sơ' },
+  docPending:       { ko: '미제출',                   vi: 'Chưa nộp' },
+  docSubmitted:     { ko: '제출됨',                   vi: 'Đã nộp' },
+  docReviewing:     { ko: '검토중',                   vi: 'Đang xét' },
+  docApproved:      { ko: '승인',                     vi: 'Đã duyệt' },
+  docRejected:      { ko: '반려',                     vi: 'Từ chối' },
+  docTotalLabel:    { ko: '전체',                     vi: 'Tổng số' },
+  docCountUnit:     { ko: '건',                       vi: 'hồ sơ' },
+  docApprovalLabel: { ko: '승인',                     vi: 'Đã duyệt' },
+
+  // ─── 학생 목록 - 전체 선택 ───
+  selectAllLabel:   { ko: '전체 선택',                vi: 'Chọn tất cả' },
+
+  // ─── 탈퇴 확인 ───
+  withdrawConfirm:  { ko: '정말 탈퇴하시겠습니까?', vi: 'Bạn có chắc chắn muốn xóa tài khoản?' },
+
+  // ─── 학생 상세 - 탭 레이블 ───
+  tabInfoDetail:    { ko: '기본 정보',            vi: 'Thông tin cơ bản' },
+  tabConsultHist:   { ko: '상담 히스토리',         vi: 'Lịch sử tư vấn' },
+  tabExamDetail:    { ko: '시험 성적',             vi: 'Kết quả thi' },
+  tabEvaluation:    { ko: '선생님 평가',           vi: 'Đánh giá giáo viên' },
+  tabDocChecklist:  { ko: '서류 체크리스트',        vi: 'Danh sách tài liệu' },
+  tabConsentAdmin:  { ko: '개인정보 동의',          vi: 'Đồng ý thông tin cá nhân' },
+
+  // ─── 학생 상세 - 버튼 ───
+  deleteBtn:        { ko: '삭제',                 vi: 'Xóa' },
+  pdfBtn:           { ko: '생활기록부 PDF (KO+VI)', vi: 'PDF Hồ sơ (KO+VI)' },
+  pdfGenerating:    { ko: 'PDF 생성 중...',        vi: 'Đang tạo PDF...' },
+
+  // ─── 학생 목록 - PDF 버튼 ───
+  pdfBulkDownload:  { ko: 'PDF 일괄 다운로드',     vi: 'Tải PDF hàng loạt' },
+  pdfBulkSelected:  { ko: 'PDF 다운로드',          vi: 'Tải PDF' },
+  pdfBulkZip:       { ko: 'ZIP 생성 중...',        vi: 'Đang tạo ZIP...' },
+
+  // ─── 학생 상세 - InfoCard 섹션 제목 ───
+  sectionPersonal:  { ko: '개인 정보',             vi: 'Thông tin cá nhân' },
+  sectionVisaArc:   { ko: '비자 / 체류 / ARC',     vi: 'Visa / Cư trú / ARC' },
+
+  // ─── 학생 상세 - InfoRow 레이블 ───
+  languageSchool:   { ko: '재학 어학원',           vi: 'Trường ngôn ngữ' },
+  currentUniv:      { ko: '재학 대학교',           vi: 'Trường đại học' },
+  currentCompany:   { ko: '재직 회사',             vi: 'Công ty' },
+  arcNumber:        { ko: '외국인등록번호 (ARC)',   vi: 'Số ARC' },
+  arcIssueDate:     { ko: 'ARC 발급일',            vi: 'Ngày cấp ARC' },
+  arcExpiry:        { ko: 'ARC 만료일',            vi: 'Ngày hết hạn ARC' },
+  maleLabel:        { ko: '남성',                  vi: 'Nam' },
+  femaleLabel:      { ko: '여성',                  vi: 'Nữ' },
+  highSchoolGpa:    { ko: '고등학교 성적',          vi: 'GPA THPT' },
+
+  // ─── 빈 상태 ───
+  noSearchResult:   { ko: '검색 결과가 없습니다.',  vi: 'Không có kết quả tìm kiếm.' },
+  clearFilter:      { ko: '필터 초기화',           vi: 'Xóa bộ lọc' },
+
+  // ─── 포털 - 소속/탈퇴 섹션 ───
+  tabDocs:            { ko: '서류',                    vi: 'Hồ Sơ' },
+  currentAffiliation: { ko: '현재 소속',               vi: 'Cơ sở hiện tại' },
+  accountWithdraw:    { ko: '계정 탈퇴',               vi: 'Xóa tài khoản' },
+  withdrawDesc:       { ko: '탈퇴 후 로그인이 불가능합니다. 복구가 필요하면 관리자에게 문의하세요.',
+                        vi: 'Sau khi xóa tài khoản, bạn sẽ không thể đăng nhập. Liên hệ quản trị viên để khôi phục.' },
+  withdrawBtn:        { ko: '탈퇴 요청',               vi: 'Yêu cầu xóa tài khoản' },
+  withdrawConfirmBtn: { ko: '탈퇴 확인',               vi: 'Xác nhận xóa' },
+
+  // ─── 학생 수정 (edit page) ───
+  backToDetail:       { ko: '← 상세보기로',            vi: '← Quay lại chi tiết' },
+  editStudentTitle:   { ko: '학생 정보 수정',           vi: 'Chỉnh sửa thông tin sinh viên' },
+  saveComplete:       { ko: '수정 완료',               vi: 'Lưu thay đổi' },
+  profilePhoto:       { ko: '프로필 사진',             vi: 'Ảnh hồ sơ' },
+  clickToUpload:      { ko: '사진을 클릭해서 업로드',   vi: 'Nhấp để tải ảnh lên' },
+  photoFormatHint:    { ko: 'JPG, PNG, WebP · 5MB 이하', vi: 'JPG, PNG, WebP · Dưới 5MB' },
+  pdfPhotoNote:       { ko: '생활기록부 PDF에 증명사진으로 표시됩니다.', vi: 'Ảnh sẽ hiển thị trong PDF hồ sơ.' },
+  photoSizeLimit:     { ko: '5MB 이하 이미지만 업로드 가능합니다.', vi: 'Chỉ có thể tải ảnh dưới 5MB.' },
+  uploadFail:         { ko: '업로드 실패: ',            vi: 'Tải lên thất bại: ' },
+  noTopik:            { ko: '없음',                    vi: 'Không có' },
 } as const
 
 export const t = (key: keyof typeof T, lang: Lang): string => T[key][lang]

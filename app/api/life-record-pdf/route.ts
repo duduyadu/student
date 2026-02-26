@@ -1,19 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { renderToBuffer, type DocumentProps } from '@react-pdf/renderer'
-import { createClient } from '@supabase/supabase-js'
 import LifeRecordDocument from '@/components/pdf/LifeRecordDocument'
 import type { LifeRecordData } from '@/components/pdf/LifeRecordDocument'
 import React from 'react'
 import type { ReactElement, JSXElementConstructor } from 'react'
-
-// 서버 전용 Supabase 클라이언트 (RLS 우회, 서버에서만 사용)
-function getServiceClient() {
-  const url  = process.env.NEXT_PUBLIC_SUPABASE_URL!
-  const key  = process.env.SUPABASE_SERVICE_ROLE_KEY!
-  return createClient(url, key)
-}
+import { getServiceClient, getAnonClient } from '@/lib/supabaseServer'
 
 export async function GET(req: NextRequest) {
+  // 인증 검증
+  const authHeader = req.headers.get('authorization')
+  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null
+  if (!token) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+  const anonClient = getAnonClient()
+  const { data: { user }, error: authError } = await anonClient.auth.getUser(token)
+  if (authError || !user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   const { searchParams } = req.nextUrl
   const studentId = searchParams.get('studentId')
   const lang = (searchParams.get('lang') ?? 'ko') as 'ko' | 'vi'
@@ -22,7 +27,16 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'studentId is required' }, { status: 400 })
   }
 
+  // 역할 기반 소속 검증 (agency는 자기 학생만)
+  const role = (user.app_metadata as { role?: string })?.role ?? 'agency'
+  const agencyCode = (user.app_metadata as { agency_code?: string })?.agency_code
   const supabase = getServiceClient()
+  if (role === 'agency' && agencyCode) {
+    const { data: st } = await supabase.from('students').select('agency_code').eq('id', studentId).single()
+    if (!st || st.agency_code !== agencyCode) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+  }
 
   // 병렬 데이터 로드
   const [
@@ -93,9 +107,6 @@ export async function GET(req: NextRequest) {
     })
   } catch (err) {
     console.error('[life-record-pdf] renderToBuffer error:', err)
-    return NextResponse.json(
-      { error: String(err instanceof Error ? err.message : err) },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'PDF 생성 실패' }, { status: 500 })
   }
 }

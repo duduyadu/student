@@ -4,15 +4,15 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
-import type { Agency, UserMeta } from '@/lib/types'
-import { getUserMeta } from '@/lib/auth'
+import type { Agency } from '@/lib/types'
 import { useLang } from '@/lib/useLang'
-import { LangToggle } from '@/components/LangToggle'
 import { t } from '@/lib/i18n'
+import { useAdminAuth } from '@/lib/useAdminAuth'
+import { AppLayout } from '@/components/Layout/AppLayout'
 
 export default function AgenciesPage() {
   const router = useRouter()
-  const [user, setUser]         = useState<UserMeta | null>(null)
+  const { user, handleLogout } = useAdminAuth()
   const [agencies, setAgencies] = useState<Agency[]>([])
   const [loading, setLoading]   = useState(true)
   const [showForm, setShowForm] = useState(false)
@@ -50,17 +50,12 @@ export default function AgenciesPage() {
   const [resetError, setResetError]   = useState('')
   const [resetSuccess, setResetSuccess] = useState('')
 
-  useEffect(() => { checkAuth() }, [])
-
-  const checkAuth = async () => {
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session) { router.push('/login'); return }
-    const meta = getUserMeta(session)
-    if (meta.role !== 'master') { router.push('/'); return }
-    setUser(meta)
-    await loadAgencies()
-    setLoading(false)
-  }
+  useEffect(() => {
+    if (!user) return
+    if (user.role !== 'master') { router.push('/'); return }
+    loadAgencies().then(() => setLoading(false))
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user])
 
   const loadAgencies = async () => {
     const { data } = await supabase
@@ -144,7 +139,7 @@ export default function AgenciesPage() {
       return
     }
 
-    const nextNumber = agencies.length + 1
+    const nextNumber = agencies.length > 0 ? Math.max(...agencies.map(a => a.agency_number)) + 1 : 1
     const autoCode   = String(nextNumber).padStart(3, '0')
 
     let userId: string | null = null
@@ -231,8 +226,8 @@ export default function AgenciesPage() {
   // ── 비밀번호 재설정 ────────────────────────────────────────────
   const handleResetPassword = async (a: Agency) => {
     setResetError(''); setResetSuccess('')
-    if (!resetPw || resetPw.length < 8) { setResetError('8자 이상 비밀번호를 입력하세요.'); return }
-    if (!a.user_id) { setResetError('연결된 계정이 없습니다.'); return }
+    if (!resetPw || resetPw.length < 8) { setResetError(t('resetPwMin8', lang)); return }
+    if (!a.user_id) { setResetError(t('noLinkedAccount', lang)); return }
     setResetSaving(true)
     const { data: { session } } = await supabase.auth.getSession()
     const res = await fetch('/api/reset-agency-password', {
@@ -242,47 +237,15 @@ export default function AgenciesPage() {
     })
     const json = await res.json()
     if (!res.ok) { setResetError(json.error); setResetSaving(false); return }
-    setResetSuccess('비밀번호가 변경되었습니다.')
+    setResetSuccess(t('pwChanged2', lang))
     setResetPw('')
     setResetSaving(false)
-  }
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut()
-    router.push('/login')
   }
 
   if (loading) return <div className="min-h-screen flex items-center justify-center"><p className="text-slate-400">{t('loading', lang)}</p></div>
 
   return (
-    <div className="min-h-screen bg-slate-100">
-      {/* 헤더 */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center">
-              <span className="text-white text-sm font-bold">AE</span>
-            </div>
-            <span className="font-bold text-slate-800">{t('appTitle', lang)}</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <LangToggle lang={lang} onToggle={toggleLang} />
-            <span className="text-sm text-slate-500">{user?.name_kr}</span>
-            <button onClick={handleLogout} className="text-sm text-slate-500 hover:text-red-500">{t('logout', lang)}</button>
-          </div>
-        </div>
-      </header>
-
-      {/* 네비게이션 */}
-      <nav className="bg-white border-b border-slate-200">
-        <div className="max-w-6xl mx-auto px-6 flex gap-6 overflow-x-auto">
-          <Link href="/" className="py-3 text-sm font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent whitespace-nowrap">{t('navDashboard', lang)}</Link>
-          <Link href="/students" className="py-3 text-sm font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent whitespace-nowrap">{t('navStudents', lang)}</Link>
-          <Link href="/reports" className="py-3 text-sm font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent whitespace-nowrap">{t('navReports', lang)}</Link>
-          <Link href="/agencies" className="py-3 text-sm font-medium text-blue-600 border-b-2 border-blue-600 whitespace-nowrap">{t('navAgencies', lang)}</Link>
-        </div>
-      </nav>
-
+    <AppLayout user={user} lang={lang} onToggleLang={toggleLang} onLogout={handleLogout} activeNav="agencies">
       <main className="max-w-6xl mx-auto px-4 md:px-6 py-6 md:py-8">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-slate-800">{t('agencyMgmtTitle', lang)} <span className="text-slate-400 font-normal text-base">({agencies.length}개)</span></h2>
@@ -300,7 +263,7 @@ export default function AgenciesPage() {
             <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
               <h3 className="text-sm font-semibold text-slate-700">{t('agencyNewTitle', lang)}</h3>
               <span className="text-xs text-slate-400 bg-slate-50 px-3 py-1 rounded-full">
-                {t('autoCode', lang)}: {String(agencies.length + 1).padStart(3, '0')}
+                {t('autoCode', lang)}: {String(agencies.length > 0 ? Math.max(...agencies.map(a => a.agency_number)) + 1 : 1).padStart(3, '0')}
               </span>
             </div>
             <div className="grid grid-cols-2 gap-4">
@@ -413,7 +376,7 @@ export default function AgenciesPage() {
                     </span>
                     <div className="shrink-0 text-right">
                       <span className={`text-xs px-2 py-1 rounded-full font-medium ${a.user_id ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-400'}`}>
-                        {a.user_id ? '계정 있음' : '계정 없음'}
+                        {a.user_id ? t('hasAccount', lang) : t('noAccount', lang)}
                       </span>
                       {a.user_id && agencyEmails[a.user_id] && (
                         <p className="text-xs text-slate-500 mt-1 font-mono">
@@ -429,12 +392,12 @@ export default function AgenciesPage() {
                       {a.user_id ? (
                         <button onClick={() => { setResetId(resetId === a.id ? null : a.id); setResetPw(''); setResetError(''); setResetSuccess('') }}
                           className="text-xs text-slate-500 hover:text-violet-600 px-3 py-1.5 rounded-lg border border-slate-200 hover:border-violet-300 transition-colors">
-                          비밀번호 재설정
+                          {t('resetPwBtn', lang)}
                         </button>
                       ) : (
                         <button onClick={() => { setAddAccountId(addAccountId === a.id ? null : a.id); setAddAccountForm({ email: '', password: '' }); setAddAccountError('') }}
                           className="text-xs text-blue-600 hover:text-blue-700 px-3 py-1.5 rounded-lg border border-blue-200 hover:border-blue-400 transition-colors font-medium">
-                          계정 추가
+                          {t('addAccountBtn', lang)}
                         </button>
                       )}
                       <button onClick={() => handleToggleActive(a)}
@@ -451,25 +414,25 @@ export default function AgenciesPage() {
                 {/* 계정 추가 인라인 폼 */}
                 {addAccountId === a.id && (
                   <div className="px-5 pb-4 border-t border-slate-100 pt-4 bg-blue-50">
-                    <p className="text-xs font-semibold text-slate-600 mb-3">새 계정 추가 (이메일 + 비밀번호)</p>
+                    <p className="text-xs font-semibold text-slate-600 mb-3">{t('addAccountTitle', lang)}</p>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-xs text-slate-500 mb-1">이메일</label>
+                        <label className="block text-xs text-slate-500 mb-1">{t('accountEmailLbl', lang)}</label>
                         <input value={addAccountForm.email} onChange={e => setAddAccountForm(p => ({ ...p, email: e.target.value }))}
                           className={inp} placeholder="staff@agency.com" type="email" />
                       </div>
                       <div>
-                        <label className="block text-xs text-slate-500 mb-1">비밀번호 (8자 이상)</label>
+                        <label className="block text-xs text-slate-500 mb-1">{t('accountPwLbl', lang)}</label>
                         <input value={addAccountForm.password} onChange={e => setAddAccountForm(p => ({ ...p, password: e.target.value }))}
                           className={inp} type="password" placeholder="••••••••" />
                       </div>
                     </div>
                     {addAccountError && <p className="text-xs text-red-600 mt-2">{addAccountError}</p>}
                     <div className="flex gap-2 mt-3">
-                      <button onClick={() => setAddAccountId(null)} className="px-4 py-1.5 border border-slate-200 text-slate-600 rounded-lg text-xs hover:bg-slate-50">취소</button>
+                      <button onClick={() => setAddAccountId(null)} className="px-4 py-1.5 border border-slate-200 text-slate-600 rounded-lg text-xs hover:bg-slate-50">{t('cancel', lang)}</button>
                       <button onClick={() => handleAddAccount(a)} disabled={addAccountSaving}
                         className="px-5 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white rounded-lg text-xs font-medium">
-                        {addAccountSaving ? '처리 중...' : '계정 생성'}
+                        {addAccountSaving ? t('processing', lang) : t('createAccountBtn', lang)}
                       </button>
                     </div>
                   </div>
@@ -477,23 +440,23 @@ export default function AgenciesPage() {
                 {/* 비밀번호 재설정 인라인 폼 */}
                 {resetId === a.id && (
                   <div className="px-5 pb-4 border-t border-slate-100 pt-4 bg-violet-50">
-                    <p className="text-xs font-semibold text-slate-600 mb-1">비밀번호 재설정</p>
+                    <p className="text-xs font-semibold text-slate-600 mb-1">{t('resetPwTitle', lang)}</p>
                     {a.user_id && agencyEmails[a.user_id] && (
                       <p className="text-xs text-slate-500 mb-3">
-                        계정 이메일: <span className="font-mono font-medium text-slate-700">{agencyEmails[a.user_id]}</span>
+                        {t('accountEmailInfo', lang)}: <span className="font-mono font-medium text-slate-700">{agencyEmails[a.user_id]}</span>
                       </p>
                     )}
                     <div className="flex gap-3 items-end">
                       <div className="flex-1">
-                        <label className="block text-xs text-slate-500 mb-1">새 비밀번호 (8자 이상)</label>
+                        <label className="block text-xs text-slate-500 mb-1">{t('newPasswordLbl', lang)}</label>
                         <input value={resetPw} onChange={e => setResetPw(e.target.value)}
                           className={inp} type="password" placeholder="••••••••" />
                       </div>
                       <button onClick={() => handleResetPassword(a)} disabled={resetSaving}
                         className="px-5 py-2 bg-violet-600 hover:bg-violet-700 disabled:bg-violet-300 text-white rounded-lg text-xs font-medium">
-                        {resetSaving ? '처리 중...' : '변경'}
+                        {resetSaving ? t('processing', lang) : t('pwChangeBtn', lang)}
                       </button>
-                      <button onClick={() => setResetId(null)} className="px-4 py-2 border border-slate-200 text-slate-600 rounded-lg text-xs hover:bg-slate-50">취소</button>
+                      <button onClick={() => setResetId(null)} className="px-4 py-2 border border-slate-200 text-slate-600 rounded-lg text-xs hover:bg-slate-50">{t('cancel', lang)}</button>
                     </div>
                     {resetError   && <p className="text-xs text-red-600 mt-2">{resetError}</p>}
                     {resetSuccess && <p className="text-xs text-emerald-600 mt-2">{resetSuccess}</p>}
@@ -505,7 +468,7 @@ export default function AgenciesPage() {
           ))}
         </div>
       </main>
-    </div>
+    </AppLayout>
   )
 }
 

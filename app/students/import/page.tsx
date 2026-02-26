@@ -5,9 +5,11 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import * as XLSX from 'xlsx'
 import { supabase } from '@/lib/supabase'
-import type { Agency, UserMeta } from '@/lib/types'
-import { getUserMeta } from '@/lib/auth'
+import type { Agency } from '@/lib/types'
 import { STUDENT_STATUSES } from '@/lib/constants'
+import { useLang } from '@/lib/useLang'
+import { useAdminAuth } from '@/lib/useAdminAuth'
+import { AppLayout } from '@/components/Layout/AppLayout'
 
 // 템플릿 컬럼 정의
 const TEMPLATE_COLS = [
@@ -57,28 +59,21 @@ interface PreviewRow {
 export default function ImportPage() {
   const router = useRouter()
   const fileRef = useRef<HTMLInputElement>(null)
+  const { user, handleLogout } = useAdminAuth()
+  const [lang, toggleLang] = useLang()
 
-  const [user, setUser]         = useState<UserMeta | null>(null)
   const [agencies, setAgencies] = useState<Agency[]>([])
   const [preview, setPreview]   = useState<PreviewRow[]>([])
   const [importing, setImporting] = useState(false)
   const [importError, setImportError] = useState('')
   const [dragOver, setDragOver] = useState(false)
 
-  useEffect(() => { checkAuth() }, [])
-
-  const checkAuth = async () => {
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session) { router.push('/login'); return }
-    setUser(getUserMeta(session))
-    const { data } = await supabase.from('agencies').select('*').eq('is_active', true).order('agency_number')
-    if (data) setAgencies(data)
-  }
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut()
-    router.push('/login')
-  }
+  useEffect(() => {
+    if (!user) return
+    supabase.from('agencies').select('*').eq('is_active', true).order('agency_number')
+      .then(({ data }) => { if (data) setAgencies(data) })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user])
 
   // ── 템플릿 다운로드 ─────────────────────────────────────────
   const handleDownloadTemplate = () => {
@@ -242,34 +237,7 @@ export default function ImportPage() {
   const invalidCount = preview.filter(r =>  r.error).length
 
   return (
-    <div className="min-h-screen bg-slate-100">
-      {/* 헤더 */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center">
-              <span className="text-white text-sm font-bold">AE</span>
-            </div>
-            <span className="font-bold text-slate-800">AJU E&J 학생관리</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-slate-500">{user?.name_kr}</span>
-            <button onClick={handleLogout} className="text-sm text-slate-500 hover:text-red-500">로그아웃</button>
-          </div>
-        </div>
-      </header>
-
-      {/* 네비게이션 */}
-      <nav className="bg-white border-b border-slate-200">
-        <div className="max-w-6xl mx-auto px-6 flex gap-6">
-          <Link href="/" className="py-3 text-sm font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent">대시보드</Link>
-          <Link href="/students" className="py-3 text-sm font-medium text-blue-600 border-b-2 border-blue-600">학생 관리</Link>
-          {user?.role === 'master' && (
-            <Link href="/agencies" className="py-3 text-sm font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent">유학원 관리</Link>
-          )}
-        </div>
-      </nav>
-
+    <AppLayout user={user} lang={lang} onToggleLang={toggleLang} onLogout={handleLogout} activeNav="students">
       <main className="max-w-5xl mx-auto px-6 py-8">
         <div className="flex items-center gap-3 mb-6">
           <Link href="/students" className="text-slate-400 hover:text-slate-600 text-sm">← 목록으로</Link>
@@ -404,6 +372,6 @@ export default function ImportPage() {
           </div>
         )}
       </main>
-    </div>
+    </AppLayout>
   )
 }

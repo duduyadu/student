@@ -1,13 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
 import * as XLSX from 'xlsx'
-
-function getServiceClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  )
-}
+import { getServiceClient, getAnonClient } from '@/lib/supabaseServer'
 
 // Excel 컬럼명 정규화 (다양한 표기 허용)
 function normalizeHeader(h: string): string {
@@ -36,6 +29,17 @@ function normalizeStudentCode(code: unknown): string {
 
 export async function POST(req: NextRequest) {
   try {
+    // Bearer 토큰 인증 + 역할 확인 (master/agency만 허용)
+    const authHeader = req.headers.get('authorization')
+    const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null
+    if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const { data: { user }, error: authErr } = await getAnonClient().auth.getUser(token)
+    if (authErr || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const role = (user.app_metadata as { role?: string })?.role
+    if (!role || !['master', 'agency'].includes(role)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
     const formData    = await req.formData()
     const file        = formData.get('file') as File | null
     const studentId   = formData.get('studentId') as string | null   // 단일 학생 모드 (선택)

@@ -1,15 +1,7 @@
-import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 import type { DocStatus } from '@/lib/types'
 import { sendDocStatusEmail } from '@/lib/email'
-
-function getServiceClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    { auth: { autoRefreshToken: false, persistSession: false } }
-  )
-}
+import { getServiceClient } from '@/lib/supabaseServer'
 
 async function getAuthedUser(req: NextRequest) {
   const token = (req.headers.get('authorization') ?? '').replace('Bearer ', '').trim()
@@ -131,7 +123,7 @@ export async function PATCH(
               docNameKr:    docName,
               status:       newStatus,
               rejectReason: updates.reject_reason as string | undefined,
-            })
+            }).catch(console.error)
           })
       })
   }

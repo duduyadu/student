@@ -1,15 +1,14 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import type { Student, UserMeta } from '@/lib/types'
-import { getUserMeta } from '@/lib/auth'
+import type { Student } from '@/lib/types'
 import { STATUS_COLORS, STUDENT_STATUSES } from '@/lib/constants'
 import Link from 'next/link'
 import { useLang } from '@/lib/useLang'
-import { LangToggle } from '@/components/LangToggle'
 import { t, statusLabel } from '@/lib/i18n'
+import { useAdminAuth } from '@/lib/useAdminAuth'
+import { AppLayout } from '@/components/Layout/AppLayout'
 
 interface StatusCount { status: string; count: number }
 
@@ -29,8 +28,7 @@ interface HealthResult {
 }
 
 export default function DashboardPage() {
-  const router = useRouter()
-  const [user, setUser]             = useState<UserMeta | null>(null)
+  const { user, handleLogout } = useAdminAuth()
   const [stats, setStats]           = useState({ students: 0, agencies: 0, consultations: 0, thisMonth: 0 })
   const [visaAlert60, setVisaAlert60] = useState<Student[]>([])
   const [statusBreakdown, setStatusBreakdown] = useState<StatusCount[]>([])
@@ -56,18 +54,15 @@ export default function DashboardPage() {
     }
   }, [])
 
-  useEffect(() => { checkAuth() }, [])
-
-  const checkAuth = async () => {
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session) { router.push('/login'); return }
-    const meta = getUserMeta(session)
-    if (meta?.role === 'student') { router.push('/portal'); return }
-    setUser(meta as any)
-    await Promise.all([loadStats(), loadVisaAlert(), loadStatusBreakdown(), loadPendingStudents(), loadDocStats()])
-    setLoading(false)
-    if (meta?.role === 'master') fetchHealth()
-  }
+  useEffect(() => {
+    if (!user) return
+    Promise.all([loadStats(), loadVisaAlert(), loadStatusBreakdown(), loadPendingStudents(), loadDocStats()])
+      .then(() => {
+        setLoading(false)
+        if (user.role === 'master') fetchHealth()
+      })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user])
 
   const loadPendingStudents = async () => {
     const { data } = await supabase
@@ -196,11 +191,6 @@ export default function DashboardPage() {
     setStatusBreakdown(STUDENT_STATUSES.map(s => ({ status: s, count: map.get(s) ?? 0 })))
   }
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut()
-    router.push('/login')
-  }
-
   const daysLeft = (expiry: string) =>
     Math.ceil((new Date(expiry).getTime() - Date.now()) / 86400000)
 
@@ -218,36 +208,7 @@ export default function DashboardPage() {
   if (loading) return <div className="min-h-screen flex items-center justify-center"><p className="text-slate-500">{t('loading', lang)}</p></div>
 
   return (
-    <div className="min-h-screen bg-slate-100">
-      {/* 헤더 */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center">
-              <span className="text-white text-sm font-bold">AE</span>
-            </div>
-            <span className="font-bold text-slate-800">{t('appTitle', lang)}</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <LangToggle lang={lang} onToggle={toggleLang} />
-            <span className="text-sm text-slate-500">{user?.name_kr}</span>
-            <button onClick={handleLogout} className="text-sm text-slate-500 hover:text-red-500 transition-colors">{t('logout', lang)}</button>
-          </div>
-        </div>
-      </header>
-
-      {/* 네비게이션 */}
-      <nav className="bg-white border-b border-slate-200">
-        <div className="max-w-6xl mx-auto px-6 flex gap-6 overflow-x-auto">
-          <Link href="/" className="py-3 text-sm font-medium text-blue-600 border-b-2 border-blue-600 whitespace-nowrap">{t('navDashboard', lang)}</Link>
-          <Link href="/students" className="py-3 text-sm font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent whitespace-nowrap">{t('navStudents', lang)}</Link>
-          <Link href="/reports" className="py-3 text-sm font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent whitespace-nowrap">{t('navReports', lang)}</Link>
-          {user?.role === 'master' && (
-            <Link href="/agencies" className="py-3 text-sm font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent whitespace-nowrap">{t('navAgencies', lang)}</Link>
-          )}
-        </div>
-      </nav>
-
+    <AppLayout user={user} lang={lang} onToggleLang={toggleLang} onLogout={handleLogout} activeNav="dashboard">
       {/* 메인 */}
       <main className="max-w-6xl mx-auto px-4 md:px-6 py-6 md:py-8">
         <h2 className="text-xl font-bold text-slate-800 mb-5">{t('dashTitle', lang)}</h2>
@@ -292,7 +253,7 @@ export default function DashboardPage() {
                     <div>
                       <span className="font-medium text-slate-800 text-sm">{s.name_kr}</span>
                       <span className="text-xs text-slate-400 ml-2">{s.name_vn}</span>
-                      <span className="text-xs text-slate-400 ml-2">{s.status}</span>
+                      <span className="text-xs text-slate-400 ml-2">{statusLabel(s.status, lang)}</span>
                     </div>
                   </div>
                   <button
@@ -321,39 +282,39 @@ export default function DashboardPage() {
           <div className="bg-white rounded-2xl p-5 shadow-sm mb-5">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-sm font-semibold text-slate-700">
-                {lang === 'vi' ? '📋 Trạng thái hồ sơ' : '📋 비자 서류 현황'}
+                📋 {t('docStatusTitle', lang)}
               </h3>
               <Link href="/students" className="text-xs text-blue-500 hover:text-blue-700">
-                {lang === 'vi' ? '자세히 →' : '학생 목록 →'}
+                {t('quickStudents', lang)} →
               </Link>
             </div>
-            <div className="grid grid-cols-5 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
               <DocStatItem
-                label={lang === 'vi' ? '미제출' : '미제출'}
+                label={t('docPending', lang)}
                 value={docStats.pending}
                 bg="bg-slate-50" text="text-slate-600" bar="bg-slate-400"
                 total={docStats.pending + docStats.submitted + docStats.reviewing + docStats.approved + docStats.rejected}
               />
               <DocStatItem
-                label={lang === 'vi' ? '제출됨' : '제출됨'}
+                label={t('docSubmitted', lang)}
                 value={docStats.submitted}
                 bg="bg-blue-50" text="text-blue-700" bar="bg-blue-500"
                 total={docStats.pending + docStats.submitted + docStats.reviewing + docStats.approved + docStats.rejected}
               />
               <DocStatItem
-                label={lang === 'vi' ? '검토중' : '검토중'}
+                label={t('docReviewing', lang)}
                 value={docStats.reviewing}
                 bg="bg-amber-50" text="text-amber-700" bar="bg-amber-400"
                 total={docStats.pending + docStats.submitted + docStats.reviewing + docStats.approved + docStats.rejected}
               />
               <DocStatItem
-                label={lang === 'vi' ? '승인' : '승인'}
+                label={t('docApproved', lang)}
                 value={docStats.approved}
                 bg="bg-emerald-50" text="text-emerald-700" bar="bg-emerald-500"
                 total={docStats.pending + docStats.submitted + docStats.reviewing + docStats.approved + docStats.rejected}
               />
               <DocStatItem
-                label={lang === 'vi' ? '반려' : '반려'}
+                label={t('docRejected', lang)}
                 value={docStats.rejected}
                 bg="bg-red-50" text="text-red-600" bar="bg-red-400"
                 total={docStats.pending + docStats.submitted + docStats.reviewing + docStats.approved + docStats.rejected}
@@ -376,8 +337,8 @@ export default function DashboardPage() {
                     {rejectedPct  > 0 && <div className="bg-red-400    transition-all duration-500" style={{ width: `${rejectedPct}%` }} />}
                   </div>
                   <div className="flex justify-between mt-1">
-                    <span className="text-xs text-slate-400">전체 {total}건</span>
-                    <span className="text-xs text-emerald-600 font-medium">승인 {approvedPct}%</span>
+                    <span className="text-xs text-slate-400">{t('docTotalLabel', lang)} {total}{t('docCountUnit', lang)}</span>
+                    <span className="text-xs text-emerald-600 font-medium">{t('docApprovalLabel', lang)} {approvedPct}%</span>
                   </div>
                 </div>
               )
@@ -390,7 +351,7 @@ export default function DashboardPage() {
           <div className="bg-white rounded-2xl p-5 shadow-sm mb-4">
             <h3 className="text-sm font-semibold text-slate-700 mb-4">{t('studentStatus', lang)}</h3>
             {/* 카드 그리드 */}
-            <div className="grid grid-cols-4 gap-2 mb-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
               {statusBreakdown.map(({ status, count }) => (
                 <div key={status} className={`rounded-xl p-3 text-center ${STATUS_COLORS[status] ?? 'bg-slate-50 text-slate-600'}`}>
                   <p className="text-xs font-medium opacity-75 mb-1">{statusLabel(status, lang)}</p>
@@ -577,7 +538,7 @@ export default function DashboardPage() {
           </div>
         )}
       </main>
-    </div>
+    </AppLayout>
   )
 }
 

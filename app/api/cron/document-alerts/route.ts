@@ -1,11 +1,7 @@
-import { createClient } from '@supabase/supabase-js'
+import { getServiceClient } from '@/lib/supabaseServer'
 import { NextRequest, NextResponse } from 'next/server'
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  { auth: { autoRefreshToken: false, persistSession: false } }
-)
+const supabaseAdmin = getServiceClient()
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://aju-ej.vercel.app'
@@ -53,7 +49,7 @@ async function logAlert(studentId: string, alertType: string, docTypeId?: string
  */
 export async function GET(req: NextRequest) {
   const authHeader = req.headers.get('authorization')
-  if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (!process.env.CRON_SECRET || authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

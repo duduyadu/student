@@ -1,20 +1,18 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
-import type { Student, Agency, UserMeta } from '@/lib/types'
-import { getUserMeta } from '@/lib/auth'
+import type { Student, Agency } from '@/lib/types'
 import { STATUS_COLORS, STUDENT_STATUSES } from '@/lib/constants'
 import * as XLSX from 'xlsx'
 import { useLang } from '@/lib/useLang'
-import { LangToggle } from '@/components/LangToggle'
 import { t, statusLabel as slabel } from '@/lib/i18n'
+import { useAdminAuth } from '@/lib/useAdminAuth'
+import { AppLayout } from '@/components/Layout/AppLayout'
 
 export default function StudentsPage() {
-  const router = useRouter()
-  const [user, setUser]           = useState<UserMeta | null>(null)
+  const { user, handleLogout } = useAdminAuth()
   const [students, setStudents]   = useState<Student[]>([])
   const [agencies, setAgencies]   = useState<Agency[]>([])
   const [search, setSearch]       = useState('')
@@ -25,17 +23,12 @@ export default function StudentsPage() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [bulkPdfLoading, setBulkPdfLoading] = useState(false)
 
-  useEffect(() => { checkAuth() }, [])
-
-  const checkAuth = async () => {
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session) { router.push('/login'); return }
-    const meta = getUserMeta(session)
-    if (meta.role === 'student') { router.push('/portal'); return }
-    setUser(meta)
-    await Promise.all([loadStudents(), loadAgencies()])
-    setLoading(false)
-  }
+  useEffect(() => {
+    if (!user) return
+    Promise.all([loadStudents(), loadAgencies()])
+      .then(() => setLoading(false))
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user])
 
   const loadStudents = async () => {
     const { data, error } = await supabase
@@ -49,11 +42,6 @@ export default function StudentsPage() {
   const loadAgencies = async () => {
     const { data } = await supabase.from('agencies').select('*').eq('is_active', true).order('agency_number')
     if (data) setAgencies(data)
-  }
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut()
-    router.push('/login')
   }
 
   const filtered = students.filter(s => {
@@ -131,9 +119,13 @@ export default function StudentsPage() {
     if (selectedIds.size === 0) return
     setBulkPdfLoading(true)
     try {
+      const { data: { session: pdfSession } } = await supabase.auth.getSession()
       const res = await fetch('/api/life-record-pdf-bulk', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(pdfSession ? { 'Authorization': `Bearer ${pdfSession.access_token}` } : {}),
+        },
         body: JSON.stringify({ studentIds: Array.from(selectedIds), lang: 'both' }),
       })
       if (!res.ok) throw new Error('ZIP 생성 실패')
@@ -183,36 +175,7 @@ export default function StudentsPage() {
   if (loading) return <div className="min-h-screen flex items-center justify-center"><p className="text-slate-400">{t('loading', lang)}</p></div>
 
   return (
-    <div className="min-h-screen bg-slate-100">
-      {/* 헤더 */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center">
-              <span className="text-white text-sm font-bold">AE</span>
-            </div>
-            <span className="font-bold text-slate-800">{t('appTitle', lang)}</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <LangToggle lang={lang} onToggle={toggleLang} />
-            <span className="text-sm text-slate-500">{user?.name_kr}</span>
-            <button onClick={handleLogout} className="text-sm text-slate-500 hover:text-red-500">{t('logout', lang)}</button>
-          </div>
-        </div>
-      </header>
-
-      {/* 네비게이션 */}
-      <nav className="bg-white border-b border-slate-200">
-        <div className="max-w-6xl mx-auto px-6 flex gap-6 overflow-x-auto">
-          <Link href="/" className="py-3 text-sm font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent whitespace-nowrap">{t('navDashboard', lang)}</Link>
-          <Link href="/students" className="py-3 text-sm font-medium text-blue-600 border-b-2 border-blue-600 whitespace-nowrap">{t('navStudents', lang)}</Link>
-          <Link href="/reports" className="py-3 text-sm font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent whitespace-nowrap">{t('navReports', lang)}</Link>
-          {user?.role === 'master' && (
-            <Link href="/agencies" className="py-3 text-sm font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent whitespace-nowrap">{t('navAgencies', lang)}</Link>
-          )}
-        </div>
-      </nav>
-
+    <AppLayout user={user} lang={lang} onToggleLang={toggleLang} onLogout={handleLogout} activeNav="students">
       {/* 메인 */}
       <main className="max-w-6xl mx-auto px-4 md:px-6 py-6 md:py-8">
         {/* 헤더 행 */}
@@ -232,7 +195,7 @@ export default function StudentsPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h4a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
                 </svg>
               )}
-              {bulkPdfLoading ? 'ZIP 생성 중...' : selectedIds.size > 0 ? `PDF 다운로드 (${selectedIds.size}명)` : 'PDF 일괄 다운로드'}
+              {bulkPdfLoading ? t('pdfBulkZip', lang) : selectedIds.size > 0 ? `${t('pdfBulkSelected', lang)} (${selectedIds.size}명)` : t('pdfBulkDownload', lang)}
             </button>
             <button
               onClick={handleExport}
@@ -291,9 +254,24 @@ export default function StudentsPage() {
 
         {filtered.length === 0 ? (
           <div className="bg-white rounded-2xl shadow-sm text-center py-16 text-slate-400">
-            <p className="text-4xl mb-3">👤</p>
-            <p>{t('noStudents', lang)}</p>
-            <Link href="/students/new" className="mt-4 inline-block text-blue-600 text-sm hover:underline">{t('addFirstStudent', lang)}</Link>
+            {(search || agencyFilter || statusFilter) ? (
+              <>
+                <p className="text-4xl mb-3">🔍</p>
+                <p className="text-slate-500 font-medium">{t('noSearchResult', lang)}</p>
+                <button
+                  onClick={() => { setSearch(''); setAgencyFilter(''); setStatusFilter('') }}
+                  className="mt-4 inline-block text-blue-600 text-sm hover:underline"
+                >
+                  {t('clearFilter', lang)}
+                </button>
+              </>
+            ) : (
+              <>
+                <p className="text-4xl mb-3">👤</p>
+                <p>{t('noStudents', lang)}</p>
+                <Link href="/students/new" className="mt-4 inline-block text-blue-600 text-sm hover:underline">{t('addFirstStudent', lang)}</Link>
+              </>
+            )}
           </div>
         ) : (
           <>
@@ -307,7 +285,7 @@ export default function StudentsPage() {
                   onChange={toggleSelectAll}
                   className="w-4 h-4 rounded border-2 border-slate-400 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
                 />
-                <span className="text-xs text-slate-500">전체 선택 ({selectedIds.size}/{filtered.length})</span>
+                <span className="text-xs text-slate-500">{t('selectAllLabel', lang)} ({selectedIds.size}/{filtered.length})</span>
               </div>
               {filtered.map(s => (
                 <div key={s.id} className={`bg-white rounded-2xl px-4 py-3.5 shadow-sm transition-colors ${selectedIds.has(s.id) ? 'ring-2 ring-indigo-400 bg-indigo-50' : ''}`}>
@@ -323,9 +301,9 @@ export default function StudentsPage() {
                       {s.photo_url ? (
                         <img src={s.photo_url} alt={s.name_kr} className="w-full h-full object-cover" />
                       ) : (
-                        <span className="w-full h-full flex items-center justify-center text-slate-400 text-sm font-medium">
+                        <div className="w-full h-full flex items-center justify-center text-slate-400 text-sm font-medium">
                           {s.name_kr.charAt(0)}
-                        </span>
+                        </div>
                       )}
                     </div>
                     <Link href={`/students/${s.id}`} className="flex-1 min-w-0">
@@ -389,9 +367,9 @@ export default function StudentsPage() {
                           {s.photo_url ? (
                             <img src={s.photo_url} alt={s.name_kr} className="w-full h-full object-cover" />
                           ) : (
-                            <span className="w-full h-full flex items-center justify-center text-slate-400 text-xs font-medium">
+                            <div className="w-full h-full flex items-center justify-center text-slate-400 text-xs font-medium">
                               {s.name_kr.charAt(0)}
-                            </span>
+                            </div>
                           )}
                         </div>
                       </td>
@@ -419,6 +397,6 @@ export default function StudentsPage() {
           </>
         )}
       </main>
-    </div>
+    </AppLayout>
   )
 }

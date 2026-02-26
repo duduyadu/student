@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { GoogleGenerativeAI } from '@google/generative-ai'
-import { createClient } from '@supabase/supabase-js'
-
-function getServiceClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  )
-}
+import { getServiceClient, getAnonClient } from '@/lib/supabaseServer'
 
 export async function GET(req: NextRequest) {
+  // Bearer 토큰 인증
+  const authHeader = req.headers.get('authorization')
+  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null
+  if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const { data: { user }, error: authErr } = await getAnonClient().auth.getUser(token)
+  if (authErr || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
   const studentId = req.nextUrl.searchParams.get('studentId')
   if (!studentId) {
     return NextResponse.json({ error: 'studentId 필수' }, { status: 400 })
@@ -72,9 +72,6 @@ ${examSummary}
     return NextResponse.json({ analysis: text })
   } catch (err) {
     console.error('[exam-ai-analysis] Gemini error:', err)
-    return NextResponse.json(
-      { error: String(err instanceof Error ? err.message : err) },
-      { status: 500 },
-    )
+    return NextResponse.json({ error: 'AI 분석 요청에 실패했습니다.' }, { status: 500 })
   }
 }

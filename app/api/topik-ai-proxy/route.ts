@@ -27,11 +27,9 @@ import { GoogleGenerativeAI } from '@google/generative-ai'
 export async function POST(req: NextRequest) {
   // ── 1. 프록시 시크릿 인증 ────────────────────────────────
   const secret = process.env.TOPIK_PROXY_SECRET
-  if (secret) {
-    const clientSecret = req.headers.get('x-topik-secret')
-    if (clientSecret !== secret) {
-      return NextResponse.json({ error: '인증 실패' }, { status: 401 })
-    }
+  const clientSecret = req.headers.get('x-topik-secret')
+  if (!secret || clientSecret !== secret) {
+    return NextResponse.json({ error: '인증 실패' }, { status: 401 })
   }
 
   // ── 2. Gemini API 키 확인 ─────────────────────────────────
@@ -124,9 +122,6 @@ Chỉ viết văn xuôi, không dùng markdown.
     })
   } catch (err) {
     console.error('[topik-ai-proxy] Gemini error:', err)
-    return NextResponse.json(
-      { error: String(err instanceof Error ? err.message : err) },
-      { status: 500 },
-    )
+    return NextResponse.json({ error: 'AI 분석 요청에 실패했습니다.' }, { status: 500 })
   }
 }
