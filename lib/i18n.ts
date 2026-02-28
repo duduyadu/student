@@ -320,6 +320,19 @@ export const T = {
   withdrawBtn:        { ko: '탈퇴 요청',               vi: 'Yêu cầu xóa tài khoản' },
   withdrawConfirmBtn: { ko: '탈퇴 확인',               vi: 'Xác nhận xóa' },
 
+  // ─── 학생 상세 - 시험 탭 ───
+  examNoRecords:    { ko: '시험 기록이 없습니다.',     vi: 'Không có lịch sử kết quả thi.' },
+  examFormAdd:      { ko: '+ 성적 추가',               vi: '+ Thêm kết quả' },
+  examFormTitleNew: { ko: '시험 성적 추가',             vi: 'Thêm kết quả thi' },
+  examFormTitleEdit:{ ko: '시험 성적 수정',             vi: 'Chỉnh sửa kết quả thi' },
+  examExcelUpload:  { ko: '📊 Excel 업로드',            vi: '📊 Tải Excel' },
+  examExcelTitle:   { ko: '모의고사 Excel 업로드',      vi: 'Tải Excel kết quả thi thử' },
+
+  // ─── 학생 상세 - 동의 탭 ───
+  consentNone:        { ko: '동의 이력이 없습니다.',    vi: 'Không có lịch sử đồng ý.' },
+  consentViewBtn:     { ko: '동의 내용 보기',           vi: 'Xem nội dung đồng ý' },
+  consentCollapseBtn: { ko: '접기',                    vi: 'Thu gọn' },
+
   // ─── 학생 수정 (edit page) ───
   backToDetail:       { ko: '← 상세보기로',            vi: '← Quay lại chi tiết' },
   editStudentTitle:   { ko: '학생 정보 수정',           vi: 'Chỉnh sửa thông tin sinh viên' },

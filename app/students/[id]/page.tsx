@@ -258,7 +258,8 @@ export default function StudentDetailPage() {
     if (upErr) { alert('업로드 실패: ' + upErr.message); setPhotoUploading(false); return }
     const { data: { publicUrl } } = supabase.storage.from('student-photos').getPublicUrl(path)
     const url = `${publicUrl}?t=${Date.now()}`
-    await supabase.from('students').update({ photo_url: url }).eq('id', id)
+    const { error: dbErr } = await supabase.from('students').update({ photo_url: url }).eq('id', id)
+    if (dbErr) { alert('사진 URL 저장 실패: ' + dbErr.message); setPhotoUploading(false); return }
     setStudent(prev => prev ? { ...prev, photo_url: url } : prev)
     setPhotoUploading(false)
   }
@@ -322,8 +323,8 @@ export default function StudentDetailPage() {
                 <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_COLORS[student.status] ?? 'bg-slate-100 text-slate-600'}`}>
                   {statusLabel(student.status, lang)}
                 </span>
-                {(student.agency as any)?.agency_name_kr && (
-                  <span className="text-xs text-slate-400">{(student.agency as any).agency_name_kr}</span>
+                {student.agency?.agency_name_kr && (
+                  <span className="text-xs text-slate-400">{student.agency.agency_name_kr}</span>
                 )}
               </div>
             </div>
@@ -409,7 +410,7 @@ export default function StudentDetailPage() {
             </InfoCard>
             {student.notes && (
               <div className="md:col-span-2">
-                <InfoCard title="비고">
+                <InfoCard title={t('sectionNotes', lang)}>
                   <p className="text-sm text-slate-600 whitespace-pre-wrap">{student.notes}</p>
                 </InfoCard>
               </div>
@@ -459,7 +460,7 @@ export default function StudentDetailPage() {
               <div className="flex gap-2">
                 <button onClick={() => setShowExcelForm(!showExcelForm)}
                   className="bg-emerald-600 hover:bg-emerald-700 text-white text-sm px-4 py-2 rounded-xl transition-colors">
-                  📊 Excel 업로드
+                  {t('examExcelUpload', lang)}
                 </button>
                 <button onClick={() => {
                   if (showExamForm) {
@@ -473,7 +474,7 @@ export default function StudentDetailPage() {
                   }
                 }}
                   className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-xl transition-colors">
-                  {showExamForm ? '✕ 닫기' : '+ 성적 추가'}
+                  {showExamForm ? t('closeForm', lang) : t('examFormAdd', lang)}
                 </button>
               </div>
             </div>
@@ -481,7 +482,7 @@ export default function StudentDetailPage() {
             {/* Excel 업로드 폼 */}
             {showExcelForm && (
               <div className="bg-white rounded-2xl p-5 shadow-sm space-y-3 border border-emerald-100">
-                <h3 className="text-sm font-semibold text-slate-700 pb-2 border-b border-slate-100">모의고사 Excel 업로드</h3>
+                <h3 className="text-sm font-semibold text-slate-700 pb-2 border-b border-slate-100">{t('examExcelTitle', lang)}</h3>
                 <p className="text-xs text-slate-400">Excel 형식: 학생코드, 이름, 듣기, 읽기, 합계, 등급 컬럼 포함</p>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
@@ -507,7 +508,7 @@ export default function StudentDetailPage() {
             {showExamForm && (
               <form onSubmit={handleSaveExam} className="bg-white rounded-2xl p-5 shadow-sm space-y-3">
                 <h3 className="text-sm font-semibold text-slate-700 pb-2 border-b border-slate-100">
-                  {editExamId ? '시험 성적 수정' : '시험 성적 추가'}
+                  {editExamId ? t('examFormTitleEdit', lang) : t('examFormTitleNew', lang)}
                 </h3>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
@@ -561,7 +562,7 @@ export default function StudentDetailPage() {
 
             {/* 성적 목록 */}
             {exams.length === 0
-              ? <Empty text="시험 기록이 없습니다." />
+              ? <Empty text={t('examNoRecords', lang)} />
               : exams.map(e => (
                 <div key={e.id} className="bg-white rounded-2xl p-5 shadow-sm">
                   <div className="flex items-center justify-between mb-3">
@@ -576,9 +577,9 @@ export default function StudentDetailPage() {
                     </div>
                   </div>
                   <div className="grid grid-cols-3 gap-3">
-                    <ScoreBox label="총점" value={e.total_score}     total={200} bold />
-                    <ScoreBox label="읽기" value={e.reading_score}   total={100} />
-                    <ScoreBox label="듣기" value={e.listening_score} total={100} />
+                    <ScoreBox label={t('total', lang)}     value={e.total_score}     total={200} bold />
+                    <ScoreBox label={t('reading', lang)}   value={e.reading_score}   total={100} />
+                    <ScoreBox label={t('listening', lang)} value={e.listening_score} total={100} />
                   </div>
                 </div>
               ))
@@ -606,14 +607,14 @@ export default function StudentDetailPage() {
           <div className="space-y-3">
             {consents.length === 0 ? (
               <div className="bg-white rounded-2xl shadow-sm p-8 text-center text-slate-400 text-sm">
-                동의 이력이 없습니다.
+                {t('consentNone', lang)}
               </div>
             ) : consents.map(c => (
               <div key={c.id} className="bg-white rounded-2xl shadow-sm p-5">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-3">
                     <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">
-                      {c.consent_type === 'signup' ? '가입 동의' : c.consent_type}
+                      {c.consent_type === 'signup' ? t('consentSignup', lang) : c.consent_type}
                     </span>
                     <span className="text-sm text-slate-500">
                       {new Date(c.consent_date).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
@@ -623,7 +624,7 @@ export default function StudentDetailPage() {
                     onClick={() => setExpandedConsent(expandedConsent === c.id ? null : c.id)}
                     className="text-xs text-slate-400 hover:text-blue-500"
                   >
-                    {expandedConsent === c.id ? '접기' : '동의 내용 보기'}
+                    {expandedConsent === c.id ? t('consentCollapseBtn', lang) : t('consentViewBtn', lang)}
                   </button>
                 </div>
                 {expandedConsent === c.id && (
