@@ -148,10 +148,18 @@ export default function StudentDetailPage() {
       total_score:     parseInt(exam.total_score),
       level:           exam.level,
     }
+    let saveError = null
     if (editExamId) {
-      await supabase.from('exam_results').update(payload).eq('id', editExamId)
+      const { error } = await supabase.from('exam_results').update(payload).eq('id', editExamId)
+      saveError = error
     } else {
-      await supabase.from('exam_results').insert(payload)
+      const { error } = await supabase.from('exam_results').insert(payload)
+      saveError = error
+    }
+    if (saveError) {
+      alert('저장 실패: ' + saveError.message)
+      setSavingExam(false)
+      return
     }
     await loadExams()
     setExam({ exam_date: '', exam_type: 'TOPIK', reading_score: '', listening_score: '', total_score: '', level: '2급' })
@@ -162,7 +170,8 @@ export default function StudentDetailPage() {
 
   const handleDeleteExam = async (examId: string) => {
     if (!confirm('이 시험 성적을 삭제하시겠습니까?')) return
-    await supabase.from('exam_results').delete().eq('id', examId)
+    const { error } = await supabase.from('exam_results').delete().eq('id', examId)
+    if (error) { alert('삭제 실패: ' + error.message); return }
     await loadExams()
   }
 
@@ -256,7 +265,8 @@ export default function StudentDetailPage() {
 
   const handleDelete = async () => {
     if (!confirm(`${student?.name_kr} 학생을 삭제하시겠습니까?\n삭제 후 목록에서 사라집니다.`)) return
-    await supabase.from('students').update({ is_active: false }).eq('id', id)
+    const { error } = await supabase.from('students').update({ is_active: false }).eq('id', id)
+    if (error) { alert('삭제 실패: ' + error.message); return }
     router.push('/students')
   }
 
