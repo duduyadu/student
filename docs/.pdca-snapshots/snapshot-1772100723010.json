@@ -1,11 +1,10 @@
 {
-  "timestamp": "2026-02-22T08:03:58.026Z",
+  "timestamp": "2026-02-26T10:12:03.010Z",
   "reason": "compaction",
   "status": {
     "version": "2.0",
-    "lastUpdated": "2026-02-22T07:30:49.842Z",
+    "lastUpdated": "2026-02-26T10:12:02.874Z",
     "activeFeatures": [
-      "gas-student-platform",
       "security-and-enhancements",
       "aju-ej",
       "login",
@@ -31,29 +30,42 @@
       "mock-exam-import",
       "exam-ai-analysis",
       "health",
-      "audit"
+      "audit",
+      "agency-accounts",
+      "topik-ai-proxy",
+      "tmp",
+      "life-record-pdf-bulk",
+      "student-documents",
+      "document-types",
+      "document-alerts",
+      "visa-document-checklist",
+      "test-email"
     ],
     "primaryFeature": "gas-student-platform",
     "features": {
       "gas-student-platform": {
-        "phase": "act",
-        "matchRate": null,
-        "iterationCount": 0,
+        "phase": "archived",
+        "matchRate": 91,
+        "iterationCount": 1,
         "startedAt": "2026-02-10T13:10:00.000Z",
-        "doStartedAt": "2026-02-10T14:05:00.000Z",
-        "documents": {
-          "plan": "docs/01-plan/features/gas-student-platform.plan.md",
-          "design": "docs/02-design/features/gas-student-platform.design.md",
-          "schema": "docs/01-plan/schema.md",
-          "conventions": "docs/01-plan/conventions.md",
-          "claudeMd": "CLAUDE.md"
-        },
-        "phaseNumber": 5,
-        "previousPhase": "check",
-        "autoAdvanced": true,
-        "timestamps": {
-          "lastUpdated": "2026-02-22T07:18:36.738Z"
-        }
+        "archivedAt": "2026-02-22T09:00:00.000Z",
+        "archivedTo": "docs/archive/2026-02/gas-student-platform/"
+      },
+      "student-life-record": {
+        "phase": "archived",
+        "matchRate": 90,
+        "iterationCount": 0,
+        "startedAt": "2026-02-22T01:00:00.000Z",
+        "archivedAt": "2026-02-22T12:00:00.000Z",
+        "archivedTo": "docs/archive/2026-02/student-life-record/"
+      },
+      "pdf-vi-bulk": {
+        "phase": "completed",
+        "matchRate": 100,
+        "iterationCount": 0,
+        "startedAt": "2026-02-22T13:00:00.000Z",
+        "completedAt": "2026-02-22T14:30:00.000Z",
+        "description": "Vietnamese PDF + Bulk ZIP Download (5 files, 20/20 checklist)"
       },
       "security-and-enhancements": {
         "phase": "act",
@@ -78,9 +90,9 @@
         "documents": {},
         "timestamps": {
           "started": "2026-02-17T02:14:50.467Z",
-          "lastUpdated": "2026-02-22T07:27:04.639Z"
+          "lastUpdated": "2026-02-26T10:11:57.611Z"
         },
-        "lastFile": "C:\\projects\\aju-ej\\lib\\types.ts"
+        "lastFile": "C:\\projects\\aju-ej\\app\\page.tsx"
       },
       "login": {
         "phase": "do",
@@ -91,7 +103,7 @@
         "documents": {},
         "timestamps": {
           "started": "2026-02-17T02:15:21.670Z",
-          "lastUpdated": "2026-02-22T07:28:45.087Z"
+          "lastUpdated": "2026-02-22T08:26:28.740Z"
         },
         "lastFile": "C:\\projects\\aju-ej\\app\\login\\page.tsx"
       },
@@ -104,9 +116,9 @@
         "documents": {},
         "timestamps": {
           "started": "2026-02-17T02:16:07.846Z",
-          "lastUpdated": "2026-02-18T00:28:38.127Z"
+          "lastUpdated": "2026-02-26T10:12:02.874Z"
         },
-        "lastFile": "C:/projects/aju-ej/app/students/page.tsx"
+        "lastFile": "C:\\projects\\aju-ej\\app\\students\\page.tsx"
       },
       "new": {
         "phase": "do",
@@ -117,7 +129,7 @@
         "documents": {},
         "timestamps": {
           "started": "2026-02-17T02:16:43.240Z",
-          "lastUpdated": "2026-02-22T07:27:56.663Z"
+          "lastUpdated": "2026-02-25T13:41:57.935Z"
         },
         "lastFile": "C:\\projects\\aju-ej\\app\\students\\new\\page.tsx"
       },
@@ -130,7 +142,7 @@
         "documents": {},
         "timestamps": {
           "started": "2026-02-17T02:24:38.024Z",
-          "lastUpdated": "2026-02-22T07:28:56.250Z"
+          "lastUpdated": "2026-02-26T10:10:05.594Z"
         },
         "lastFile": "C:\\projects\\aju-ej\\app\\students\\[id]\\page.tsx"
       },
@@ -143,7 +155,7 @@
         "documents": {},
         "timestamps": {
           "started": "2026-02-17T02:25:12.681Z",
-          "lastUpdated": "2026-02-18T00:48:45.031Z"
+          "lastUpdated": "2026-02-26T10:11:12.062Z"
         },
         "lastFile": "C:\\projects\\aju-ej\\app\\agencies\\page.tsx"
       },
@@ -156,7 +168,7 @@
         "documents": {},
         "timestamps": {
           "started": "2026-02-17T02:31:21.813Z",
-          "lastUpdated": "2026-02-22T07:28:32.092Z"
+          "lastUpdated": "2026-02-25T13:41:19.688Z"
         },
         "lastFile": "C:\\projects\\aju-ej\\app\\students\\[id]\\edit\\page.tsx"
       },
@@ -169,7 +181,7 @@
         "documents": {},
         "timestamps": {
           "started": "2026-02-17T02:50:50.547Z",
-          "lastUpdated": "2026-02-17T11:26:00.239Z"
+          "lastUpdated": "2026-02-22T08:26:09.730Z"
         },
         "lastFile": "C:\\projects\\aju-ej\\app\\api\\create-agency-user\\route.ts"
       },
@@ -182,9 +194,9 @@
         "documents": {},
         "timestamps": {
           "started": "2026-02-17T04:00:10.569Z",
-          "lastUpdated": "2026-02-17T11:47:44.890Z"
+          "lastUpdated": "2026-02-22T08:27:10.436Z"
         },
-        "lastFile": "C:/projects/aju-ej/app/students/import/page.tsx"
+        "lastFile": "C:\\projects\\aju-ej\\app\\students\\import\\page.tsx"
       },
       "reports": {
         "phase": "do",
@@ -195,7 +207,7 @@
         "documents": {},
         "timestamps": {
           "started": "2026-02-17T04:07:04.001Z",
-          "lastUpdated": "2026-02-22T07:30:49.842Z"
+          "lastUpdated": "2026-02-22T08:27:04.473Z"
         },
         "lastFile": "C:\\projects\\aju-ej\\app\\reports\\page.tsx"
       },
@@ -221,9 +233,9 @@
         "documents": {},
         "timestamps": {
           "started": "2026-02-17T04:37:12.199Z",
-          "lastUpdated": "2026-02-18T00:45:37.296Z"
+          "lastUpdated": "2026-02-26T10:10:12.403Z"
         },
-        "lastFile": "C:/projects/aju-ej/app/portal/page.tsx"
+        "lastFile": "C:\\projects\\aju-ej\\app\\portal\\page.tsx"
       },
       "reset-password": {
         "phase": "do",
@@ -273,9 +285,9 @@
         "documents": {},
         "timestamps": {
           "started": "2026-02-18T00:43:42.521Z",
-          "lastUpdated": "2026-02-18T00:43:42.521Z"
+          "lastUpdated": "2026-02-22T08:26:14.453Z"
         },
-        "lastFile": "C:/projects/aju-ej/app/api/add-agency-account/route.ts"
+        "lastFile": "C:\\projects\\aju-ej\\app\\api\\add-agency-account\\route.ts"
       },
       "reset-agency-password": {
         "phase": "do",
@@ -286,9 +298,9 @@
         "documents": {},
         "timestamps": {
           "started": "2026-02-18T00:43:48.983Z",
-          "lastUpdated": "2026-02-18T00:43:48.983Z"
+          "lastUpdated": "2026-02-22T08:26:15.589Z"
         },
-        "lastFile": "C:/projects/aju-ej/app/api/reset-agency-password/route.ts"
+        "lastFile": "C:\\projects\\aju-ej\\app\\api\\reset-agency-password\\route.ts"
       },
       "student-withdraw": {
         "phase": "do",
@@ -312,9 +324,9 @@
         "documents": {},
         "timestamps": {
           "started": "2026-02-22T01:18:33.815Z",
-          "lastUpdated": "2026-02-22T01:19:16.768Z"
+          "lastUpdated": "2026-02-24T13:44:42.494Z"
         },
-        "lastFile": "/c/projects/aju-ej/app/students/[id]/_components/EvaluationPanel.tsx"
+        "lastFile": "C:\\projects\\aju-ej\\app\\students\\[id]\\_components\\DocumentChecklist.tsx"
       },
       "pdf": {
         "phase": "do",
@@ -325,9 +337,9 @@
         "documents": {},
         "timestamps": {
           "started": "2026-02-22T01:33:51.106Z",
-          "lastUpdated": "2026-02-22T02:04:30.044Z"
+          "lastUpdated": "2026-02-25T13:28:48.534Z"
         },
-        "lastFile": "C:\\projects\\aju-ej\\components\\pdf\\LifeRecordDocument.tsx"
+        "lastFile": "C:/projects/aju-ej/components/pdf/LifeRecordDocument.tsx"
       },
       "life-record-pdf": {
         "phase": "do",
@@ -338,9 +350,9 @@
         "documents": {},
         "timestamps": {
           "started": "2026-02-22T01:35:52.057Z",
-          "lastUpdated": "2026-02-22T02:01:44.142Z"
+          "lastUpdated": "2026-02-22T13:50:21.962Z"
         },
-        "lastFile": "C:\\projects\\aju-ej\\app\\api\\life-record-pdf\\route.ts"
+        "lastFile": "C:/projects/aju-ej/app/api/life-record-pdf/route.ts"
       },
       "mock-exam-import": {
         "phase": "do",
@@ -351,9 +363,9 @@
         "documents": {},
         "timestamps": {
           "started": "2026-02-22T02:12:08.333Z",
-          "lastUpdated": "2026-02-22T02:12:08.333Z"
+          "lastUpdated": "2026-02-22T11:39:14.439Z"
         },
-        "lastFile": "C:\\projects\\aju-ej\\app\\api\\mock-exam-import\\route.ts"
+        "lastFile": "C:/projects/aju-ej/app/api/mock-exam-import/route.ts"
       },
       "exam-ai-analysis": {
         "phase": "do",
@@ -364,7 +376,7 @@
         "documents": {},
         "timestamps": {
           "started": "2026-02-22T02:15:22.830Z",
-          "lastUpdated": "2026-02-22T02:15:22.830Z"
+          "lastUpdated": "2026-02-22T10:30:18.187Z"
         },
         "lastFile": "C:\\projects\\aju-ej\\app\\api\\exam-ai-analysis\\route.ts"
       },
@@ -377,7 +389,7 @@
         "documents": {},
         "timestamps": {
           "started": "2026-02-22T02:18:25.351Z",
-          "lastUpdated": "2026-02-22T02:18:25.351Z"
+          "lastUpdated": "2026-02-22T10:30:23.856Z"
         },
         "lastFile": "C:\\projects\\aju-ej\\app\\api\\health\\route.ts"
       },
@@ -390,9 +402,127 @@
         "documents": {},
         "timestamps": {
           "started": "2026-02-22T07:27:24.060Z",
-          "lastUpdated": "2026-02-22T07:27:24.060Z"
+          "lastUpdated": "2026-02-22T08:26:05.841Z"
         },
         "lastFile": "C:\\projects\\aju-ej\\app\\api\\audit\\route.ts"
+      },
+      "agency-accounts": {
+        "phase": "do",
+        "phaseNumber": 3,
+        "matchRate": null,
+        "iterationCount": 0,
+        "requirements": [],
+        "documents": {},
+        "timestamps": {
+          "started": "2026-02-22T08:43:19.151Z",
+          "lastUpdated": "2026-02-22T08:43:19.151Z"
+        },
+        "lastFile": "C:\\projects\\aju-ej\\app\\api\\agency-accounts\\route.ts"
+      },
+      "topik-ai-proxy": {
+        "phase": "do",
+        "phaseNumber": 3,
+        "matchRate": null,
+        "iterationCount": 0,
+        "requirements": [],
+        "documents": {},
+        "timestamps": {
+          "started": "2026-02-22T11:27:56.600Z",
+          "lastUpdated": "2026-02-22T11:27:56.600Z"
+        },
+        "lastFile": "C:/projects/aju-ej/app/api/topik-ai-proxy/route.ts"
+      },
+      "tmp": {
+        "phase": "do",
+        "phaseNumber": 3,
+        "matchRate": null,
+        "iterationCount": 0,
+        "requirements": [],
+        "documents": {},
+        "timestamps": {
+          "started": "2026-02-22T13:28:38.583Z",
+          "lastUpdated": "2026-02-22T13:28:38.583Z"
+        },
+        "lastFile": "/tmp/check_pdf.py"
+      },
+      "life-record-pdf-bulk": {
+        "phase": "do",
+        "phaseNumber": 3,
+        "matchRate": null,
+        "iterationCount": 0,
+        "requirements": [],
+        "documents": {},
+        "timestamps": {
+          "started": "2026-02-22T13:50:54.258Z",
+          "lastUpdated": "2026-02-22T13:52:46.918Z"
+        },
+        "lastFile": "C:/projects/aju-ej/app/api/life-record-pdf-bulk/route.ts"
+      },
+      "student-documents": {
+        "phase": "do",
+        "phaseNumber": 3,
+        "matchRate": null,
+        "iterationCount": 0,
+        "requirements": [],
+        "documents": {},
+        "timestamps": {
+          "started": "2026-02-22T14:48:00.457Z",
+          "lastUpdated": "2026-02-22T14:54:13.047Z"
+        },
+        "lastFile": "C:\\projects\\aju-ej\\app\\api\\student-documents\\route.ts"
+      },
+      "document-types": {
+        "phase": "do",
+        "phaseNumber": 3,
+        "matchRate": null,
+        "iterationCount": 0,
+        "requirements": [],
+        "documents": {},
+        "timestamps": {
+          "started": "2026-02-22T14:48:36.701Z",
+          "lastUpdated": "2026-02-24T13:43:52.220Z"
+        },
+        "lastFile": "C:\\projects\\aju-ej\\app\\api\\document-types\\route.ts"
+      },
+      "document-alerts": {
+        "phase": "do",
+        "phaseNumber": 3,
+        "matchRate": null,
+        "iterationCount": 0,
+        "requirements": [],
+        "documents": {},
+        "timestamps": {
+          "started": "2026-02-22T14:53:16.226Z",
+          "lastUpdated": "2026-02-22T14:53:16.226Z"
+        },
+        "lastFile": "C:\\projects\\aju-ej\\app\\api\\cron\\document-alerts\\route.ts"
+      },
+      "visa-document-checklist": {
+        "phase": "act",
+        "phaseNumber": 5,
+        "matchRate": null,
+        "iterationCount": 0,
+        "requirements": [],
+        "documents": {},
+        "timestamps": {
+          "started": "2026-02-24T13:52:35.963Z",
+          "lastUpdated": "2026-02-24T13:52:35.964Z"
+        },
+        "previousPhase": "check",
+        "autoAdvanced": true
+      },
+      "test-email": {
+        "phase": "do",
+        "phaseNumber": 3,
+        "matchRate": null,
+        "iterationCount": 0,
+        "requirements": [],
+        "documents": {},
+        "timestamps": {
+          "started": "2026-02-25T23:08:22.768Z",
+          "lastUpdated": "2026-02-25T23:08:22.768Z"
+        },
+        "lastFile": "/c/projects/aju-ej/app/api/test-email/route.ts"
       }
     },
     "pipeline": {
@@ -424,7 +554,7 @@
     "session": {
       "startedAt": "2026-02-10T13:03:57.840Z",
       "onboardingCompleted": true,
-      "lastActivity": "2026-02-22T07:30:49.842Z"
+      "lastActivity": "2026-02-26T10:12:02.874Z"
     },
     "history": [
       {
@@ -2200,6 +2330,972 @@
       {
         "timestamp": "2026-02-22T07:30:49.842Z",
         "feature": "reports",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T08:25:59.473Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T08:26:04.717Z",
+        "feature": "create-agency-user",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T08:26:05.841Z",
+        "feature": "audit",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T08:26:09.730Z",
+        "feature": "create-agency-user",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T08:26:11.329Z",
+        "feature": "add-agency-account",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T08:26:14.453Z",
+        "feature": "add-agency-account",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T08:26:15.589Z",
+        "feature": "reset-agency-password",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T08:26:28.740Z",
+        "feature": "login",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T08:26:30.005Z",
+        "feature": "portal",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T08:26:40.524Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T08:26:41.792Z",
+        "feature": "students",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T08:26:42.913Z",
+        "feature": "agencies",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T08:26:44.153Z",
+        "feature": "import",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T08:26:53.365Z",
+        "feature": "new",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T08:26:55.007Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T08:26:56.364Z",
+        "feature": "edit",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T08:26:57.747Z",
+        "feature": "reports",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T08:27:01.823Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T08:27:02.710Z",
+        "feature": "students",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T08:27:03.609Z",
+        "feature": "agencies",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T08:27:04.473Z",
+        "feature": "reports",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T08:27:07.540Z",
+        "feature": "new",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T08:27:08.459Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T08:27:09.389Z",
+        "feature": "edit",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T08:27:10.436Z",
+        "feature": "import",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T08:43:19.151Z",
+        "feature": "agency-accounts",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T08:43:25.522Z",
+        "feature": "agencies",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T08:43:31.104Z",
+        "feature": "agencies",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T08:43:37.679Z",
+        "feature": "agencies",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T08:43:44.811Z",
+        "feature": "agencies",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T08:47:51.193Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T08:48:00.158Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T08:48:06.918Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T08:48:12.140Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T08:48:18.401Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T08:48:24.095Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T09:23:06.171Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T09:23:21.530Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T09:23:27.035Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T09:23:42.328Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T09:23:46.299Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T09:23:57.896Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T09:24:05.395Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T09:27:28.481Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T09:27:35.277Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T09:27:38.455Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T09:27:42.907Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T09:27:50.065Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T09:28:04.896Z",
+        "feature": "exam-ai-analysis",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T10:27:42.921Z",
+        "feature": "exam-ai-analysis",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T10:27:46.595Z",
+        "feature": "health",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T10:28:24.376Z",
+        "feature": "exam-ai-analysis",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T10:28:28.110Z",
+        "feature": "health",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T10:29:31.300Z",
+        "feature": "exam-ai-analysis",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T10:29:34.450Z",
+        "feature": "health",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T10:30:18.187Z",
+        "feature": "exam-ai-analysis",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T10:30:23.856Z",
+        "feature": "health",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T10:54:40.914Z",
+        "feature": "mock-exam-import",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T10:54:46.164Z",
+        "feature": "mock-exam-import",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T10:54:50.544Z",
+        "feature": "mock-exam-import",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T11:08:38.153Z",
+        "feature": "_components",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T11:08:48.913Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T11:08:53.958Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T11:08:57.846Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T11:09:03.339Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T11:09:10.798Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T11:09:23.423Z",
+        "feature": "_components",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T11:09:30.618Z",
+        "feature": "_components",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T11:09:47.538Z",
+        "feature": "_components",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T11:27:56.600Z",
+        "feature": "topik-ai-proxy",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T11:39:14.439Z",
+        "feature": "mock-exam-import",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T12:30:45.774Z",
+        "feature": "pdf",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T12:31:01.649Z",
+        "feature": "pdf",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T13:28:38.583Z",
+        "feature": "tmp",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T13:49:58.043Z",
+        "feature": "pdf",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T13:50:10.345Z",
+        "feature": "life-record-pdf",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T13:50:16.706Z",
+        "feature": "life-record-pdf",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T13:50:21.962Z",
+        "feature": "life-record-pdf",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T13:50:54.258Z",
+        "feature": "life-record-pdf-bulk",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T13:51:09.899Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T13:51:14.300Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T13:51:27.350Z",
+        "feature": "students",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T13:51:36.793Z",
+        "feature": "students",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T13:51:48.509Z",
+        "feature": "students",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T13:52:07.891Z",
+        "feature": "students",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T13:52:46.918Z",
+        "feature": "life-record-pdf-bulk",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T14:47:16.143Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T14:48:00.457Z",
+        "feature": "student-documents",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T14:48:21.859Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T14:48:36.701Z",
+        "feature": "document-types",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T14:48:45.274Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T14:49:59.500Z",
+        "feature": "_components",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T14:50:10.199Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T14:50:14.537Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T14:50:19.839Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T14:50:25.331Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T14:51:43.814Z",
+        "feature": "_components",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T14:51:51.896Z",
+        "feature": "portal",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T14:51:55.882Z",
+        "feature": "portal",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T14:52:01.734Z",
+        "feature": "portal",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T14:52:10.863Z",
+        "feature": "portal",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T14:53:16.226Z",
+        "feature": "document-alerts",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-22T14:54:13.048Z",
+        "feature": "student-documents",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-24T13:43:37.637Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-24T13:43:52.220Z",
+        "feature": "document-types",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-24T13:44:01.140Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-24T13:44:22.416Z",
+        "feature": "_components",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-24T13:44:28.116Z",
+        "feature": "_components",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-24T13:44:34.683Z",
+        "feature": "_components",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-24T13:44:42.494Z",
+        "feature": "_components",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-24T13:52:35.964Z",
+        "feature": "visa-document-checklist",
+        "phase": "act",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-25T12:04:33.470Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-25T12:11:53.263Z",
+        "feature": "students",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-25T12:11:57.436Z",
+        "feature": "students",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-25T12:12:11.115Z",
+        "feature": "students",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-25T12:24:51.766Z",
+        "feature": "students",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-25T12:31:27.043Z",
+        "feature": "students",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-25T13:28:48.534Z",
+        "feature": "pdf",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-25T13:40:48.522Z",
+        "feature": "edit",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-25T13:40:53.811Z",
+        "feature": "edit",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-25T13:41:04.558Z",
+        "feature": "edit",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-25T13:41:19.688Z",
+        "feature": "edit",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-25T13:41:27.934Z",
+        "feature": "new",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-25T13:41:33.582Z",
+        "feature": "new",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-25T13:41:46.243Z",
+        "feature": "new",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-25T13:41:57.935Z",
+        "feature": "new",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-25T14:11:25.710Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-25T14:11:29.200Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-25T14:11:33.408Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-25T14:11:38.110Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-25T14:11:54.584Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-25T14:12:03.780Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-25T22:42:41.761Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-25T22:42:51.396Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-25T22:43:02.931Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-25T22:43:35.431Z",
+        "feature": "students",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-25T22:43:44.484Z",
+        "feature": "students",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-25T22:43:55.786Z",
+        "feature": "students",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-25T23:08:22.768Z",
+        "feature": "test-email",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-26T10:09:20.920Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-26T10:09:31.000Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-26T10:09:34.433Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-26T10:09:37.954Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-26T10:09:51.865Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-26T10:09:55.966Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-26T10:10:00.253Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-26T10:10:05.594Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-26T10:10:12.403Z",
+        "feature": "portal",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-26T10:10:21.184Z",
+        "feature": "agencies",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-26T10:10:25.024Z",
+        "feature": "agencies",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-26T10:10:29.918Z",
+        "feature": "agencies",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-26T10:10:37.687Z",
+        "feature": "agencies",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-26T10:10:51.309Z",
+        "feature": "agencies",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-26T10:11:02.745Z",
+        "feature": "agencies",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-26T10:11:08.666Z",
+        "feature": "agencies",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-26T10:11:12.062Z",
+        "feature": "agencies",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-26T10:11:17.230Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-26T10:11:23.281Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-26T10:11:34.778Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-26T10:11:57.611Z",
+        "feature": "aju-ej",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-26T10:12:02.874Z",
+        "feature": "students",
         "phase": "do",
         "action": "updated"
       }

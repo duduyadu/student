@@ -103,6 +103,89 @@
 
 ---
 
-**Total Features Archived**: 3
-**Average Match Rate**: 91.5%
+### platform-qa-improvement
+
+**Archive Date**: 2026-02-26
+**Final Match Rate**: 100%
+**Iteration Count**: 0
+**Status**: Completed
+
+**Summary**:
+- 플랫폼 전체 정적 QA 분석 → 13개 이슈 발견 및 100% 수정
+- BUG 5개: 학생상세 언어시스템 누락, 모바일 탭 오버플로우, 점수 그리드 오류, 포털 탈퇴 텍스트, 유학원 번호 충돌
+- I18N 4개: 4개 페이지 완전 다국어화, 25개 i18n 키 추가
+- UI 2개: 상태 라벨 표시, 프로필 초성 마크업 수정
+- SEC 2개: PDF API Bearer 토큰 인증 추가 (GET, POST 양쪽)
+
+**Gap Resolution**:
+- Static analysis: 19개 이슈 발견 (5 BUG + 8 I18N → 4 covered + 4 UI + 2 SEC)
+- Final verification: 13/13 PASS (100%)
+- Iterations: 0 (한 번에 100% 달성)
+
+**Documents**:
+- `platform-qa-improvement.plan.md`
+- `platform-qa-improvement.analysis.md`
+- `platform-qa-improvement.report.md`
+
+**Location**: `docs/archive/2026-02/platform-qa-improvement/`
+
+---
+
+### platform-ui-improvement
+
+**Archive Date**: 2026-02-26
+**Final Match Rate**: 100%
+**Iteration Count**: 0
+**Status**: Completed
+
+**Summary**:
+- 플랫폼 전체 UI/UX 개선 — 68개 항목 100% 완료
+- i18n 키 25개 추가 (KO/VI 양방향)
+- 학생 상세 페이지 완전 다국어화 (탭·버튼·InfoCard·InfoRow 36개 항목)
+- 대시보드 모바일 반응형 그리드 개선 (grid-cols-2 sm:grid-cols-4/5)
+- 학생 목록 PDF 버튼 i18n + 빈 상태 UX 분기 (검색 없음 vs 데이터 없음)
+
+**Files Changed**:
+- `lib/i18n.ts` (+25 keys)
+- `app/students/[id]/page.tsx` (36 improvements)
+- `app/page.tsx` (2 grid fixes)
+- `app/students/page.tsx` (5 improvements)
+
+**Documents**:
+- `platform-ui-improvement.analysis.md`
+- `platform-ui-improvement.report.md`
+
+**Location**: `docs/archive/2026-02/platform-ui-improvement/`
+
+---
+
+### platform-pdf-improvement
+
+**Archive Date**: 2026-02-26
+**Final Match Rate**: 100%
+**Iteration Count**: 0
+**Status**: Completed
+
+**Summary**:
+- 생활기록부 PDF 완전 이중언어(KO/VI) 개선 — 8개 항목 100% 완료
+- T 번역 객체 확장: section5, scoreUnit, genderM/F 등 10개 키 KO+VI 완전 이중언어화
+- CATEGORY_LABELS 구조 변경: `{string}` → `{ko,vi}` 7개 카테고리 양방향 지원
+- 성별/카테고리/점수단위 lang별 동적 표시
+- 헤더 AE 로고 박스 추가 (28×28px 네이비 배경)
+- 섹션 5 희망대학 변경이력 테이블 신규 추가 (zebra stripe, 3컬럼)
+- TypeScript 타입 수정: AspirationHistory.university/major
+
+**Files Changed**:
+- `components/pdf/LifeRecordDocument.tsx` (920 lines, 8 improvements)
+
+**Documents**:
+- `platform-pdf-improvement.analysis.md`
+- `platform-pdf-improvement.report.md`
+
+**Location**: `docs/archive/2026-02/platform-pdf-improvement/`
+
+---
+
+**Total Features Archived**: 6
+**Average Match Rate**: 95.7%
 **Total Iterations**: 3
