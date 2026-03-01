@@ -136,7 +136,9 @@ const s = StyleSheet.create({
     alignItems: 'flex-start',
     marginBottom: 4,
     paddingBottom: 14,
-    borderBottom: `3px solid ${C.navyDark}`,
+    borderBottomWidth: 3,
+    borderBottomStyle: 'solid',
+    borderBottomColor: C.navyDark,
   },
   mainHeaderGoldLine: {
     height: 1.5,
@@ -198,7 +200,9 @@ const s = StyleSheet.create({
     paddingVertical: 5,
     paddingHorizontal: 10,
     marginBottom: 0,
-    borderBottom: `1.5px solid ${C.gold}`,
+    borderBottomWidth: 1.5,
+    borderBottomStyle: 'solid',
+    borderBottomColor: C.gold,
   },
   sectionTitle: {
     fontSize: 11,
@@ -277,7 +281,9 @@ const s = StyleSheet.create({
     paddingHorizontal: 4,
     paddingVertical: 1,
     borderRadius: 0,
-    border: `0.5px solid ${C.goldLight}`,
+    borderWidth: 0.5,
+    borderStyle: 'solid',
+    borderColor: C.goldLight,
   },
   consultCounselor: {
     fontSize: 9,
@@ -290,7 +296,9 @@ const s = StyleSheet.create({
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 0,
-    borderLeft: `2px solid ${C.gold}`,
+    borderLeftWidth: 2,
+    borderLeftStyle: 'solid',
+    borderLeftColor: C.gold,
     alignSelf: 'flex-start',
     marginBottom: 4,
   },
@@ -655,7 +663,7 @@ export default function LifeRecordDocument({
         </View>
 
         {/* ─── 1페이지 메인 헤더 ─── */}
-        <View style={s.mainHeader} wrap={false}>
+        <View style={s.mainHeader}>
           <View style={s.mainHeaderLeft}>
             <Text style={s.headerTitle}>{tx.title}</Text>
             <Text style={s.headerSubtitle}>{tx.subtitle}</Text>
