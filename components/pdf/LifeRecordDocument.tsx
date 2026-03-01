@@ -271,7 +271,7 @@ const s = StyleSheet.create({
     color: C.navy,
   },
   consultTag: {
-    backgroundColor: 'transparent',
+    backgroundColor: C.pageBg,
     color: C.gold,
     fontSize: 8,
     paddingHorizontal: 4,
@@ -284,7 +284,7 @@ const s = StyleSheet.create({
     color: C.muted,
   },
   aspBadge: {
-    backgroundColor: 'transparent',
+    backgroundColor: C.pageBg,
     color: C.navyDark,
     fontSize: 9,
     paddingHorizontal: 6,
