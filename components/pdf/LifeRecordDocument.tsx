@@ -274,33 +274,35 @@ const s = StyleSheet.create({
     fontWeight: 'bold',
     color: C.navy,
   },
-  consultTag: {
+  consultTagWrap: {
     backgroundColor: C.pageBg,
-    color: C.gold,
-    fontSize: 8,
     paddingHorizontal: 4,
     paddingVertical: 1,
-    borderRadius: 0,
     borderWidth: 0.5,
     borderStyle: 'solid',
     borderColor: C.goldLight,
+  },
+  consultTag: {
+    color: C.gold,
+    fontSize: 8,
   },
   consultCounselor: {
     fontSize: 9,
     color: C.muted,
   },
-  aspBadge: {
+  aspBadgeWrap: {
     backgroundColor: C.pageBg,
-    color: C.navyDark,
-    fontSize: 9,
     paddingHorizontal: 6,
     paddingVertical: 2,
-    borderRadius: 0,
     borderLeftWidth: 2,
     borderLeftStyle: 'solid',
     borderLeftColor: C.gold,
     alignSelf: 'flex-start',
     marginBottom: 4,
+  },
+  aspBadge: {
+    color: C.navyDark,
+    fontSize: 9,
   },
   consultLine: {
     fontSize: 10,
@@ -768,18 +770,22 @@ export default function LifeRecordDocument({
                 <View style={s.consultMeta}>
                   <Text style={s.consultDate}>{c.consult_date}</Text>
                   {c.topic_category && (
-                    <Text style={s.consultTag}>
-                      {CATEGORY_LABELS[c.topic_category]?.[lang as Lang] ?? c.topic_category}
-                    </Text>
+                    <View style={s.consultTagWrap}>
+                      <Text style={s.consultTag}>
+                        {CATEGORY_LABELS[c.topic_category]?.[lang as Lang] ?? c.topic_category}
+                      </Text>
+                    </View>
                   )}
                   {c.counselor_name && (
                     <Text style={s.consultCounselor}>{c.counselor_name}</Text>
                   )}
                 </View>
                 {(c.aspiration_univ || c.aspiration_major) && (
-                  <Text style={s.aspBadge}>
-                    {tx.goal}: {[c.aspiration_univ, c.aspiration_major].filter(Boolean).join('  ·  ')}
-                  </Text>
+                  <View style={s.aspBadgeWrap}>
+                    <Text style={s.aspBadge}>
+                      {tx.goal}: {[c.aspiration_univ, c.aspiration_major].filter(Boolean).join('  ·  ')}
+                    </Text>
+                  </View>
                 )}
                 {c.summary && (
                   <Text style={s.consultLine}>
