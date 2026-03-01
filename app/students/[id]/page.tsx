@@ -486,12 +486,12 @@ export default function StudentDetailPage() {
                     <p className="font-semibold text-sm">{nextTopik.exam_date}</p>
                     {nextTopik.reg_start && (
                       <p className="text-xs opacity-60 mt-0.5">
-                        접수: {nextTopik.reg_start} ~ {nextTopik.reg_end}
+                        {t('topikRegPeriod', lang)} {nextTopik.reg_start} ~ {nextTopik.reg_end}
                       </p>
                     )}
                   </div>
                   <div className="text-right">
-                    <p className="text-xs opacity-60 mb-0.5">시험까지</p>
+                    <p className="text-xs opacity-60 mb-0.5">{t('topikCountdown', lang)}</p>
                     <p className="text-3xl font-bold">D-{dday}</p>
                   </div>
                 </div>

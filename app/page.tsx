@@ -233,9 +233,9 @@ export default function DashboardPage() {
     })
 
     setTopikDist([
-      { name: '미취득', value: counts.none, color: '#CBD5E1' },
-      { name: '1급',    value: counts.lv1,  color: '#60A5FA' },
-      { name: '2급+',   value: counts.lv2,  color: '#34D399' },
+      { name: t('topikNone',   lang), value: counts.none, color: '#CBD5E1' },
+      { name: t('topikLevel1', lang), value: counts.lv1,  color: '#60A5FA' },
+      { name: t('topikLevel2', lang), value: counts.lv2,  color: '#34D399' },
     ])
   }
 
@@ -258,7 +258,7 @@ export default function DashboardPage() {
       const stu = Array.isArray(c.student) ? c.student[0] : c.student
       items.push({
         type: 'consult',
-        label: t('actConsult', 'ko'),
+        label: t('actConsult', lang),
         sub: (stu as { name_kr: string } | null)?.name_kr ?? '-',
         at: c.created_at,
         href: `/students/${c.student_id}`,
@@ -268,7 +268,7 @@ export default function DashboardPage() {
     newStudents.data?.forEach(s => {
       items.push({
         type: 'student',
-        label: t('actNewStudent', 'ko'),
+        label: t('actNewStudent', lang),
         sub: s.name_kr,
         at: s.created_at,
         href: `/students/${s.id}`,

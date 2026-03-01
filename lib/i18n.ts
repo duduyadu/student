@@ -118,6 +118,26 @@ export const T = {
   recentActTitle: { ko: '최근 활동',              vi: 'Hoạt động gần đây' },
   actNewStudent:  { ko: '신규 등록',              vi: 'Đăng ký mới' },
   actConsult:     { ko: '상담',                   vi: 'Tư vấn' },
+
+  // ─── TOPIK 일정 관리 ───
+  topikRegPeriod:     { ko: '접수:',                        vi: 'Đăng ký:' },
+  topikCountdown:     { ko: '시험까지',                     vi: 'Đến kỳ thi' },
+  topikMgmtTitle:     { ko: 'TOPIK 시험 일정 관리',          vi: 'Quản lý lịch thi TOPIK' },
+  topikAddBtn:        { ko: '+ 일정 추가',                   vi: '+ Thêm lịch' },
+  topikRoundLabel:    { ko: '회차',                         vi: 'Kỳ thi' },
+  topikExamDateLabel: { ko: '시험일',                        vi: 'Ngày thi' },
+  topikExamTypeLabel: { ko: '시험 유형',                     vi: 'Loại kỳ thi' },
+  topikRegStartLabel: { ko: '접수 시작',                     vi: 'Bắt đầu đăng ký' },
+  topikRegEndLabel:   { ko: '접수 종료',                     vi: 'Kết thúc đăng ký' },
+  topikRegionLabel:   { ko: '지역',                         vi: 'Khu vực' },
+  topikDeleteConfirm: { ko: '이 일정을 삭제하시겠습니까?',   vi: 'Xóa lịch thi này?' },
+  topikDeleteBtn:     { ko: '삭제',                         vi: 'Xóa' },
+  topikEmptySchedule: { ko: '등록된 시험 일정이 없습니다.', vi: 'Chưa có lịch thi.' },
+
+  // ─── 리포트 탭 ───
+  tabStats:           { ko: '통계',                         vi: 'Thống kê' },
+  tabAuditLog:        { ko: '감사 로그',                    vi: 'Nhật ký kiểm toán' },
+  tabTopikSchedule:   { ko: 'TOPIK 일정',                   vi: 'Lịch TOPIK' },
   studentStatus:  { ko: '학생 현황',              vi: 'Tình trạng sinh viên' },
   visa7:          { ko: '🚨 비자 만료 7일 이내 — 즉시 조치 필요', vi: '🚨 Visa hết hạn trong 7 ngày — Cần xử lý ngay' },
   visa30:         { ko: '⚠️ 비자 만료 30일 이내 — 갱신 서류 준비', vi: '⚠️ Visa hết hạn trong 30 ngày — Chuẩn bị hồ sơ gia hạn' },
