@@ -116,7 +116,8 @@ export async function PATCH(
           .eq('id', id)
           .single()
           .then(({ data: docWithType }) => {
-            const docName = (docWithType?.doc_type as any)?.name_kr ?? '서류'
+            const docType = docWithType?.doc_type as { name_kr?: string } | null | undefined
+            const docName = docType?.name_kr ?? '서류'
             sendDocStatusEmail({
               to:           student.email!,
               studentName:  student.name_kr,

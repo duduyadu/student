@@ -8,7 +8,6 @@ import type { ExamResult } from '@/lib/types'
 const {
   ResponsiveContainer, LineChart, Line, XAxis, YAxis,
   CartesianGrid, Tooltip, Legend,
-  RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
 } = {
   ResponsiveContainer:  dynamic(() => import('recharts').then(m => ({ default: m.ResponsiveContainer  })), { ssr: false }),
   LineChart:            dynamic(() => import('recharts').then(m => ({ default: m.LineChart            })), { ssr: false }),
@@ -18,14 +17,9 @@ const {
   CartesianGrid:        dynamic(() => import('recharts').then(m => ({ default: m.CartesianGrid       })), { ssr: false }),
   Tooltip:              dynamic(() => import('recharts').then(m => ({ default: m.Tooltip             })), { ssr: false }),
   Legend:               dynamic(() => import('recharts').then(m => ({ default: m.Legend              })), { ssr: false }),
-  RadarChart:           dynamic(() => import('recharts').then(m => ({ default: m.RadarChart          })), { ssr: false }),
-  Radar:                dynamic(() => import('recharts').then(m => ({ default: m.Radar               })), { ssr: false }),
-  PolarGrid:            dynamic(() => import('recharts').then(m => ({ default: m.PolarGrid           })), { ssr: false }),
-  PolarAngleAxis:       dynamic(() => import('recharts').then(m => ({ default: m.PolarAngleAxis      })), { ssr: false }),
-  PolarRadiusAxis:      dynamic(() => import('recharts').then(m => ({ default: m.PolarRadiusAxis     })), { ssr: false }),
 } as const
 
-export type ChartLevel = 'trend' | 'radar' | 'ai'
+export type ChartLevel = 'trend' | 'ai'
 
 interface Props {
   exams: ExamResult[]
@@ -45,26 +39,6 @@ function toChartData(exams: ExamResult[]) {
       listen:  e.listening_score ?? null,
       level:   e.level,
     }))
-}
-
-// 최신 시험의 section_scores → 레이더 데이터
-function toRadarData(exams: ExamResult[]) {
-  const latest = [...exams].sort((a, b) => b.exam_date.localeCompare(a.exam_date))[0]
-  if (!latest) return []
-  const ss = latest.section_scores ?? {}
-  const entries = Object.entries(ss)
-  if (entries.length === 0) {
-    // section_scores 없으면 읽기/듣기로 구성 (TOPIK I)
-    return [
-      { subject: '읽기', value: latest.reading_score   ?? 0, fullMark: 100 },
-      { subject: '듣기', value: latest.listening_score ?? 0, fullMark: 100 },
-    ]
-  }
-  return entries.map(([key, val]) => ({
-    subject:  key,
-    value:    Number(val),
-    fullMark: 100,
-  }))
 }
 
 // ── 추이 차트 ──────────────────────────────────
@@ -97,32 +71,6 @@ function TrendChart({ data }: { data: ReturnType<typeof toChartData> }) {
   )
 }
 
-// ── 레이더 차트 ──────────────────────────────────
-function RadarChartView({ exams }: { exams: ExamResult[] }) {
-  const data = toRadarData(exams)
-  if (data.length < 2) return null
-
-  const latest = [...exams].sort((a, b) => b.exam_date.localeCompare(a.exam_date))[0]
-
-  return (
-    <div className="bg-white rounded-2xl p-5 shadow-sm">
-      <div className="flex items-center justify-between mb-4">
-        <p className="text-sm font-semibold text-slate-700">영역별 분석</p>
-        <span className="text-xs text-slate-400">최신: {latest?.exam_date}</span>
-      </div>
-      <ResponsiveContainer width="100%" height={220}>
-        <RadarChart data={data}>
-          <PolarGrid />
-          <PolarAngleAxis dataKey="subject" tick={{ fontSize: 11 }} />
-          <PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fontSize: 9 }} />
-          <Radar name="점수" dataKey="value" stroke="#3949AB" fill="#3949AB" fillOpacity={0.25} />
-          <Tooltip formatter={v => [`${v}점`]} />
-        </RadarChart>
-      </ResponsiveContainer>
-    </div>
-  )
-}
-
 // ── 메인 컴포넌트 ──────────────────────────────────
 export default function ExamChart({ exams, chartLevel = 'trend', aiAnalysis }: Props) {
   const data = useMemo(() => toChartData(exams), [exams])
@@ -133,11 +81,6 @@ export default function ExamChart({ exams, chartLevel = 'trend', aiAnalysis }: P
     <div className="space-y-4">
       {/* trend: 항상 표시 */}
       <TrendChart data={data} />
-
-      {/* radar / ai: section_scores 있을 때 또는 읽기/듣기 있을 때 */}
-      {(chartLevel === 'radar' || chartLevel === 'ai') && (
-        <RadarChartView exams={exams} />
-      )}
 
       {/* ai: AI 분석 텍스트 */}
       {chartLevel === 'ai' && aiAnalysis && (

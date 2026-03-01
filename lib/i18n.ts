@@ -271,6 +271,18 @@ export const T = {
   // ─── 학생 목록 - 전체 선택 ───
   selectAllLabel:   { ko: '전체 선택',                vi: 'Chọn tất cả' },
 
+  // ─── 공통 오류 ───
+  deleteFail:       { ko: '삭제 실패: ',           vi: 'Xóa thất bại: ' },
+
+  // ─── 시험 탭 - 알림/확인 ───
+  examDeleteConfirm: { ko: '이 시험 성적을 삭제하시겠습니까?', vi: 'Bạn có chắc chắn muốn xóa kết quả thi này không?' },
+  examDateRequired:  { ko: '시험 날짜를 먼저 입력하세요.', vi: 'Vui lòng nhập ngày thi trước.' },
+
+  // ─── 시험 탭 - 차트 버튼 ───
+  chartTrend:       { ko: '📈 추이',     vi: '📈 Xu hướng' },
+  chartRadar:       { ko: '🕸️ 레이더', vi: '🕸️ Radar' },
+  chartAiLabel:     { ko: '🤖 AI 분석', vi: '🤖 Phân tích AI' },
+
   // ─── 탈퇴 확인 ───
   withdrawConfirm:  { ko: '정말 탈퇴하시겠습니까?', vi: 'Bạn có chắc chắn muốn xóa tài khoản?' },
 

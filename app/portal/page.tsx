@@ -377,7 +377,7 @@ export default function PortalPage() {
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <InfoRow label={t('dob', lang)}        value={student.dob ?? '-'} />
                     <InfoRow label={t('gender', lang)}     value={student.gender === 'M' ? t('genderM', lang) : t('genderF', lang)} />
-                    <InfoRow label={t('agency', lang)}     value={(student.agency as any)?.agency_name_vn ?? (student.agency as any)?.agency_name_kr ?? '-'} />
+                    <InfoRow label={t('agency', lang)}     value={student.agency?.agency_name_vn ?? student.agency?.agency_name_kr ?? '-'} />
                     <InfoRow label={t('email', lang)}      value={student.email ?? '-'} />
                     <InfoRow label={t('topikLevel', lang)} value={student.topik_level ?? '-'} />
                   </div>

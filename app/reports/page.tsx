@@ -70,7 +70,7 @@ export default function ReportsPage() {
 
     const map = new Map<string, number>()
     data.forEach(r => {
-      const a    = r.agency as any
+      const a    = Array.isArray(r.agency) ? r.agency[0] : r.agency
       const name = a?.agency_name_vn ?? a?.agency_name_kr ?? '__unassigned__'
       map.set(name, (map.get(name) ?? 0) + 1)
     })

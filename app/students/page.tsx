@@ -56,16 +56,16 @@ export default function StudentsPage() {
       '학생코드':         s.student_code ?? '',
       '이름(한국어)':     s.name_kr,
       '이름(베트남어)':   s.name_vn,
-      '유학원':           (s.agency as any)?.agency_name_vn ?? (s.agency as any)?.agency_name_kr ?? '',
+      '유학원':           s.agency?.agency_name_vn ?? s.agency?.agency_name_kr ?? '',
       '유학단계':         s.status,
       '생년월일':         s.dob ?? '',
       '성별':             s.gender === 'M' ? '남' : '여',
       '한국연락처':       s.phone_kr ?? '',
       '베트남연락처':     s.phone_vn ?? '',
       '이메일':           s.email ?? '',
-      '학부모이름(VN)':   (s as any).parent_name_vn ?? '',
-      '학부모연락처(VN)': (s as any).parent_phone_vn ?? '',
-      '고교GPA':          (s as any).high_school_gpa ?? '',
+      '학부모이름(VN)':   s.parent_name_vn ?? '',
+      '학부모연락처(VN)': s.parent_phone_vn ?? '',
+      '고교GPA':          s.high_school_gpa ?? '',
       '토픽등급':         s.topik_level ?? '',
       '유학원등록일':     s.enrollment_date ?? '',
       '목표대학':         s.target_university ?? '',
@@ -75,7 +75,7 @@ export default function StudentsPage() {
       '재직회사':         s.current_company ?? '',
       '비자종류':         s.visa_type ?? '',
       '비자만료일':       s.visa_expiry ?? '',
-      '비고':             (s as any).notes ?? '',
+      '비고':             s.notes ?? '',
     }))
 
     const ws = XLSX.utils.json_to_sheet(rows)
@@ -313,7 +313,7 @@ export default function StudentsPage() {
                       </div>
                       <p className="text-xs text-slate-500 truncate">{s.name_vn}</p>
                       <p className="text-xs text-slate-400 mt-1">
-                        {(s.agency as any)?.agency_name_vn ?? (s.agency as any)?.agency_name_kr ?? t('unassigned', lang)}
+                        {s.agency?.agency_name_vn ?? s.agency?.agency_name_kr ?? t('unassigned', lang)}
                         {s.student_code && <span className="ml-2 font-mono">{s.student_code}</span>}
                         {placement(s) && <span className="ml-2 text-blue-500">{placement(s)}</span>}
                       </p>
@@ -377,7 +377,7 @@ export default function StudentsPage() {
                       <td className="px-6 py-4 font-medium text-slate-800">{s.name_kr}</td>
                       <td className="px-6 py-4 text-slate-600">{s.name_vn}</td>
                       <td className="px-6 py-4 text-slate-500 text-sm">
-                        {(s.agency as any)?.agency_name_vn ?? (s.agency as any)?.agency_name_kr ?? '-'}
+                        {s.agency?.agency_name_vn ?? s.agency?.agency_name_kr ?? '-'}
                       </td>
                       <td className="px-6 py-4">
                         <span className={`text-xs px-2 py-1 rounded-full font-medium ${statusColor(s.status)}`}>

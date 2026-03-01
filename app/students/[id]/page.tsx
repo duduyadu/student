@@ -122,6 +122,22 @@ export default function StudentDetailPage() {
     setExam(prev => ({ ...prev, total_score: v, level: isNaN(n) ? prev.level : calcLevel(n) }))
   }
 
+  // 읽기 또는 듣기 변경 시 총점 자동 합산
+  const handleSubScoreChange = (field: 'reading_score' | 'listening_score', v: string) => {
+    setExam(prev => {
+      const reading  = field === 'reading_score'  ? parseInt(v) : parseInt(prev.reading_score)
+      const listening = field === 'listening_score' ? parseInt(v) : parseInt(prev.listening_score)
+      const total    = (isNaN(reading) ? 0 : reading) + (isNaN(listening) ? 0 : listening)
+      const totalStr = (isNaN(reading) && isNaN(listening)) ? prev.total_score : String(total)
+      return {
+        ...prev,
+        [field]: v,
+        total_score: totalStr,
+        level: totalStr !== '' ? calcLevel(total) : prev.level,
+      }
+    })
+  }
+
   const openEditExam = (e: ExamResult) => {
     setExam({
       exam_date:       e.exam_date,
@@ -157,7 +173,7 @@ export default function StudentDetailPage() {
       saveError = error
     }
     if (saveError) {
-      alert('저장 실패: ' + saveError.message)
+      alert(t('saveFail', lang) + saveError.message)
       setSavingExam(false)
       return
     }
@@ -169,15 +185,15 @@ export default function StudentDetailPage() {
   }
 
   const handleDeleteExam = async (examId: string) => {
-    if (!confirm('이 시험 성적을 삭제하시겠습니까?')) return
+    if (!confirm(t('examDeleteConfirm', lang))) return
     const { error } = await supabase.from('exam_results').delete().eq('id', examId)
-    if (error) { alert('삭제 실패: ' + error.message); return }
+    if (error) { alert(t('deleteFail', lang) + error.message); return }
     await loadExams()
   }
 
   const handleExcelUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (!file || !excelDate) { alert('시험 날짜를 먼저 입력하세요.'); return }
+    if (!file || !excelDate) { alert(t('examDateRequired', lang)); return }
     setExcelUploading(true)
     const fd = new FormData()
     fd.append('file', file)
@@ -249,17 +265,17 @@ export default function StudentDetailPage() {
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    if (file.size > 5 * 1024 * 1024) { alert('5MB 이하 이미지만 업로드 가능합니다.'); return }
+    if (file.size > 5 * 1024 * 1024) { alert(t('photoSizeLimit', lang)); return }
     setPhotoUploading(true)
     const path = `${id}/profile`
     const { error: upErr } = await supabase.storage
       .from('student-photos')
       .upload(path, file, { upsert: true, contentType: file.type })
-    if (upErr) { alert('업로드 실패: ' + upErr.message); setPhotoUploading(false); return }
+    if (upErr) { alert(t('uploadFail', lang) + upErr.message); setPhotoUploading(false); return }
     const { data: { publicUrl } } = supabase.storage.from('student-photos').getPublicUrl(path)
     const url = `${publicUrl}?t=${Date.now()}`
     const { error: dbErr } = await supabase.from('students').update({ photo_url: url }).eq('id', id)
-    if (dbErr) { alert('사진 URL 저장 실패: ' + dbErr.message); setPhotoUploading(false); return }
+    if (dbErr) { alert(t('uploadFail', lang) + dbErr.message); setPhotoUploading(false); return }
     setStudent(prev => prev ? { ...prev, photo_url: url } : prev)
     setPhotoUploading(false)
   }
@@ -267,7 +283,7 @@ export default function StudentDetailPage() {
   const handleDelete = async () => {
     if (!confirm(`${student?.name_kr} 학생을 삭제하시겠습니까?\n삭제 후 목록에서 사라집니다.`)) return
     const { error } = await supabase.from('students').update({ is_active: false }).eq('id', id)
-    if (error) { alert('삭제 실패: ' + error.message); return }
+    if (error) { alert(t('deleteFail', lang) + error.message); return }
     router.push('/students')
   }
 
@@ -282,7 +298,7 @@ export default function StudentDetailPage() {
   }
 
   if (loading) return <Centered><p className="text-slate-400">{t('loading', lang)}</p></Centered>
-  if (!student) return <Centered><p className="text-slate-400">학생 정보를 찾을 수 없습니다.</p></Centered>
+  if (!student) return <Centered><p className="text-slate-400">{t('noStudentInfo', lang)}</p></Centered>
 
   return (
     <AppLayout user={user} lang={lang} onToggleLang={toggleLang} onLogout={handleLogout} activeNav="students">
@@ -445,7 +461,7 @@ export default function StudentDetailPage() {
             <div className="flex items-center justify-between flex-wrap gap-2">
               {/* 차트 레벨 토글 */}
               <div className="flex items-center gap-1 bg-white rounded-xl p-1 shadow-sm text-xs font-medium">
-                {(['trend', 'radar', 'ai'] as ChartLevel[]).map(lv => (
+                {(['trend', 'ai'] as ChartLevel[]).map(lv => (
                   <button key={lv}
                     onClick={() => {
                       if (lv === 'ai' && !aiAnalysis) handleAiAnalysis()
@@ -453,7 +469,7 @@ export default function StudentDetailPage() {
                     }}
                     disabled={lv === 'ai' && aiLoading}
                     className={`px-3 py-1.5 rounded-lg transition-colors disabled:opacity-60 ${chartLevel === lv ? 'bg-indigo-600 text-white' : 'text-slate-500 hover:text-slate-800'}`}>
-                    {lv === 'trend' ? '📈 추이' : lv === 'radar' ? '🕸️ 레이더' : aiLoading ? '분석 중...' : '🤖 AI 분석'}
+                    {lv === 'trend' ? t('chartTrend', lang) : aiLoading ? t('processing', lang) : t('chartAiLabel', lang)}
                   </button>
                 ))}
               </div>
@@ -501,7 +517,7 @@ export default function StudentDetailPage() {
                     onChange={handleExcelUpload}
                     className="block w-full text-sm text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-medium file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 disabled:opacity-50" />
                 </div>
-                {excelUploading && <p className="text-xs text-emerald-600 animate-pulse">업로드 중...</p>}
+                {excelUploading && <p className="text-xs text-emerald-600 animate-pulse">{t('uploading', lang)}</p>}
               </div>
             )}
 
@@ -523,11 +539,11 @@ export default function StudentDetailPage() {
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className={lbl}>읽기 (0-100)</label>
-                    <input type="number" min="0" max="100" value={exam.reading_score} onChange={e => setExam(p => ({ ...p, reading_score: e.target.value }))} className={inp} placeholder="0" />
+                    <input type="number" min="0" max="100" value={exam.reading_score} onChange={e => handleSubScoreChange('reading_score', e.target.value)} className={inp} placeholder="0" />
                   </div>
                   <div>
                     <label className={lbl}>듣기 (0-100)</label>
-                    <input type="number" min="0" max="100" value={exam.listening_score} onChange={e => setExam(p => ({ ...p, listening_score: e.target.value }))} className={inp} placeholder="0" />
+                    <input type="number" min="0" max="100" value={exam.listening_score} onChange={e => handleSubScoreChange('listening_score', e.target.value)} className={inp} placeholder="0" />
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
@@ -547,9 +563,9 @@ export default function StudentDetailPage() {
                     setShowExamForm(false)
                     setEditExamId(null)
                     setExam({ exam_date: '', exam_type: 'TOPIK', reading_score: '', listening_score: '', total_score: '', level: '2급' })
-                  }} className="px-4 py-2 border border-slate-200 text-slate-600 rounded-xl text-sm">취소</button>
+                  }} className="px-4 py-2 border border-slate-200 text-slate-600 rounded-xl text-sm">{t('cancel', lang)}</button>
                   <button type="submit" disabled={savingExam} className="px-5 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white rounded-xl text-sm font-medium">
-                    {savingExam ? '저장 중...' : (editExamId ? '수정 완료' : '저장')}
+                    {savingExam ? t('saving', lang) : (editExamId ? t('saveComplete', lang) : t('save', lang))}
                   </button>
                 </div>
               </form>
@@ -572,8 +588,8 @@ export default function StudentDetailPage() {
                     </div>
                     <div className="flex items-center gap-3">
                       <span className={`text-sm font-bold px-3 py-1 rounded-full ${levelColor(e.level)}`}>{e.level}</span>
-                      <button onClick={() => openEditExam(e)} className="text-xs text-slate-300 hover:text-blue-500 transition-colors">수정</button>
-                      <button onClick={() => handleDeleteExam(e.id)} className="text-xs text-slate-300 hover:text-red-500 transition-colors">삭제</button>
+                      <button onClick={() => openEditExam(e)} className="text-xs text-slate-300 hover:text-blue-500 transition-colors">{t('editBtn', lang)}</button>
+                      <button onClick={() => handleDeleteExam(e.id)} className="text-xs text-slate-300 hover:text-red-500 transition-colors">{t('deleteBtn', lang)}</button>
                     </div>
                   </div>
                   <div className="grid grid-cols-3 gap-3">
