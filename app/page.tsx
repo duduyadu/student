@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
+import dynamic from 'next/dynamic'
 import { supabase } from '@/lib/supabase'
 import type { Student } from '@/lib/types'
 import { STATUS_COLORS, STUDENT_STATUSES } from '@/lib/constants'
@@ -10,6 +11,17 @@ import { t, statusLabel } from '@/lib/i18n'
 import { useAdminAuth } from '@/lib/useAdminAuth'
 import { AppLayout } from '@/components/Layout/AppLayout'
 
+// recharts — SSR 비활성화
+const {
+  PieChart, Pie, Cell, Tooltip: ReTooltip, ResponsiveContainer,
+} = {
+  PieChart:           dynamic(() => import('recharts').then(m => ({ default: m.PieChart          })), { ssr: false }),
+  Pie:                dynamic(() => import('recharts').then(m => ({ default: m.Pie               })), { ssr: false }),
+  Cell:               dynamic(() => import('recharts').then(m => ({ default: m.Cell              })), { ssr: false }),
+  Tooltip:            dynamic(() => import('recharts').then(m => ({ default: m.Tooltip           })), { ssr: false }),
+  ResponsiveContainer: dynamic(() => import('recharts').then(m => ({ default: m.ResponsiveContainer })), { ssr: false }),
+} as const
+
 interface StatusCount { status: string; count: number }
 
 interface DocStats {
@@ -18,6 +30,16 @@ interface DocStats {
   reviewing: number
   approved: number
   rejected: number
+}
+
+interface TopikDist { name: string; value: number; color: string }
+
+interface ActivityItem {
+  type: 'student' | 'consult'
+  label: string
+  sub: string
+  at: string
+  href: string
 }
 
 interface HealthCheck {
@@ -41,6 +63,8 @@ export default function DashboardPage() {
   const [health, setHealth]         = useState<HealthResult | null>(null)
   const [healthLoading, setHealthLoading] = useState(false)
   const [docStats, setDocStats]     = useState<DocStats | null>(null)
+  const [topikDist, setTopikDist]   = useState<TopikDist[]>([])
+  const [recentAct, setRecentAct]   = useState<ActivityItem[]>([])
 
   const fetchHealth = useCallback(async () => {
     setHealthLoading(true)
@@ -56,7 +80,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (!user) return
-    Promise.all([loadStats(), loadVisaAlert(), loadStatusBreakdown(), loadPendingStudents(), loadDocStats()])
+    Promise.all([loadStats(), loadVisaAlert(), loadStatusBreakdown(), loadPendingStudents(), loadDocStats(), loadTopikDist(), loadRecentActivity()])
       .then(() => {
         setLoading(false)
         if (user.role === 'master') fetchHealth()
@@ -182,6 +206,79 @@ export default function DashboardPage() {
     setDocStats(counts)
   }
 
+  const loadTopikDist = async () => {
+    // 각 학생의 최신 exam_results.level 집계
+    const { data } = await supabase
+      .from('exam_results')
+      .select('student_id, level, exam_date')
+      .order('exam_date', { ascending: false })
+    if (!data) return
+
+    // 학생별 최신 성적만 추출
+    const latest = new Map<string, string>()
+    data.forEach(r => {
+      if (!latest.has(r.student_id)) latest.set(r.student_id, r.level as string)
+    })
+
+    const counts = { none: 0, lv1: 0, lv2: 0 }
+    const { data: students } = await supabase
+      .from('students').select('id').eq('is_active', true)
+    if (!students) return
+
+    students.forEach(s => {
+      const lv = latest.get(s.id)
+      if (!lv || lv === '불합격') counts.none++
+      else if (lv === '1급') counts.lv1++
+      else counts.lv2++
+    })
+
+    setTopikDist([
+      { name: '미취득', value: counts.none, color: '#CBD5E1' },
+      { name: '1급',    value: counts.lv1,  color: '#60A5FA' },
+      { name: '2급+',   value: counts.lv2,  color: '#34D399' },
+    ])
+  }
+
+  const loadRecentActivity = async () => {
+    const [consults, newStudents] = await Promise.all([
+      supabase.from('consultations')
+        .select('id, student_id, content, created_at, student:students(name_kr)')
+        .order('created_at', { ascending: false })
+        .limit(5),
+      supabase.from('students')
+        .select('id, name_kr, created_at')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+        .limit(5),
+    ])
+
+    const items: ActivityItem[] = []
+
+    consults.data?.forEach(c => {
+      const stu = Array.isArray(c.student) ? c.student[0] : c.student
+      items.push({
+        type: 'consult',
+        label: t('actConsult', 'ko'),
+        sub: (stu as { name_kr: string } | null)?.name_kr ?? '-',
+        at: c.created_at,
+        href: `/students/${c.student_id}`,
+      })
+    })
+
+    newStudents.data?.forEach(s => {
+      items.push({
+        type: 'student',
+        label: t('actNewStudent', 'ko'),
+        sub: s.name_kr,
+        at: s.created_at,
+        href: `/students/${s.id}`,
+      })
+    })
+
+    items.sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime())
+    setRecentAct(items.slice(0, 8))
+  }
+
   const loadStatusBreakdown = async () => {
     const { data } = await supabase
       .from('students').select('status').eq('is_active', true)
@@ -271,10 +368,73 @@ export default function DashboardPage() {
 
         {/* 통계 카드 */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
-          <StatCard label={t('statStudents', lang)}  value={stats.students}      color="blue" />
-          <StatCard label={t('statAgencies', lang)}  value={stats.agencies}      color="emerald" />
-          <StatCard label={t('statConsults', lang)}  value={stats.consultations} color="violet" />
-          <StatCard label={t('statNewMonth', lang)}  value={stats.thisMonth}     color="amber" />
+          <StatCard label={t('statStudents', lang)}  value={stats.students}                  color="blue" />
+          <StatCard label={t('statNewMonth', lang)}  value={stats.thisMonth}                 color="emerald" />
+          <StatCard label={t('statVisa30', lang)}    value={warn7.length + warn30.length}    color="amber" />
+          <StatCard label={t('statRejected', lang)}  value={docStats?.rejected ?? 0}         color="red" />
+        </div>
+
+        {/* TOPIK 등급 분포 + 최근 활동 피드 (2열 그리드) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+          {/* TOPIK 도넛 차트 */}
+          {topikDist.length > 0 && topikDist.some(d => d.value > 0) && (
+            <div className="bg-white rounded-2xl p-5 shadow-sm">
+              <h3 className="text-sm font-semibold text-slate-700 mb-3">
+                📊 {t('topikDistTitle', lang)}
+              </h3>
+              <div className="h-44">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={topikDist.filter(d => d.value > 0)}
+                      cx="40%"
+                      cy="50%"
+                      innerRadius={45}
+                      outerRadius={70}
+                      dataKey="value"
+                      paddingAngle={2}
+                    >
+                      {topikDist.filter(d => d.value > 0).map((entry, i) => (
+                        <Cell key={i} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <ReTooltip formatter={(v, name) => [`${v}명`, String(name)]} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="flex gap-4 justify-center mt-1">
+                {topikDist.map(d => (
+                  <div key={d.name} className="flex items-center gap-1.5">
+                    <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: d.color }} />
+                    <span className="text-xs text-slate-600">{lang === 'ko' ? d.name : (d.name === '미취득' ? t('topikNone', lang) : d.name === '1급' ? t('topikLevel1', lang) : t('topikLevel2', lang))} ({d.value})</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* 최근 활동 피드 */}
+          {recentAct.length > 0 && (
+            <div className="bg-white rounded-2xl p-5 shadow-sm">
+              <h3 className="text-sm font-semibold text-slate-700 mb-3">
+                🕐 {t('recentActTitle', lang)}
+              </h3>
+              <div className="space-y-2 overflow-y-auto max-h-52">
+                {recentAct.map((item, i) => (
+                  <Link key={i} href={item.href}
+                    className="flex items-center gap-3 rounded-xl px-3 py-2 hover:bg-slate-50 transition-colors">
+                    <span className={`text-base ${item.type === 'consult' ? 'text-violet-500' : 'text-blue-500'}`}>
+                      {item.type === 'consult' ? '💬' : '🆕'}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium text-slate-700 truncate">{item.sub}</p>
+                      <p className="text-[10px] text-slate-400">{item.label} · {new Date(item.at).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })}</p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* 서류 현황 카드 */}
@@ -548,6 +708,7 @@ function StatCard({ label, value, color }: { label: string; value: number; color
     emerald: 'bg-emerald-50 text-emerald-700',
     violet:  'bg-violet-50 text-violet-700',
     amber:   'bg-amber-50 text-amber-700',
+    red:     'bg-red-50 text-red-600',
   }
   return (
     <div className={`rounded-2xl p-4 md:p-5 ${colors[color]}`}>

@@ -153,6 +153,17 @@ export interface AspirationHistory {
   created_at: string
 }
 
+export interface TopikSchedule {
+  id:         string
+  round:      number
+  exam_date:  string
+  reg_start?: string
+  reg_end?:   string
+  region:     string
+  exam_type:  string
+  created_at: string
+}
+
 export type DocCategory = 'identity' | 'school' | 'financial' | 'health'
 export type DocStatus   = 'pending' | 'submitted' | 'reviewing' | 'approved' | 'rejected'
 

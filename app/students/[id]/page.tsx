@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
-import type { Student, Consultation, ExamResult, TeacherEvaluation, EvaluationTemplate, AspirationHistory } from '@/lib/types'
+import type { Student, Consultation, ExamResult, TeacherEvaluation, EvaluationTemplate, AspirationHistory, TopikSchedule } from '@/lib/types'
 import { STATUS_COLORS, TOPIK_LEVELS, CONSULT_TYPES } from '@/lib/constants'
 import { useLang } from '@/lib/useLang'
 import { t, statusLabel } from '@/lib/i18n'
@@ -36,6 +36,9 @@ export default function StudentDetailPage() {
   // 희망 대학 이력
   const [aspirations, setAspirations] = useState<AspirationHistory[]>([])
 
+  // TOPIK 다음 시험 일정
+  const [nextTopik, setNextTopik] = useState<TopikSchedule | null>(null)
+
   // 시험 추가/수정 폼
   const [showExamForm, setShowExamForm] = useState(false)
   const [savingExam, setSavingExam]     = useState(false)
@@ -53,7 +56,7 @@ export default function StudentDetailPage() {
 
   useEffect(() => {
     if (!user) return
-    Promise.all([loadStudent(), loadConsults(), loadExams(), loadConsents(), loadEvaluations(), loadEvalTemplates(), loadAspirations()])
+    Promise.all([loadStudent(), loadConsults(), loadExams(), loadConsents(), loadEvaluations(), loadEvalTemplates(), loadAspirations(), loadNextTopik()])
       .then(() => setLoading(false))
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user])
@@ -108,6 +111,17 @@ export default function StudentDetailPage() {
       .from('aspiration_history').select('*')
       .eq('student_id', id).order('changed_date', { ascending: false })
     if (data) setAspirations(data as AspirationHistory[])
+  }
+
+  const loadNextTopik = async () => {
+    const today = new Date().toISOString().split('T')[0]
+    const { data } = await supabase
+      .from('topik_schedules')
+      .select('*')
+      .gte('exam_date', today)
+      .order('exam_date', { ascending: true })
+      .limit(1)
+    if (data && data.length > 0) setNextTopik(data[0] as TopikSchedule)
   }
 
   // 총점으로 등급 자동 계산 (TOPIK I 기준: 200점 만점)
@@ -457,6 +471,33 @@ export default function StudentDetailPage() {
         {/* ── 시험 성적 탭 ── */}
         {activeTab === 'exam' && (
           <div className="space-y-3">
+            {/* D-day 카드 */}
+            {nextTopik && (() => {
+              const dday = Math.ceil((new Date(nextTopik.exam_date).getTime() - Date.now()) / 86400000)
+              const urgency = dday <= 7 ? 'bg-red-50 border-red-300 text-red-700' :
+                              dday <= 30 ? 'bg-amber-50 border-amber-300 text-amber-700' :
+                              'bg-blue-50 border-blue-300 text-blue-700'
+              return (
+                <div className={`rounded-2xl border p-4 flex items-center justify-between ${urgency}`}>
+                  <div>
+                    <p className="text-xs font-medium opacity-70 mb-0.5">
+                      {nextTopik.exam_type} 제{nextTopik.round}회 {nextTopik.region}
+                    </p>
+                    <p className="font-semibold text-sm">{nextTopik.exam_date}</p>
+                    {nextTopik.reg_start && (
+                      <p className="text-xs opacity-60 mt-0.5">
+                        접수: {nextTopik.reg_start} ~ {nextTopik.reg_end}
+                      </p>
+                    )}
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs opacity-60 mb-0.5">시험까지</p>
+                    <p className="text-3xl font-bold">D-{dday}</p>
+                  </div>
+                </div>
+              )
+            })()}
+
             {/* 툴바 */}
             <div className="flex items-center justify-between flex-wrap gap-2">
               {/* 차트 레벨 토글 */}

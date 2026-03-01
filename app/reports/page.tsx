@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
-import type { AuditLog } from '@/lib/types'
+import type { AuditLog, TopikSchedule } from '@/lib/types'
 import { STATUS_COLORS, STUDENT_STATUSES } from '@/lib/constants'
 import { useLang } from '@/lib/useLang'
 import { t, statusLabel, monthLabel } from '@/lib/i18n'
@@ -22,10 +22,19 @@ export default function ReportsPage() {
   const [statusStats, setStatusStats]   = useState<StatusStat[]>([])
   const [agencyStats, setAgencyStats]   = useState<AgencyStat[]>([])
   const [monthStats,  setMonthStats]    = useState<MonthStat[]>([])
-  const [activeTab, setActiveTab]       = useState<'stats' | 'audit'>('stats')
+  const [activeTab, setActiveTab]       = useState<'stats' | 'audit' | 'topik'>('stats')
   const [auditLogs, setAuditLogs]       = useState<AuditLog[]>([])
   const [auditLoading, setAuditLoading] = useState(false)
   const [auditTotal, setAuditTotal]     = useState(0)
+
+  // TOPIK 일정 관리
+  const [topikList, setTopikList]         = useState<TopikSchedule[]>([])
+  const [topikLoading, setTopikLoading]   = useState(false)
+  const [showTopikForm, setShowTopikForm] = useState(false)
+  const [savingTopik, setSavingTopik]     = useState(false)
+  const [topikForm, setTopikForm]         = useState({
+    round: '', exam_date: '', reg_start: '', reg_end: '', region: '전국', exam_type: 'TOPIK I',
+  })
 
   useEffect(() => {
     if (!user) return
@@ -50,6 +59,39 @@ export default function ReportsPage() {
     } finally {
       setAuditLoading(false)
     }
+  }
+
+  const loadTopikList = async () => {
+    setTopikLoading(true)
+    const { data } = await supabase
+      .from('topik_schedules')
+      .select('*')
+      .order('exam_date', { ascending: true })
+    if (data) setTopikList(data as TopikSchedule[])
+    setTopikLoading(false)
+  }
+
+  const handleTopikSave = async () => {
+    if (!topikForm.round || !topikForm.exam_date) return
+    setSavingTopik(true)
+    await supabase.from('topik_schedules').insert({
+      round:     parseInt(topikForm.round),
+      exam_date: topikForm.exam_date,
+      reg_start: topikForm.reg_start || null,
+      reg_end:   topikForm.reg_end   || null,
+      region:    topikForm.region,
+      exam_type: topikForm.exam_type,
+    })
+    setTopikForm({ round: '', exam_date: '', reg_start: '', reg_end: '', region: '전국', exam_type: 'TOPIK I' })
+    setShowTopikForm(false)
+    await loadTopikList()
+    setSavingTopik(false)
+  }
+
+  const handleTopikDelete = async (id: string) => {
+    if (!confirm('이 일정을 삭제하시겠습니까?')) return
+    await supabase.from('topik_schedules').delete().eq('id', id)
+    await loadTopikList()
   }
 
   const loadStatusStats = async () => {
@@ -127,6 +169,12 @@ export default function ReportsPage() {
               >
                 감사 로그
               </button>
+              <button
+                onClick={() => { setActiveTab('topik'); if (topikList.length === 0) loadTopikList() }}
+                className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'topik' ? 'bg-blue-600 text-white' : 'text-slate-500 hover:text-slate-800'}`}
+              >
+                TOPIK 일정
+              </button>
             </div>
           )}
         </div>
@@ -186,6 +234,118 @@ export default function ReportsPage() {
                     ))}
                   </tbody>
                 </table>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* TOPIK 일정 탭 */}
+        {activeTab === 'topik' && user?.role === 'master' && (
+          <div className="bg-white rounded-2xl p-5 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-semibold text-slate-700">📅 TOPIK 시험 일정 관리</h3>
+              <button
+                onClick={() => setShowTopikForm(v => !v)}
+                className="text-xs px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+              >
+                + 일정 추가
+              </button>
+            </div>
+
+            {/* 추가 폼 */}
+            {showTopikForm && (
+              <div className="border border-slate-200 rounded-xl p-4 mb-4 grid grid-cols-2 md:grid-cols-3 gap-3">
+                <div>
+                  <label className="text-xs text-slate-500 mb-1 block">회차</label>
+                  <input type="number" placeholder="91" value={topikForm.round}
+                    onChange={e => setTopikForm(p => ({ ...p, round: e.target.value }))}
+                    className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400" />
+                </div>
+                <div>
+                  <label className="text-xs text-slate-500 mb-1 block">시험일</label>
+                  <input type="date" value={topikForm.exam_date}
+                    onChange={e => setTopikForm(p => ({ ...p, exam_date: e.target.value }))}
+                    className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400" />
+                </div>
+                <div>
+                  <label className="text-xs text-slate-500 mb-1 block">시험 유형</label>
+                  <select value={topikForm.exam_type}
+                    onChange={e => setTopikForm(p => ({ ...p, exam_type: e.target.value }))}
+                    className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400">
+                    <option>TOPIK I</option>
+                    <option>TOPIK II</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs text-slate-500 mb-1 block">접수 시작</label>
+                  <input type="date" value={topikForm.reg_start}
+                    onChange={e => setTopikForm(p => ({ ...p, reg_start: e.target.value }))}
+                    className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400" />
+                </div>
+                <div>
+                  <label className="text-xs text-slate-500 mb-1 block">접수 종료</label>
+                  <input type="date" value={topikForm.reg_end}
+                    onChange={e => setTopikForm(p => ({ ...p, reg_end: e.target.value }))}
+                    className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400" />
+                </div>
+                <div>
+                  <label className="text-xs text-slate-500 mb-1 block">지역</label>
+                  <input type="text" placeholder="전국" value={topikForm.region}
+                    onChange={e => setTopikForm(p => ({ ...p, region: e.target.value }))}
+                    className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400" />
+                </div>
+                <div className="col-span-2 md:col-span-3 flex gap-2 pt-1">
+                  <button
+                    onClick={handleTopikSave}
+                    disabled={savingTopik || !topikForm.round || !topikForm.exam_date}
+                    className="text-sm px-4 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white rounded-lg font-medium transition-colors"
+                  >
+                    {savingTopik ? '저장 중...' : '저장'}
+                  </button>
+                  <button onClick={() => setShowTopikForm(false)}
+                    className="text-sm px-4 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg font-medium transition-colors">
+                    취소
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* 일정 목록 */}
+            {topikLoading ? (
+              <p className="text-center py-6 text-slate-400 text-sm">로딩 중...</p>
+            ) : topikList.length === 0 ? (
+              <p className="text-center py-8 text-slate-400 text-sm">등록된 시험 일정이 없습니다.</p>
+            ) : (
+              <div className="space-y-2">
+                {topikList.map(s => {
+                  const dday = Math.ceil((new Date(s.exam_date).getTime() - Date.now()) / 86400000)
+                  const isPast = dday < 0
+                  return (
+                    <div key={s.id} className={`flex items-center justify-between rounded-xl border px-4 py-3 ${isPast ? 'bg-slate-50 border-slate-100 opacity-60' : 'bg-white border-slate-200'}`}>
+                      <div>
+                        <span className="text-xs font-semibold text-slate-500 mr-2">{s.exam_type}</span>
+                        <span className="font-medium text-slate-800 text-sm">제{s.round}회 — {s.exam_date}</span>
+                        <span className="text-xs text-slate-400 ml-2">{s.region}</span>
+                        {s.reg_start && (
+                          <p className="text-xs text-slate-400 mt-0.5">접수: {s.reg_start} ~ {s.reg_end}</p>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-3">
+                        {!isPast && (
+                          <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                            dday <= 30 ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'
+                          }`}>D-{dday}</span>
+                        )}
+                        <button
+                          onClick={() => handleTopikDelete(s.id)}
+                          className="text-xs text-red-400 hover:text-red-600 transition-colors"
+                        >
+                          삭제
+                        </button>
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
             )}
           </div>
