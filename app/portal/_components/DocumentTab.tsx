@@ -34,6 +34,64 @@ const STATUS_COLORS: Record<DocStatus, string> = {
 
 const CATEGORIES: DocCategory[] = ['identity', 'school', 'financial', 'health']
 
+const STATUS_ORDER: Record<DocStatus, number> = {
+  pending:   1,
+  submitted: 2,
+  reviewing: 3,
+  approved:  4,
+  rejected:  4,
+}
+
+function DocStatusStepper({ status, lang }: { status: DocStatus; lang: 'ko' | 'vi' }) {
+  const steps = [
+    { ko: '미제출', vi: 'Chưa nộp' },
+    { ko: '제출',   vi: 'Đã nộp' },
+    { ko: '검토',   vi: 'Xem xét' },
+    { ko: '완료',   vi: 'Hoàn thành' },
+  ]
+  const current = STATUS_ORDER[status]
+
+  return (
+    <div className="flex items-start w-full mt-3">
+      {steps.map((step, i) => {
+        const stepNum  = i + 1
+        const isActive = stepNum <= current
+        const isLast   = i === steps.length - 1
+        const isApproved = status === 'approved' && stepNum === 4
+        const isRejected = status === 'rejected' && stepNum === 4
+
+        const dotCls =
+          isRejected ? 'bg-red-500 border-red-500' :
+          isApproved ? 'bg-green-500 border-green-500' :
+          isActive   ? 'bg-blue-500 border-blue-500' :
+          'bg-white border-slate-300'
+
+        const labelCls =
+          isRejected ? 'text-red-500 font-medium' :
+          isApproved ? 'text-green-600 font-medium' :
+          stepNum === current ? 'text-blue-600 font-medium' :
+          isActive ? 'text-slate-500' : 'text-slate-400'
+
+        const lineCls = stepNum < current ? 'bg-blue-400' : 'bg-slate-200'
+
+        return (
+          <div key={i} className="flex items-center flex-1 min-w-0">
+            <div className="flex flex-col items-center">
+              <div className={`w-2.5 h-2.5 rounded-full border-2 flex-shrink-0 ${dotCls}`} />
+              <span className={`text-[9px] mt-0.5 leading-tight text-center ${labelCls}`}>
+                {lang === 'ko' ? step.ko : step.vi}
+              </span>
+            </div>
+            {!isLast && (
+              <div className={`flex-1 h-0.5 mx-1 mt-[-10px] ${lineCls}`} />
+            )}
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 export default function DocumentTab({ studentId, lang = 'ko' }: Props) {
   const [docs, setDocs]               = useState<StudentDocument[]>([])
   const [loading, setLoading]         = useState(true)
@@ -291,6 +349,9 @@ export default function DocumentTab({ studentId, lang = 'ko' }: Props) {
                   )}
                 </div>
               </div>
+
+              {/* 단계별 진행 바 */}
+              <DocStatusStepper status={doc.status as DocStatus} lang={lang} />
             </div>
           )
         })}
