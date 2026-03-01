@@ -22,7 +22,7 @@ const T = {
   ko: {
     title:      '학 생 생 활 기 록 부',
     subtitle:   'STUDENT LIFE RECORD BOOK',
-    orgSub:     '베트남 유학생 통합 관리 플랫폼',
+    orgSub:     'Aju E&J Education Official Record',
     section1:   '1. 학생 기본 정보',
     nameKr:     '이름 (KR)', nameVn: '이름 (VN)',
     dob:        '생년월일', gender: '성별',
@@ -56,7 +56,7 @@ const T = {
   vi: {
     title:      'HỒ SƠ HỌC SINH',
     subtitle:   'STUDENT LIFE RECORD BOOK',
-    orgSub:     'Nền tảng quản lý du học sinh Việt Nam',
+    orgSub:     'Aju E&J Education Official Record',
     section1:   '1. Thông Tin Cơ Bản',
     nameKr:     'Tên (KR)', nameVn: 'Tên (VN)',
     dob:        'Ngày Sinh', gender: 'Giới Tính',
@@ -93,15 +93,17 @@ type Lang = 'ko' | 'vi'
 // ── 색상 팔레트 ────────────────────────────────────
 const C = {
   white:     '#FFFFFF',
-  pageBg:    '#FFFFFF',
-  navyDark:  '#1A237E',   // 섹션 헤더 배경
-  navy:      '#283593',   // 강조 텍스트
+  pageBg:    '#FDFAF6',   // 크림/웜화이트 — 종이 질감
+  navyDark:  '#0D1B3E',   // 딥 다크 네이비 — 관공서 신뢰감
+  navy:      '#1A2D5A',   // 보조 네이비
+  gold:      '#8B6914',   // 포인트 골드 — 품격 강조
+  goldLight: '#C9A84C',   // 연한 골드 (border 등)
   body:      '#1A1A1A',   // 본문
   muted:     '#5F6368',   // 보조 텍스트
-  labelBg:   '#F1F3F4',   // 정보 테이블 라벨 배경
-  stripe:    '#F8F9FA',   // 홀수 행 배경
-  border:    '#DADCE0',   // 테두리
-  borderDark:'#9AA0A6',   // 헤더 구분선
+  labelBg:   '#F0EDE6',   // 라벨 배경 — 크림톤에 맞춤
+  stripe:    '#F7F3EC',   // 홀수 행 — 크림톤 줄무늬
+  border:    '#D4CFC7',   // 테두리 — 웜톤
+  borderDark:'#9A9590',   // 헤더 구분선
   green:     '#137333',   // 2급
   greenBg:   '#E6F4EA',
   blue:      '#1967D2',   // 1급
@@ -110,10 +112,10 @@ const C = {
   redBg:     '#FCE8E6',
   gray:      '#5F6368',   // 미응시 등
   grayBg:    '#F1F3F4',
-  barFill:   '#3949AB',   // 점수 막대 채움
-  barEmpty:  '#E8EAED',   // 점수 막대 빈칸
-  amber:     '#B45309',
-  amberBg:   '#FEF3C7',
+  barFill:   '#1A2D5A',   // 점수 막대 — 딥 네이비
+  barEmpty:  '#E4DFD6',   // 점수 막대 빈칸 — 웜톤
+  amber:     '#8B6914',   // 골드와 통일
+  amberBg:   '#F5EDD0',   // 연한 골드 배경
 }
 
 // ── 스타일 ─────────────────────────────────────────
@@ -132,9 +134,14 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 18,
+    marginBottom: 4,
     paddingBottom: 14,
-    borderBottom: `2.5px solid ${C.navyDark}`,
+    borderBottom: `3px solid ${C.navyDark}`,
+  },
+  mainHeaderGoldLine: {
+    height: 1.5,
+    backgroundColor: C.gold,
+    marginBottom: 14,
   },
   mainHeaderLeft: {
     flex: 1,
@@ -191,6 +198,7 @@ const s = StyleSheet.create({
     paddingVertical: 5,
     paddingHorizontal: 10,
     marginBottom: 0,
+    borderBottom: `1.5px solid ${C.gold}`,
   },
   sectionTitle: {
     fontSize: 11,
@@ -263,24 +271,26 @@ const s = StyleSheet.create({
     color: C.navy,
   },
   consultTag: {
-    backgroundColor: C.amberBg,
-    color: C.amber,
+    backgroundColor: 'transparent',
+    color: C.gold,
     fontSize: 8,
-    paddingHorizontal: 5,
-    paddingVertical: 1.5,
-    borderRadius: 3,
+    paddingHorizontal: 4,
+    paddingVertical: 1,
+    borderRadius: 0,
+    border: `0.5px solid ${C.goldLight}`,
   },
   consultCounselor: {
     fontSize: 9,
     color: C.muted,
   },
   aspBadge: {
-    backgroundColor: '#EDE7F6',
-    color: '#4527A0',
+    backgroundColor: 'transparent',
+    color: C.navyDark,
     fontSize: 9,
     paddingHorizontal: 6,
     paddingVertical: 2,
-    borderRadius: 3,
+    borderRadius: 0,
+    borderLeft: `2px solid ${C.gold}`,
     alignSelf: 'flex-start',
     marginBottom: 4,
   },
@@ -629,9 +639,10 @@ export default function LifeRecordDocument({
                 <Image src={stampImageUrl} style={{ width: 44, height: 44, opacity: 0.85 }} />
               ) : (
                 <View style={{
-                  width: 44, height: 44, borderRadius: 22,
-                  border: `1.5px solid ${C.navyDark}`,
+                  width: 52, height: 52, borderRadius: 26,
+                  border: `0.8px solid ${C.navyDark}`,
                   alignItems: 'center', justifyContent: 'center',
+                  marginHorizontal: 4,
                 }}>
                   <Text style={{ fontSize: 6.5, color: C.navyDark, textAlign: 'center', lineHeight: 1.4 }}>
                     AJU E&amp;J{'\n'}EDU{'\n'}{tx.stampLabel}
@@ -644,7 +655,7 @@ export default function LifeRecordDocument({
         </View>
 
         {/* ─── 1페이지 메인 헤더 ─── */}
-        <View style={s.mainHeader}>
+        <View style={s.mainHeader} wrap={false}>
           <View style={s.mainHeaderLeft}>
             <Text style={s.headerTitle}>{tx.title}</Text>
             <Text style={s.headerSubtitle}>{tx.subtitle}</Text>
@@ -667,6 +678,8 @@ export default function LifeRecordDocument({
             )}
           </View>
         </View>
+        {/* 골드 포인트 선 */}
+        <View style={s.mainHeaderGoldLine} />
 
         {/* ─── 1. 기본 정보 ─── */}
         <View style={s.section}>
