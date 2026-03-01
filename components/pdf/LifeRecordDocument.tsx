@@ -722,37 +722,15 @@ export default function LifeRecordDocument({
                 </Text>
               </View>
             </View>
-            {/* 목표 대학 / 학과 */}
-            {student.target_university && (
-              <View style={s.infoRow}>
-                <View style={s.infoCellFull}>
-                  <Text style={s.infoLabel}>{tx.targetUniv}</Text>
-                  <Text style={s.infoValue}>
-                    {[student.target_university, student.target_major].filter(Boolean).join('  ·  ')}
-                  </Text>
-                </View>
-              </View>
-            )}
             {/* 재학 어학원 */}
-            {student.language_school && (
-              <View style={s.infoRow}>
+            {student.language_school ? (
+              <View style={s.infoRowLast}>
                 <View style={s.infoCellFull}>
                   <Text style={s.infoLabel}>{tx.langSchool}</Text>
                   <Text style={s.infoValue}>{student.language_school}</Text>
                 </View>
               </View>
-            )}
-            {/* 비자 */}
-            <View style={s.infoRowLast}>
-              <View style={s.infoCell}>
-                <Text style={s.infoLabel}>{tx.visa}</Text>
-                <Text style={s.infoValue}>{student.visa_type ?? '-'}</Text>
-              </View>
-              <View style={s.infoCellLast}>
-                <Text style={s.infoLabel}>{tx.visaExpiry}</Text>
-                <Text style={s.infoValue}>{student.visa_expiry ?? '-'}</Text>
-              </View>
-            </View>
+            ) : null}
           </View>
         </View>
 
