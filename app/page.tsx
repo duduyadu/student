@@ -328,7 +328,7 @@ export default function DashboardPage() {
                   <button
                     onClick={handleBulkApprove}
                     disabled={bulkApproving}
-                    className="text-xs font-semibold px-3 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white rounded-lg transition-colors"
+                    className="text-xs font-semibold px-3 py-1.5 bg-[#3182F6] hover:bg-[#1B64DA] disabled:bg-blue-300 text-white rounded-lg transition-colors"
                   >
                     {bulkApproving ? t('processing', lang) : `${t('approveSelected', lang)} (${selectedIds.size}명)`}
                   </button>
@@ -338,14 +338,14 @@ export default function DashboardPage() {
             <div className="space-y-2">
               {pendingStudents.map(s => (
                 <div key={s.id} className={`flex items-center justify-between bg-white rounded-xl px-4 py-2.5 border transition-colors ${
-                  selectedIds.has(s.id) ? 'border-blue-300 bg-blue-50' : 'border-amber-100'
+                  selectedIds.has(s.id) ? 'border-[#3182F6]/30 bg-[#EBF3FE]' : 'border-amber-100'
                 }`}>
                   <div className="flex items-center gap-3">
                     <input
                       type="checkbox"
                       checked={selectedIds.has(s.id)}
                       onChange={() => toggleSelect(s.id)}
-                      className="w-4 h-4 rounded accent-blue-600 cursor-pointer"
+                      className="w-4 h-4 rounded accent-[#3182F6] cursor-pointer"
                     />
                     <div>
                       <span className="font-medium text-slate-800 text-sm">{s.name_kr}</span>
@@ -703,33 +703,33 @@ export default function DashboardPage() {
 }
 
 function StatCard({ label, value, color }: { label: string; value: number; color: string }) {
-  const colors: Record<string, string> = {
-    blue:    'bg-blue-50 text-blue-700',
-    emerald: 'bg-emerald-50 text-emerald-700',
-    violet:  'bg-violet-50 text-violet-700',
-    amber:   'bg-amber-50 text-amber-700',
-    red:     'bg-red-50 text-red-600',
+  const numColors: Record<string, string> = {
+    blue:    'text-[#3182F6]',
+    emerald: 'text-emerald-500',
+    violet:  'text-violet-500',
+    amber:   'text-amber-500',
+    red:     'text-red-500',
   }
   return (
-    <div className={`rounded-2xl p-4 md:p-5 ${colors[color]}`}>
-      <p className="text-xs md:text-sm font-medium opacity-70">{label}</p>
-      <p className="text-2xl md:text-3xl font-bold mt-1">{value}</p>
+    <div className="bg-white rounded-2xl p-4 md:p-5 shadow-sm border border-gray-100">
+      <p className="text-xs md:text-sm font-medium text-slate-500 mb-2">{label}</p>
+      <p className={`text-2xl md:text-3xl font-bold tracking-tight ${numColors[color]}`}>{value}</p>
     </div>
   )
 }
 
-function DocStatItem({ label, value, bg, text, bar, total }: {
+function DocStatItem({ label, value, bg: _bg, text: _text, bar, total }: {
   label: string; value: number; bg: string; text: string; bar: string; total: number
 }) {
   const pct = total > 0 ? Math.round(value / total * 100) : 0
   return (
-    <div className={`rounded-xl p-3 ${bg} text-center`}>
-      <p className={`text-xs font-medium ${text} opacity-75 mb-1 truncate`}>{label}</p>
-      <p className={`text-2xl font-bold ${text}`}>{value}</p>
-      <div className="mt-2 h-1 bg-white/60 rounded-full overflow-hidden">
+    <div className="bg-white rounded-xl p-3 border border-gray-100 text-center">
+      <p className="text-xs font-medium text-slate-500 mb-1 truncate">{label}</p>
+      <p className="text-2xl font-bold text-slate-800">{value}</p>
+      <div className="mt-2 h-1 bg-gray-100 rounded-full overflow-hidden">
         <div className={`h-full ${bar} rounded-full transition-all duration-500`} style={{ width: `${pct}%` }} />
       </div>
-      <p className={`text-xs ${text} opacity-60 mt-0.5`}>{pct}%</p>
+      <p className="text-xs text-slate-400 mt-0.5">{pct}%</p>
     </div>
   )
 }

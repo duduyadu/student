@@ -303,7 +303,7 @@ export default function StudentDetailPage() {
 
   const levelColor = (level: string) => {
     const map: Record<string, string> = {
-      '6급': 'bg-blue-100 text-blue-700', '5급': 'bg-indigo-100 text-indigo-700',
+      '6급': 'bg-[#EBF3FE] text-[#3182F6]', '5급': 'bg-[#EBF3FE] text-[#3182F6]',
       '4급': 'bg-violet-100 text-violet-700', '3급': 'bg-emerald-100 text-emerald-700',
       '2급': 'bg-amber-100 text-amber-700', '1급': 'bg-orange-100 text-orange-700',
       '불합격': 'bg-red-100 text-red-600',
@@ -329,8 +329,8 @@ export default function StudentDetailPage() {
               {student.photo_url ? (
                 <img src={student.photo_url} alt="프로필" className="w-14 h-14 rounded-2xl object-cover" />
               ) : (
-                <div className="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center">
-                  <span className="text-blue-600 text-xl font-bold">{student.name_kr[0]}</span>
+                <div className="w-14 h-14 bg-[#EBF3FE] rounded-2xl flex items-center justify-center">
+                  <span className="text-[#3182F6] text-xl font-bold">{student.name_kr[0]}</span>
                 </div>
               )}
               <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-slate-500 group-hover:bg-blue-500 rounded-full flex items-center justify-center transition-colors">
@@ -363,11 +363,11 @@ export default function StudentDetailPage() {
             <button
               onClick={handleExportPdf}
               disabled={pdfLoading}
-              className="text-sm bg-indigo-50 hover:bg-indigo-100 disabled:opacity-50 text-indigo-700 px-4 py-2 rounded-xl transition-colors flex items-center gap-1.5"
+              className="text-sm bg-[#EBF3FE] hover:bg-[#dbeafe] disabled:opacity-50 text-[#3182F6] px-4 py-2 rounded-xl transition-colors flex items-center gap-1.5"
               title="생활기록부 PDF 출력"
             >
               {pdfLoading ? (
-                <span className="animate-spin inline-block w-3.5 h-3.5 border-2 border-indigo-400 border-t-transparent rounded-full" />
+                <span className="animate-spin inline-block w-3.5 h-3.5 border-2 border-[#3182F6] border-t-transparent rounded-full" />
               ) : (
                 <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h4a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
@@ -395,7 +395,7 @@ export default function StudentDetailPage() {
             { key: 'consent',    label: `${t('tabConsentAdmin', lang)} (${consents.length})`,          show: user?.role === 'master' },
           ] as const).filter(tab => tab.show).map(tab => (
             <button key={tab.key} onClick={() => setTab(tab.key)}
-              className={`px-5 py-2 rounded-xl text-sm font-medium transition-colors whitespace-nowrap ${activeTab === tab.key ? 'bg-blue-600 text-white' : 'text-slate-500 hover:text-slate-800'}`}>
+              className={`px-5 py-2 rounded-xl text-sm font-medium transition-colors whitespace-nowrap ${activeTab === tab.key ? 'bg-[#3182F6] text-white' : 'text-slate-500 hover:text-slate-800'}`}>
               {tab.label}
             </button>
           ))}
@@ -509,7 +509,7 @@ export default function StudentDetailPage() {
                       else setChartLevel(lv)
                     }}
                     disabled={lv === 'ai' && aiLoading}
-                    className={`px-3 py-1.5 rounded-lg transition-colors disabled:opacity-60 ${chartLevel === lv ? 'bg-indigo-600 text-white' : 'text-slate-500 hover:text-slate-800'}`}>
+                    className={`px-3 py-1.5 rounded-lg transition-colors disabled:opacity-60 ${chartLevel === lv ? 'bg-[#3182F6] text-white' : 'text-slate-500 hover:text-slate-800'}`}>
                     {lv === 'trend' ? t('chartTrend', lang) : aiLoading ? t('processing', lang) : t('chartAiLabel', lang)}
                   </button>
                 ))}
@@ -530,7 +530,7 @@ export default function StudentDetailPage() {
                     setShowExamForm(true)
                   }
                 }}
-                  className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-xl transition-colors">
+                  className="bg-[#3182F6] hover:bg-[#1B64DA] text-white text-sm px-4 py-2 rounded-xl transition-colors">
                   {showExamForm ? t('closeForm', lang) : t('examFormAdd', lang)}
                 </button>
               </div>
@@ -605,7 +605,7 @@ export default function StudentDetailPage() {
                     setEditExamId(null)
                     setExam({ exam_date: '', exam_type: 'TOPIK', reading_score: '', listening_score: '', total_score: '', level: '2급' })
                   }} className="px-4 py-2 border border-slate-200 text-slate-600 rounded-xl text-sm">{t('cancel', lang)}</button>
-                  <button type="submit" disabled={savingExam} className="px-5 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white rounded-xl text-sm font-medium">
+                  <button type="submit" disabled={savingExam} className="px-5 py-2 bg-[#3182F6] hover:bg-[#1B64DA] disabled:bg-blue-300 text-white rounded-xl text-sm font-medium active:scale-[0.98]">
                     {savingExam ? t('saving', lang) : (editExamId ? t('saveComplete', lang) : t('save', lang))}
                   </button>
                 </div>
@@ -670,7 +670,7 @@ export default function StudentDetailPage() {
               <div key={c.id} className="bg-white rounded-2xl shadow-sm p-5">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-3">
-                    <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">
+                    <span className="text-xs bg-[#EBF3FE] text-[#3182F6] px-2 py-0.5 rounded-full font-medium">
                       {c.consent_type === 'signup' ? t('consentSignup', lang) : c.consent_type}
                     </span>
                     <span className="text-sm text-slate-500">
@@ -679,7 +679,7 @@ export default function StudentDetailPage() {
                   </div>
                   <button
                     onClick={() => setExpandedConsent(expandedConsent === c.id ? null : c.id)}
-                    className="text-xs text-slate-400 hover:text-blue-500"
+                    className="text-xs text-slate-400 hover:text-[#3182F6]"
                   >
                     {expandedConsent === c.id ? t('consentCollapseBtn', lang) : t('consentViewBtn', lang)}
                   </button>
@@ -700,7 +700,7 @@ export default function StudentDetailPage() {
 
 // ── 공통 컴포넌트 ────────────────────────────────────────────
 
-const inp = 'w-full px-3 py-2 border border-slate-200 rounded-xl bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm'
+const inp = 'w-full px-3 py-2 border border-slate-200 rounded-xl bg-white text-slate-800 focus:outline-none focus:border-[#3182F6] focus:bg-white text-sm'
 const lbl = 'block text-xs font-medium text-slate-500 mb-1'
 
 function Centered({ children }: { children: React.ReactNode }) {

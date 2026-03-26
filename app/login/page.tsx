@@ -52,8 +52,8 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-100">
-      <div className="bg-white rounded-2xl shadow-lg p-10 w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-[#F9FAFB]">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-10 w-full max-w-md">
 
         {/* 언어 토글 */}
         <div className="flex justify-end mb-4">
@@ -62,7 +62,7 @@ export default function LoginPage() {
 
         {/* 로고 */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-2xl mb-4">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-[#3182F6] rounded-2xl mb-4">
             <span className="text-white text-2xl font-bold">AE</span>
           </div>
           <h1 className="text-2xl font-bold text-slate-800">AJU E&J</h1>
@@ -79,7 +79,7 @@ export default function LoginPage() {
               onChange={e => setEmail(e.target.value)}
               placeholder="admin@ajuenj.com"
               required
-              className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800"
+              className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-[#3182F6] focus:bg-white focus:outline-none text-slate-800"
             />
           </div>
 
@@ -91,7 +91,7 @@ export default function LoginPage() {
               onChange={e => setPassword(e.target.value)}
               placeholder={t('pwPlaceholder', lang)}
               required
-              className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800"
+              className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-[#3182F6] focus:bg-white focus:outline-none text-slate-800"
             />
           </div>
 
@@ -102,7 +102,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-semibold py-3 rounded-xl transition-colors"
+            className="w-full bg-[#3182F6] hover:bg-[#1B64DA] disabled:bg-blue-300 text-white font-semibold py-3 rounded-xl transition-colors active:scale-[0.98]"
           >
             {loading ? t('loggingIn', lang) : t('loginBtn', lang)}
           </button>
@@ -112,7 +112,7 @@ export default function LoginPage() {
           <Link href="/auth/reset-password-request" className="text-xs text-slate-400 hover:text-blue-500">
             {t('forgotPassword', lang)}
           </Link>
-          <Link href="/register" className="text-xs text-blue-600 hover:underline font-medium">
+          <Link href="/register" className="text-xs text-[#3182F6] hover:underline font-medium">
             {t('registerLink', lang)}
           </Link>
         </div>

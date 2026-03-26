@@ -161,19 +161,19 @@ export default function ReportsPage() {
             <div className="flex gap-1 bg-white rounded-xl p-1 shadow-sm">
               <button
                 onClick={() => setActiveTab('stats')}
-                className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'stats' ? 'bg-blue-600 text-white' : 'text-slate-500 hover:text-slate-800'}`}
+                className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'stats' ? 'bg-[#3182F6] text-white' : 'text-slate-500 hover:text-slate-800'}`}
               >
                 {t('tabStats', lang)}
               </button>
               <button
                 onClick={() => { setActiveTab('audit'); if (auditLogs.length === 0) loadAuditLogs() }}
-                className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'audit' ? 'bg-blue-600 text-white' : 'text-slate-500 hover:text-slate-800'}`}
+                className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'audit' ? 'bg-[#3182F6] text-white' : 'text-slate-500 hover:text-slate-800'}`}
               >
                 {t('tabAuditLog', lang)}
               </button>
               <button
                 onClick={() => { setActiveTab('topik'); if (topikList.length === 0) loadTopikList() }}
-                className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'topik' ? 'bg-blue-600 text-white' : 'text-slate-500 hover:text-slate-800'}`}
+                className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'topik' ? 'bg-[#3182F6] text-white' : 'text-slate-500 hover:text-slate-800'}`}
               >
                 {t('tabTopikSchedule', lang)}
               </button>
@@ -185,19 +185,19 @@ export default function ReportsPage() {
         {activeTab === 'audit' && user?.role === 'master' && (
           <div className="bg-white rounded-2xl p-5 shadow-sm">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-semibold text-slate-700">감사 로그 (최근 100건 / 총 {auditTotal}건)</h3>
+              <h3 className="text-sm font-semibold text-slate-700">{t('tabAuditLog', lang)} (최근 100건 / 총 {auditTotal}건)</h3>
               <button
                 onClick={loadAuditLogs}
                 disabled={auditLoading}
-                className="text-xs text-blue-600 hover:underline disabled:opacity-50"
+                className="text-xs text-[#3182F6] hover:underline disabled:opacity-50"
               >
-                {auditLoading ? '로딩 중...' : '새로고침'}
+                {auditLoading ? t('loading', lang) : t('btnRefresh', lang)}
               </button>
             </div>
             {auditLoading ? (
-              <p className="text-slate-400 text-sm py-4 text-center">감사 로그 로딩 중...</p>
+              <p className="text-slate-400 text-sm py-4 text-center">{t('auditLoading', lang)}</p>
             ) : auditLogs.length === 0 ? (
-              <p className="text-slate-400 text-sm py-4 text-center">감사 로그가 없습니다. (DB 트리거 미적용 시 빈 화면)</p>
+              <p className="text-slate-400 text-sm py-4 text-center">{t('auditEmpty', lang)}</p>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-xs">
@@ -220,7 +220,7 @@ export default function ReportsPage() {
                         <td className="py-2 px-2">
                           <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${
                             log.action === 'INSERT' ? 'bg-emerald-100 text-emerald-700' :
-                            log.action === 'UPDATE' ? 'bg-blue-100 text-blue-700' :
+                            log.action === 'UPDATE' ? 'bg-[#EBF3FE] text-[#3182F6]' :
                             log.action === 'DELETE' ? 'bg-red-100 text-red-700' :
                             log.action === 'LOGIN'  ? 'bg-violet-100 text-violet-700' :
                             'bg-slate-100 text-slate-600'
@@ -248,7 +248,7 @@ export default function ReportsPage() {
               <h3 className="text-sm font-semibold text-slate-700">📅 {t('topikMgmtTitle', lang)}</h3>
               <button
                 onClick={() => setShowTopikForm(v => !v)}
-                className="text-xs px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+                className="text-xs px-3 py-1.5 bg-[#3182F6] hover:bg-[#1B64DA] text-white rounded-lg font-medium transition-colors"
               >
                 {t('topikAddBtn', lang)}
               </button>
@@ -261,19 +261,19 @@ export default function ReportsPage() {
                   <label className="text-xs text-slate-500 mb-1 block">{t('topikRoundLabel', lang)}</label>
                   <input type="number" placeholder="91" value={topikForm.round}
                     onChange={e => setTopikForm(p => ({ ...p, round: e.target.value }))}
-                    className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400" />
+                    className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-[#3182F6]" />
                 </div>
                 <div>
                   <label className="text-xs text-slate-500 mb-1 block">{t('topikExamDateLabel', lang)}</label>
                   <input type="date" value={topikForm.exam_date}
                     onChange={e => setTopikForm(p => ({ ...p, exam_date: e.target.value }))}
-                    className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400" />
+                    className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-[#3182F6]" />
                 </div>
                 <div>
                   <label className="text-xs text-slate-500 mb-1 block">{t('topikExamTypeLabel', lang)}</label>
                   <select value={topikForm.exam_type}
                     onChange={e => setTopikForm(p => ({ ...p, exam_type: e.target.value }))}
-                    className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400">
+                    className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-[#3182F6]">
                     <option>TOPIK I</option>
                     <option>TOPIK II</option>
                   </select>
@@ -282,25 +282,25 @@ export default function ReportsPage() {
                   <label className="text-xs text-slate-500 mb-1 block">{t('topikRegStartLabel', lang)}</label>
                   <input type="date" value={topikForm.reg_start}
                     onChange={e => setTopikForm(p => ({ ...p, reg_start: e.target.value }))}
-                    className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400" />
+                    className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-[#3182F6]" />
                 </div>
                 <div>
                   <label className="text-xs text-slate-500 mb-1 block">{t('topikRegEndLabel', lang)}</label>
                   <input type="date" value={topikForm.reg_end}
                     onChange={e => setTopikForm(p => ({ ...p, reg_end: e.target.value }))}
-                    className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400" />
+                    className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-[#3182F6]" />
                 </div>
                 <div>
                   <label className="text-xs text-slate-500 mb-1 block">{t('topikRegionLabel', lang)}</label>
                   <input type="text" placeholder="전국" value={topikForm.region}
                     onChange={e => setTopikForm(p => ({ ...p, region: e.target.value }))}
-                    className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400" />
+                    className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-[#3182F6]" />
                 </div>
                 <div className="col-span-2 md:col-span-3 flex gap-2 pt-1">
                   <button
                     onClick={handleTopikSave}
                     disabled={savingTopik || !topikForm.round || !topikForm.exam_date}
-                    className="text-sm px-4 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white rounded-lg font-medium transition-colors"
+                    className="text-sm px-4 py-1.5 bg-[#3182F6] hover:bg-[#1B64DA] disabled:bg-slate-300 text-white rounded-lg font-medium transition-colors active:scale-[0.98]"
                   >
                     {savingTopik ? t('saving', lang) : t('save', lang)}
                   </button>
@@ -335,7 +335,7 @@ export default function ReportsPage() {
                       <div className="flex items-center gap-3">
                         {!isPast && (
                           <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-                            dday <= 30 ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'
+                            dday <= 30 ? 'bg-amber-100 text-amber-700' : 'bg-[#EBF3FE] text-[#3182F6]'
                           }`}>D-{dday}</span>
                         )}
                         <button

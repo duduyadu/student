@@ -20,5 +20,41 @@
         "backup": "25%"
       }
     }
+  },
+  "security-hardening": {
+    "phase": "archived",
+    "matchRate": 100,
+    "iterationCount": 0,
+    "startedAt": "2026-03-26T00:00:00Z",
+    "archivedAt": "2026-03-26T00:00:00Z",
+    "archivedTo": "docs/archive/2026-03/security-hardening/"
+  },
+  "final-stabilization": {
+    "phase": "archived",
+    "matchRate": 100,
+    "iterationCount": 0,
+    "startedAt": "2026-03-02T00:00:00Z",
+    "completedAt": "2026-03-02T00:00:00Z",
+    "archivedAt": "2026-03-02T00:00:00Z",
+    "archivedTo": "docs/archive/2026-03/final-stabilization/",
+    "summary": {
+      "featuresCompleted": 21,
+      "testItems": 37,
+      "guideLanguages": 2,
+      "roles": ["master", "agency", "student"],
+      "systemUrl": "https://aju-ej.vercel.app",
+      "deliverables": [
+        "docs/05-guides/테스트_가이드_한국어.txt",
+        "docs/05-guides/Huong_dan_kiem_tra_tieng_Viet.txt"
+      ]
+    }
+  },
+  "ui-style-toss": {
+    "phase": "archived",
+    "matchRate": 97,
+    "iterationCount": 0,
+    "startedAt": "2026-03-26T00:00:00Z",
+    "archivedAt": "2026-03-26T00:00:00Z",
+    "archivedTo": "docs/archive/2026-03/ui-style-toss/"
   }
 }

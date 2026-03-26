@@ -385,6 +385,27 @@ export const T = {
   photoSizeLimit:     { ko: '5MB 이하 이미지만 업로드 가능합니다.', vi: 'Chỉ có thể tải ảnh dưới 5MB.' },
   uploadFail:         { ko: '업로드 실패: ',            vi: 'Tải lên thất bại: ' },
   noTopik:            { ko: '없음',                    vi: 'Không có' },
+
+  // ─── 감사 로그 (reports) ───
+  btnRefresh:         { ko: '새로고침',               vi: 'Làm mới' },
+  auditLoading:       { ko: '감사 로그 로딩 중...',    vi: 'Đang tải nhật ký...' },
+  auditEmpty:         { ko: '감사 로그가 없습니다.',   vi: 'Không có nhật ký kiểm toán.' },
+
+  // ─── 유학원 관리 (agencies) ───
+  errEmailPwRequired: { ko: '이메일과 비밀번호를 입력하세요.', vi: 'Vui lòng nhập email và mật khẩu.' },
+
+  // ─── 비밀번호 재설정 페이지 ───
+  resetPwCheckingLink:{ ko: '링크를 확인 중...',       vi: 'Đang xác minh liên kết...' },
+  resetPwDoneTitle:   { ko: '비밀번호 변경 완료',      vi: 'Đổi mật khẩu thành công' },
+  resetPwDoneDesc:    { ko: '로그인 페이지로 이동합니다...', vi: 'Đang chuyển đến trang đăng nhập...' },
+
+  // ─── 비밀번호 찾기 페이지 ───
+  forgotPwSubtitle:   { ko: '가입한 이메일을 입력하면 재설정 링크를 보내드립니다', vi: 'Nhập email đã đăng ký để nhận liên kết đặt lại mật khẩu' },
+  forgotPwPlaceholder:{ ko: '가입한 이메일 주소',      vi: 'Địa chỉ email đã đăng ký' },
+  forgotPwSendBtn:    { ko: '재설정 링크 발송',        vi: 'Gửi liên kết' },
+  forgotPwSending:    { ko: '발송 중...',              vi: 'Đang gửi...' },
+  forgotPwSentTitle:  { ko: '이메일을 확인하세요',     vi: 'Kiểm tra email của bạn' },
+  backToLogin:        { ko: '로그인으로 돌아가기',     vi: 'Quay lại đăng nhập' },
 } as const
 
 export const t = (key: keyof typeof T, lang: Lang): string => T[key][lang]

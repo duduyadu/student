@@ -195,7 +195,7 @@ export default function AgenciesPage() {
   const handleAddAccount = async (a: Agency) => {
     setAddAccountError('')
     if (!addAccountForm.email || !addAccountForm.password) {
-      setAddAccountError('이메일과 비밀번호를 입력하세요.')
+      setAddAccountError(t('errEmailPwRequired', lang))
       return
     }
     setAddAccountSaving(true)
@@ -251,7 +251,7 @@ export default function AgenciesPage() {
           <h2 className="text-xl font-bold text-slate-800">{t('agencyMgmtTitle', lang)} <span className="text-slate-400 font-normal text-base">({agencies.length}개)</span></h2>
           <button
             onClick={() => { setShowForm(!showForm); setEditId(null) }}
-            className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-xl transition-colors"
+            className="bg-[#3182F6] hover:bg-[#1B64DA] text-white text-sm font-medium px-4 py-2 rounded-xl transition-colors"
           >
             {showForm ? t('closeForm', lang) : t('addAgency', lang)}
           </button>
@@ -301,7 +301,7 @@ export default function AgenciesPage() {
             {error && <p className="mt-3 text-red-600 text-sm bg-red-50 px-4 py-2 rounded-xl">{error}</p>}
             <div className="flex gap-3 mt-4">
               <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 border border-slate-200 text-slate-600 rounded-xl text-sm hover:bg-slate-50">{t('cancel', lang)}</button>
-              <button type="submit" disabled={saving} className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white rounded-xl text-sm font-medium">
+              <button type="submit" disabled={saving} className="px-6 py-2 bg-[#3182F6] hover:bg-[#1B64DA] disabled:bg-blue-300 text-white rounded-xl text-sm font-medium active:scale-[0.98]">
                 {saving ? t('saving', lang) : t('saveAgency', lang)}
               </button>
             </div>
@@ -346,7 +346,7 @@ export default function AgenciesPage() {
                   <div className="flex gap-2 mt-4">
                     <button onClick={cancelEdit} className="px-4 py-2 border border-slate-200 text-slate-600 rounded-xl text-sm hover:bg-slate-50">{t('cancel', lang)}</button>
                     <button onClick={() => handleUpdate(a.id)} disabled={editSaving}
-                      className="px-5 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white rounded-xl text-sm font-medium">
+                      className="px-5 py-2 bg-[#3182F6] hover:bg-[#1B64DA] disabled:bg-blue-300 text-white rounded-xl text-sm font-medium">
                       {editSaving ? t('saving', lang) : t('save', lang)}
                     </button>
                   </div>
@@ -375,7 +375,7 @@ export default function AgenciesPage() {
                       {a.is_active ? t('activeStatus', lang) : t('inactiveStatus', lang)}
                     </span>
                     <div className="shrink-0 text-right">
-                      <span className={`text-xs px-2 py-1 rounded-full font-medium ${a.user_id ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-400'}`}>
+                      <span className={`text-xs px-2 py-1 rounded-full font-medium ${a.user_id ? 'bg-[#EBF3FE] text-[#3182F6]' : 'bg-slate-100 text-slate-400'}`}>
                         {a.user_id ? t('hasAccount', lang) : t('noAccount', lang)}
                       </span>
                       {a.user_id && agencyEmails[a.user_id] && (
@@ -386,17 +386,17 @@ export default function AgenciesPage() {
                     </div>
                     <div className="flex gap-2">
                       <button onClick={() => startEdit(a)}
-                        className="text-xs text-slate-500 hover:text-blue-600 px-3 py-1.5 rounded-lg border border-slate-200 hover:border-blue-300 transition-colors">
+                        className="text-xs text-slate-500 hover:text-[#3182F6] px-3 py-1.5 rounded-lg border border-slate-200 hover:border-[#3182F6]/30 transition-colors">
                         {t('editBtn', lang)}
                       </button>
                       {a.user_id ? (
                         <button onClick={() => { setResetId(resetId === a.id ? null : a.id); setResetPw(''); setResetError(''); setResetSuccess('') }}
-                          className="text-xs text-slate-500 hover:text-violet-600 px-3 py-1.5 rounded-lg border border-slate-200 hover:border-violet-300 transition-colors">
+                          className="text-xs text-slate-500 hover:text-[#3182F6] px-3 py-1.5 rounded-lg border border-slate-200 hover:border-[#3182F6]/30 transition-colors">
                           {t('resetPwBtn', lang)}
                         </button>
                       ) : (
                         <button onClick={() => { setAddAccountId(addAccountId === a.id ? null : a.id); setAddAccountForm({ email: '', password: '' }); setAddAccountError('') }}
-                          className="text-xs text-blue-600 hover:text-blue-700 px-3 py-1.5 rounded-lg border border-blue-200 hover:border-blue-400 transition-colors font-medium">
+                          className="text-xs text-[#3182F6] hover:text-[#1B64DA] px-3 py-1.5 rounded-lg border border-[#3182F6]/30 hover:border-[#3182F6] transition-colors font-medium">
                           {t('addAccountBtn', lang)}
                         </button>
                       )}
@@ -431,7 +431,7 @@ export default function AgenciesPage() {
                     <div className="flex gap-2 mt-3">
                       <button onClick={() => setAddAccountId(null)} className="px-4 py-1.5 border border-slate-200 text-slate-600 rounded-lg text-xs hover:bg-slate-50">{t('cancel', lang)}</button>
                       <button onClick={() => handleAddAccount(a)} disabled={addAccountSaving}
-                        className="px-5 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white rounded-lg text-xs font-medium">
+                        className="px-5 py-1.5 bg-[#3182F6] hover:bg-[#1B64DA] disabled:bg-blue-300 text-white rounded-lg text-xs font-medium">
                         {addAccountSaving ? t('processing', lang) : t('createAccountBtn', lang)}
                       </button>
                     </div>
@@ -453,7 +453,7 @@ export default function AgenciesPage() {
                           className={inp} type="password" placeholder="••••••••" />
                       </div>
                       <button onClick={() => handleResetPassword(a)} disabled={resetSaving}
-                        className="px-5 py-2 bg-violet-600 hover:bg-violet-700 disabled:bg-violet-300 text-white rounded-lg text-xs font-medium">
+                        className="px-5 py-2 bg-[#3182F6] hover:bg-[#1B64DA] disabled:bg-blue-300 text-white rounded-lg text-xs font-medium">
                         {resetSaving ? t('processing', lang) : t('pwChangeBtn', lang)}
                       </button>
                       <button onClick={() => setResetId(null)} className="px-4 py-2 border border-slate-200 text-slate-600 rounded-lg text-xs hover:bg-slate-50">{t('cancel', lang)}</button>
@@ -472,4 +472,4 @@ export default function AgenciesPage() {
   )
 }
 
-const inp = 'w-full px-3 py-2 border border-slate-200 rounded-xl bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm'
+const inp = 'w-full px-3 py-2 border border-slate-200 rounded-xl bg-white text-slate-800 focus:outline-none focus:border-[#3182F6] focus:bg-white text-sm'

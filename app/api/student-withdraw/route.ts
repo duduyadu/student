@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
   }
 
   // 감사 로그 기록 (CLAUDE.md: 모든 CUD 작업 필수)
-  supabaseAdmin.from('audit_logs').insert({
+  await supabaseAdmin.from('audit_logs').insert({
     action: 'WITHDRAW',
     user_id: user.id,
     user_role: 'student',

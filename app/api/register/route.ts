@@ -22,7 +22,8 @@ export async function POST(req: NextRequest) {
       email,
       password,
       email_confirm: true,   // 이메일 인증 없이 바로 사용 가능
-      user_metadata: { role: 'student', name_kr },
+      user_metadata: { name_kr },
+      app_metadata: { role: 'student' },  // role은 app_metadata에만 저장 (서버 전용, 사용자 변조 불가)
     })
 
     if (authErr) {

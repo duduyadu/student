@@ -114,7 +114,7 @@ export default function DocumentChecklist({ studentId }: Props) {
           </span>
           <button
             onClick={loadDocs}
-            className="text-xs text-slate-400 hover:text-blue-500 transition-colors"
+            className="text-xs text-slate-400 hover:text-[#3182F6] transition-colors"
           >
             새로고침
           </button>
@@ -137,7 +137,7 @@ export default function DocumentChecklist({ studentId }: Props) {
               key={cat}
               onClick={() => setCategory(cat)}
               className={`px-4 py-1.5 rounded-xl text-xs font-medium transition-colors ${
-                activeCategory === cat ? 'bg-blue-600 text-white' : 'text-slate-500 hover:text-slate-800'
+                activeCategory === cat ? 'bg-[#3182F6] text-white' : 'text-slate-500 hover:text-slate-800'
               }`}
             >
               {CATEGORY_LABELS[cat]} ({catApproved}/{catDocs.length})
@@ -223,7 +223,7 @@ export default function DocumentChecklist({ studentId }: Props) {
                           href={doc.file_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-xs text-blue-500 hover:underline"
+                          className="text-xs text-[#3182F6] hover:underline"
                         >
                           보기
                         </a>
@@ -236,7 +236,7 @@ export default function DocumentChecklist({ studentId }: Props) {
                         value={doc.status}
                         disabled={updating === doc.id}
                         onChange={e => handleStatusChange(doc, e.target.value as DocStatus)}
-                        className="text-xs border border-slate-200 rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-blue-400 disabled:opacity-50"
+                        className="text-xs border border-slate-200 rounded-lg px-2 py-1 bg-white focus:outline-none focus:border-[#3182F6] disabled:opacity-50"
                       >
                         {ALL_STATUSES.map(s => (
                           <option key={s} value={s}>{STATUS_LABELS[s]}</option>

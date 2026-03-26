@@ -1,0 +1,355 @@
+================================================================================
+     NỀN TẢNG QUẢN LÝ SINH VIÊN VIỆT NAM AJU E&J — HƯỚNG DẪN KIỂM TRA TOÀN DIỆN
+     Ngày tạo: Tháng 3 năm 2026
+     Đối tượng: Nhân viên lần đầu sử dụng hệ thống
+================================================================================
+
+◆ GIỚI THIỆU HỆ THỐNG
+-----------------------
+Đây là nền tảng web tích hợp để quản lý thông tin sinh viên Việt Nam du học
+do AJU E&J quản lý. Truy cập bằng trình duyệt PC (khuyến nghị Chrome).
+
+- Địa chỉ hệ thống: https://aju-ej.vercel.app
+- Địa chỉ cổng sinh viên: https://aju-ej.vercel.app/portal
+
+◆ GIỚI THIỆU VAI TRÒ NGƯỜI DÙNG
+----------------------------------
+  ① master   : Quản trị viên tổng AJU E&J — có thể quản lý toàn bộ sinh viên/du học viện
+  ② agency   : Nhân viên du học viện — chỉ xem/quản lý sinh viên thuộc du học viện mình
+  ③ student  : Sinh viên — chỉ xem thông tin cá nhân trên cổng sinh viên
+
+※ Vui lòng liên hệ quản trị viên (master) để lấy tài khoản kiểm tra.
+
+================================================================================
+  PHẦN 1 — KIỂM TRA CHỨC NĂNG MASTER (QUẢN TRỊ VIÊN TỔNG)
+================================================================================
+
+[TEST-M-01] Đăng nhập
+----------------------
+1. Truy cập địa chỉ hệ thống bằng trình duyệt
+2. Nhập email + mật khẩu rồi nhấn 'Đăng nhập' (로그인)
+3. Kết quả mong đợi: Màn hình bảng điều khiển (dashboard) hiện ra
+
+[TEST-M-02] Kiểm tra bảng điều khiển (Dashboard)
+--------------------------------------------------
+1. Kiểm tra màn hình đầu tiên sau khi đăng nhập
+2. Các mục cần kiểm tra:
+   □ Thẻ thống kê trên cùng: tổng số sinh viên, sinh viên mới tháng này,
+     cảnh báo visa, số hồ sơ bị từ chối
+   □ Biểu đồ phân bổ cấp TOPIK (nếu có sinh viên)
+   □ Nguồn cấp hoạt động gần đây (tư vấn/sinh viên mới)
+   □ Thẻ tình trạng hồ sơ (chờ/đã nộp/đang xem xét/đã duyệt/từ chối)
+   □ Cảnh báo visa hết hạn (D-7: màu đỏ, D-30: màu cam, D-90: màu vàng)
+   □ Phân bổ trạng thái sinh viên (chưa du học/học tiếng/đại học/đi làm)
+3. Kết quả mong đợi: Tất cả thẻ và biểu đồ hiển thị không có lỗi
+
+[TEST-M-03] Kiểm tra trạng thái API (chỉ dành cho master)
+-----------------------------------------------------------
+1. Kiểm tra phần 'Màn hình giám sát API' ở cuối dashboard
+2. Nhấn nút 'Làm mới' (새로고침)
+3. Kết quả mong đợi: Trạng thái Supabase DB, PDF API, AI API hiển thị
+   màu xanh (bình thường) hoặc màu đỏ (có lỗi)
+
+[TEST-M-04] Xem danh sách sinh viên
+-------------------------------------
+1. Nhấn 'Danh sách sinh viên' (학생 목록) trong menu
+2. Các mục cần kiểm tra:
+   □ Danh sách sinh viên hiển thị (kèm ảnh thu nhỏ)
+   □ Nhập tên/mã vào ô tìm kiếm → danh sách được lọc
+   □ Bộ lọc trạng thái (chưa du học/học tiếng/đại học/đi làm) hoạt động
+3. Kết quả mong đợi: Danh sách sinh viên hiển thị bình thường
+
+[TEST-M-05] Thêm sinh viên mới
+--------------------------------
+1. Trong trang 'Danh sách sinh viên', nhấn nút '+ Đăng ký mới' (신규 등록)
+2. Nhập các thông tin sau:
+   □ Tên tiếng Hàn (예: 홍길동)
+   □ Tên tiếng Việt (예: Nguyen Van A)
+   □ Ngày sinh
+   □ Số hộ chiếu
+   □ Số điện thoại (Việt Nam)
+   □ Chọn du học viện
+   □ Trạng thái: chọn 'Chưa du học' (유학전)
+3. Nhấn nút 'Lưu' (저장)
+4. Kết quả mong đợi: Sau khi lưu chuyển sang trang chi tiết sinh viên,
+   chưa có mã sinh viên (cần quản trị viên phê duyệt)
+
+[TEST-M-06] Phê duyệt sinh viên (Chờ → Đã đăng ký chính thức)
+----------------------------------------------------------------
+1. Trên dashboard, kiểm tra phần 'Sinh viên chờ phê duyệt' (hộp màu vàng)
+2. Xác nhận sinh viên vừa đăng ký có trong danh sách
+3. Nhấn nút 'Phê duyệt' (승인)
+4. Kết quả mong đợi: Mã sinh viên được cấp tự động (ví dụ: 26001001),
+   sinh viên biến mất khỏi danh sách chờ
+
+[TEST-M-07] Xem chi tiết sinh viên — Thông tin cơ bản
+-------------------------------------------------------
+1. Nhấn vào tên sinh viên trong danh sách
+2. Các mục cần kiểm tra:
+   □ Khu vực ảnh đại diện (nhấn để tải ảnh lên)
+   □ Tên (tiếng Hàn/tiếng Việt), ngày sinh, số hộ chiếu, trạng thái, ngày hết visa
+   □ Tên du học viện
+   □ Các tab: Tư vấn / Thi / Đánh giá / Hồ sơ / Thông tin cổng
+3. Kết quả mong đợi: Tất cả thông tin hiển thị bình thường
+
+[TEST-M-08] Chỉnh sửa thông tin sinh viên
+-------------------------------------------
+1. Trong trang chi tiết sinh viên, nhấn nút 'Chỉnh sửa' (수정)
+2. Thay đổi ngày hết visa (thử nghiệm: nhập 2027-12-31)
+3. Nhấn 'Lưu'
+4. Kết quả mong đợi: Sau khi lưu, ngày thay đổi được phản ánh
+
+[TEST-M-09] Tải ảnh đại diện lên
+----------------------------------
+1. Trong trang chi tiết sinh viên, nhấn vào vòng tròn ảnh đại diện
+2. Chọn file JPG/PNG
+3. Kết quả mong đợi: Ảnh được tải lên và hiển thị dạng thu nhỏ
+
+[TEST-M-10] Thêm hồ sơ tư vấn
+--------------------------------
+1. Chi tiết sinh viên > Tab 'Tư vấn' (상담)
+2. Nhấn nút '+ Thêm tư vấn'
+3. Nhập nội dung tư vấn (ví dụ: "Đã tư vấn xong gia hạn visa")
+4. Nhấn 'Lưu'
+5. Kết quả mong đợi: Hồ sơ tư vấn được thêm vào dòng thời gian
+
+[TEST-M-11] Thêm kết quả thi TOPIK
+-------------------------------------
+1. Chi tiết sinh viên > Tab 'Thi' (시험)
+2. Nhấn nút '+ Thêm kết quả'
+3. Nhập:
+   □ Ngày thi: 2026-01-15
+   □ Điểm đọc: 75
+   □ Điểm nghe: 82
+4. Nhấn 'Lưu'
+5. Kết quả mong đợi:
+   - Tổng điểm: 157
+   - Cấp độ: Cấp 2 (từ 140 điểm trở lên)
+   - Phản ánh trong biểu đồ điểm số
+
+[TEST-M-12] Phân tích AI kết quả thi
+--------------------------------------
+1. Tab 'Thi' > Nhấn nút 'Phân tích AI' (khi có ít nhất 1 kết quả thi)
+2. Chờ một lúc (thời gian phản hồi của Gemini AI)
+3. Kết quả mong đợi: Hiển thị phân tích kiểu học tập và gợi ý cải thiện
+
+[TEST-M-13] Đánh giá giáo viên
+--------------------------------
+1. Chi tiết sinh viên > Tab 'Đánh giá' (평가)
+2. Nhập đánh giá sao cho 4 mục (tỷ lệ chuyên cần/thái độ học tập/kỹ năng tiếng Hàn/thích nghi cuộc sống)
+3. Nhập nhận xét (ví dụ: "Chăm chỉ tham gia lớp học")
+4. Nhấn 'Lưu'
+5. Kết quả mong đợi: Nội dung đánh giá được phản ánh trong biểu đồ radar
+
+[TEST-M-14] Quản lý danh sách kiểm tra hồ sơ visa
+----------------------------------------------------
+1. Chi tiết sinh viên > Tab 'Hồ sơ' (서류)
+2. Kiểm tra danh sách hồ sơ (10 loại gồm bản sao hộ chiếu, giấy chứng nhận đang học, v.v.)
+3. Nhấn nút 'Phê duyệt' (승인) cho một hồ sơ
+4. Kết quả mong đợi:
+   - Trạng thái hồ sơ thay đổi thành 'Đã duyệt'
+   - Email thông báo duyệt được gửi đến sinh viên (nếu đã cài đặt email)
+
+[TEST-M-15] Kiểm tra từ chối hồ sơ
+-------------------------------------
+1. Nhấn nút 'Từ chối' (반려) cho một hồ sơ khác
+2. Nhập lý do từ chối (ví dụ: "Ảnh hộ chiếu bị mờ")
+3. Nhấn 'Xác nhận'
+4. Kết quả mong đợi:
+   - Trạng thái hồ sơ thay đổi thành 'Từ chối'
+   - Email thông báo gửi kèm lý do từ chối đến sinh viên
+
+[TEST-M-16] Tải PDF Hồ sơ đời sống (đơn lẻ)
+---------------------------------------------
+1. Chi tiết sinh viên > Nhấn nút 'PDF Hồ sơ đời sống' góc trên phải
+2. Kết quả mong đợi:
+   - Tải xuống đồng thời 2 file PDF: tiếng Hàn (KO) và tiếng Việt (VI)
+   - Bao gồm thông tin sinh viên, hồ sơ tư vấn, điểm thi, nội dung đánh giá
+
+[TEST-M-17] Tải PDF Hồ sơ đời sống hàng loạt (ZIP)
+----------------------------------------------------
+1. Vào trang danh sách sinh viên (/students)
+2. Chọn checkbox của nhiều sinh viên (2 người trở lên)
+3. Nhấn nút 'Tải hàng loạt Hồ sơ đời sống'
+4. Kết quả mong đợi: Tải xuống 1 file ZIP, bên trong chứa PDF KO/VI theo từng sinh viên
+
+[TEST-M-18] Đăng ký sinh viên hàng loạt bằng Excel
+----------------------------------------------------
+1. Danh sách sinh viên > Nhấn nút 'Đăng ký hàng loạt'
+2. Tải lên file Excel (.xlsx)
+   (Định dạng mẫu: các cột Tên/Ngày sinh/Số hộ chiếu/Mã du học viện)
+3. Nhấn 'Tải lên'
+4. Kết quả mong đợi: Sinh viên trong file được đăng ký hàng loạt, hiển thị báo cáo kết quả
+
+[TEST-M-19] Trang thống kê/báo cáo
+------------------------------------
+1. Nhấn 'Báo cáo' (리포트) trong menu
+2. Các mục cần kiểm tra:
+   □ Bộ lọc theo kỳ (tháng này/tháng trước/năm nay)
+   □ Thống kê số sinh viên
+   □ Thống kê visa hết hạn
+   □ Phân bổ cấp TOPIK
+3. Kết quả mong đợi: Số liệu thống kê hiển thị bình thường
+
+[TEST-M-20] Quản lý du học viện
+---------------------------------
+1. Nhấn 'Du học viện' (유학원) trong menu
+2. Kiểm tra danh sách du học viện
+3. Nhấn nút '+ Thêm du học viện'
+4. Nhập tên du học viện (tiếng Hàn/tiếng Việt), email phụ trách
+5. Nhấn 'Lưu'
+6. Kết quả mong đợi: Tài khoản du học viện được tạo, email mời được gửi
+
+[TEST-M-21] Chuyển đổi ngôn ngữ (KO ↔ VI)
+-------------------------------------------
+1. Nhấn nút [KO] hoặc [VI] góc trên bên phải
+2. Kết quả mong đợi: Toàn bộ văn bản giao diện chuyển sang tiếng Hàn ↔ tiếng Việt
+
+================================================================================
+  PHẦN 2 — KIỂM TRA CHỨC NĂNG AGENCY (NHÂN VIÊN DU HỌC VIỆN)
+================================================================================
+
+[TEST-A-01] Đăng nhập bằng tài khoản du học viện
+--------------------------------------------------
+1. Đăng nhập bằng email/mật khẩu của nhân viên du học viện
+2. Kết quả mong đợi: Dashboard chỉ hiển thị thông tin sinh viên thuộc du học viện mình
+
+[TEST-A-02] Danh sách sinh viên — Xác nhận bộ lọc du học viện
+--------------------------------------------------------------
+1. Kiểm tra trang 'Danh sách sinh viên'
+2. Kết quả mong đợi: Không thấy sinh viên của du học viện khác (xác nhận cách ly bảo mật)
+
+[TEST-A-03] Thêm sinh viên mới
+--------------------------------
+1. Thực hiện tương tự TEST-M-05
+2. Kết quả mong đợi:
+   - Đăng ký thành công
+   - Chưa có mã sinh viên trước khi được phê duyệt (master phê duyệt mới có mã)
+
+[TEST-A-04] Quản lý tư vấn/kết quả thi/hồ sơ của sinh viên
+------------------------------------------------------------
+1. Vào trang chi tiết sinh viên thuộc du học viện mình
+2. Kiểm tra khả năng thêm tư vấn, thêm kết quả thi, xem hồ sơ
+3. Kết quả mong đợi: Có thể xem và nhập liệu bình thường
+
+================================================================================
+  PHẦN 3 — KIỂM TRA CHỨC NĂNG CỔNG SINH VIÊN (STUDENT PORTAL)
+================================================================================
+
+[TEST-S-01] Tự đăng ký của sinh viên
+--------------------------------------
+1. Truy cập https://aju-ej.vercel.app/register bằng trình duyệt
+2. Nhập các thông tin sau:
+   □ Tên tiếng Việt, Tên tiếng Hàn
+   □ Địa chỉ email
+   □ Mật khẩu (từ 8 ký tự trở lên)
+   □ Ngày sinh, số hộ chiếu
+   □ Chọn du học viện
+   □ Tích vào ô đồng ý thông tin cá nhân
+3. Nhấn 'Gửi đăng ký' (등록 신청)
+4. Kết quả mong đợi:
+   - Hiển thị thông báo "Yêu cầu đăng ký đã hoàn tất"
+   - Có thể sử dụng cổng sau khi quản trị viên (master) phê duyệt
+
+[TEST-S-02] Đăng nhập cổng sinh viên
+--------------------------------------
+1. Truy cập https://aju-ej.vercel.app/portal
+2. Nhập email/mật khẩu sinh viên
+3. Kết quả mong đợi: Hiển thị màn hình chính cổng sinh viên (Thông tin của tôi)
+
+[TEST-S-03] Xem thông tin cá nhân
+-----------------------------------
+1. Sau khi đăng nhập cổng, kiểm tra tab 'Thông tin của tôi'
+2. Các mục cần kiểm tra:
+   □ Tên, mã sinh viên, du học viện
+   □ Loại visa và ngày hết hạn
+   □ Trạng thái hiện tại (chưa du học/học tiếng/đại học/đi làm)
+3. Kết quả mong đợi: Thông tin đã đăng ký hiển thị bình thường
+
+[TEST-S-04] Chỉnh sửa thông tin cá nhân
+-----------------------------------------
+1. Cổng > 'Thông tin của tôi' > Nhấn nút 'Chỉnh sửa'
+2. Thay đổi số điện thoại Việt Nam
+3. Nhấn 'Lưu'
+4. Kết quả mong đợi: Hiển thị thông báo lưu thành công
+
+[TEST-S-05] Xem và nộp danh sách kiểm tra hồ sơ
+-------------------------------------------------
+1. Cổng > Tab 'Hồ sơ' (서류)
+2. Các mục cần kiểm tra:
+   □ Danh sách hồ sơ cần thiết (10 loại) và trạng thái hiện tại
+   □ Xác nhận có nút 'Nộp' cho các hồ sơ chưa nộp
+3. Nhấn nút 'Nộp' → Nhập ghi chú → Nhấn 'Xác nhận nộp'
+4. Kết quả mong đợi: Trạng thái hồ sơ thay đổi từ 'Chờ' → 'Đã nộp'
+
+[TEST-S-06] Xem hồ sơ tư vấn
+------------------------------
+1. Cổng > Tab 'Tư vấn' (상담)
+2. Kết quả mong đợi: Hiển thị danh sách nội dung tư vấn mà nhân viên đã nhập (không thể chỉnh sửa)
+
+[TEST-S-07] Xem kết quả thi
+-----------------------------
+1. Cổng > Tab 'Điểm số' (성적)
+2. Kết quả mong đợi: Hiển thị danh sách điểm TOPIK và cấp độ
+
+[TEST-S-08] Đổi mật khẩu
+--------------------------
+1. Cổng > Tab 'Tài khoản' (계정)
+2. Nhập mật khẩu mới trong phần 'Đổi mật khẩu'
+3. Nhấn 'Đổi'
+4. Kết quả mong đợi: Hiển thị thông báo "Mật khẩu đã được thay đổi"
+
+[TEST-S-09] Chuyển đổi ngôn ngữ
+---------------------------------
+1. Nhấn nút [한국어/Tiếng Việt] ở đầu cổng
+2. Kết quả mong đợi: Toàn bộ văn bản cổng chuyển sang tiếng Việt
+
+================================================================================
+  PHẦN 4 — CÁC MỤC KIỂM TRA CHUNG
+================================================================================
+
+[TEST-C-01] Kiểm tra giao diện phản hồi di động
+-------------------------------------------------
+1. Dùng điện thoại thông minh hoặc thu hẹp cửa sổ trình duyệt
+2. Kết quả mong đợi: Bố cục tự động điều chỉnh phù hợp với di động
+
+[TEST-C-02] Kiểm tra cách ly quyền truy cập (Kiểm tra bảo mật)
+----------------------------------------------------------------
+1. Đăng nhập bằng tài khoản agency, nhập trực tiếp URL sinh viên của du học viện khác
+   Ví dụ: /students/[ID sinh viên du học viện khác]
+2. Kết quả mong đợi: Không hiển thị dữ liệu hoặc màn hình trống (Supabase RLS chặn)
+
+[TEST-C-03] Đăng xuất
+-----------------------
+1. Menu người dùng góc trên phải > Nhấn 'Đăng xuất' (로그아웃)
+2. Kết quả mong đợi: Chuyển đến trang đăng nhập,
+   khi truy cập URL trực tiếp sau đó sẽ chuyển hướng đến trang đăng nhập
+
+================================================================================
+  PHẦN 5 — CÁCH BÁO CÁO KHI PHÁT HIỆN VẤN ĐỀ
+================================================================================
+
+Khi phát hiện vấn đề, hãy ghi lại thông tin sau và gửi cho người phụ trách:
+
+  1. Số mục kiểm tra (ví dụ: TEST-M-05)
+  2. Đã thực hiện hành động gì (ví dụ: Nhấn nút 'Lưu')
+  3. Nội dung hiển thị trên màn hình (ví dụ: Nội dung thông báo lỗi)
+  4. Chụp màn hình trình duyệt (nếu có thể)
+
+================================================================================
+  THÔNG TIN LIÊN HỆ HỖ TRỢ KỸ THUẬT
+================================================================================
+
+  Phụ trách: Đội kỹ thuật AJU E&J
+  Email: [Nhập email người phụ trách]
+  Zalo/KakaoTalk: [Nhập số liên hệ]
+
+================================================================================
+  THÔNG TIN PHIÊN BẢN
+================================================================================
+
+  Phiên bản nền tảng: 3.0 (Dựa trên Supabase)
+  Ngày tạo: Tháng 3 năm 2026
+  Ngôn ngữ: 한국어 (Tiếng Hàn) / Tiếng Việt
+
+================================================================================

@@ -1,25 +1,14 @@
 {
   "version": "1.0",
-  "enabled": true,
+  "enabled": false,
   "teamName": "",
   "feature": "gas-student-platform",
   "pdcaPhase": "archived",
   "orchestrationPattern": "leader",
   "ctoAgent": "opus",
-  "startedAt": "2026-03-01T14:51:14.667Z",
-  "lastUpdated": "2026-03-01T14:52:58.659Z",
-  "teammates": [
-    {
-      "name": "ad1536eb076de2399",
-      "role": "bkit:code-analyzer",
-      "model": "sonnet",
-      "status": "completed",
-      "currentTask": null,
-      "taskId": null,
-      "startedAt": "2026-03-01T14:51:14.675Z",
-      "lastActivityAt": "2026-03-01T14:52:58.652Z"
-    }
-  ],
+  "startedAt": "2026-03-26T12:48:34.195Z",
+  "lastUpdated": "2026-03-26T12:54:36.582Z",
+  "teammates": [],
   "progress": {
     "totalTasks": 0,
     "completedTasks": 0,
@@ -28,5 +17,5 @@
     "pendingTasks": 0
   },
   "recentMessages": [],
-  "sessionId": "b7ad3c3f-81c5-45cc-b2b3-61d2eec02633"
+  "sessionId": "5db3bc60-0c2e-4f1d-89e5-85b94b987fdb"
 }

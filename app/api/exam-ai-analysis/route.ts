@@ -17,11 +17,24 @@ export async function GET(req: NextRequest) {
 
   const apiKey = process.env.GEMINI_API_KEY
   if (!apiKey) {
-    return NextResponse.json({ error: 'GEMINI_API_KEY 미설정' }, { status: 500 })
+    return NextResponse.json({ error: 'AI 분석을 사용할 수 없습니다.' }, { status: 500 })
   }
 
-  // ── 1. 시험 데이터 로드 ──────────────────────────────
+  // ── 0. 소유권 검증 (IDOR 방지) ───────────────────────
   const supabase = getServiceClient()
+  const role = (user.app_metadata as { role?: string })?.role ?? 'student'
+  const agencyCode = (user.app_metadata as { agency_code?: string })?.agency_code
+  if (role === 'agency') {
+    if (!agencyCode) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    const { data: st } = await supabase.from('students').select('agency_code').eq('id', studentId).single()
+    if (!st || st.agency_code !== agencyCode) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  } else if (role === 'student') {
+    const { data: st } = await supabase.from('students').select('auth_user_id').eq('id', studentId).single()
+    if (!st || st.auth_user_id !== user.id) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
+  // master: 모든 학생 접근 허용
+
+  // ── 1. 시험 데이터 로드 ──────────────────────────────
   const { data: exams } = await supabase
     .from('exam_results')
     .select('exam_date, exam_type, listening_score, reading_score, writing_score, total_score, level, section_scores, exam_source')

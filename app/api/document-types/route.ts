@@ -1,25 +1,25 @@
-import { getServiceClient } from '@/lib/supabaseServer'
+import { getServiceClient, getAnonClient } from '@/lib/supabaseServer'
 import { NextRequest, NextResponse } from 'next/server'
 
 async function getAuthedUser(req: NextRequest) {
   const token = (req.headers.get('authorization') ?? '').replace('Bearer ', '').trim()
   if (!token) return null
-  const { data: { user } } = await getServiceClient().auth.getUser(token)
+  const { data: { user } } = await getAnonClient().auth.getUser(token)
   return user
 }
 
 /**
  * GET /api/document-types
- * 서류 유형 목록 (인증 불필요 — RLS SELECT 정책이 전체 허용)
+ * 서류 유형 목록 (anon 클라이언트 사용 — RLS SELECT 정책이 전체 허용)
  */
 export async function GET(_req: NextRequest) {
-  const supabase = getServiceClient()
+  const supabase = getAnonClient()
   const { data, error } = await supabase
     .from('document_types')
     .select('*')
     .order('sort_order')
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) return NextResponse.json({ error: '서류 유형 조회 실패' }, { status: 500 })
   return NextResponse.json(data ?? [])
 }
 
@@ -57,6 +57,6 @@ export async function POST(req: NextRequest) {
     .select()
     .single()
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) return NextResponse.json({ error: '서류 유형 저장 실패' }, { status: 500 })
   return NextResponse.json(data, { status: 201 })
 }

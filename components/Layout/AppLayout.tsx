@@ -18,20 +18,20 @@ interface AppLayoutProps {
 }
 
 const navClass = (active: boolean) =>
-  `py-3 text-sm font-medium border-b-2 whitespace-nowrap ${
+  `py-3 text-sm font-medium border-b-2 whitespace-nowrap transition-colors ${
     active
-      ? 'text-blue-600 border-blue-600'
+      ? 'text-[#3182F6] border-[#3182F6] font-semibold'
       : 'text-slate-500 hover:text-slate-800 border-transparent'
   }`
 
 export function AppLayout({ user, lang, onToggleLang, onLogout, activeNav, children }: AppLayoutProps) {
   return (
-    <div className="min-h-screen bg-slate-100">
+    <div className="min-h-screen bg-[#F9FAFB]">
       {/* Header */}
-      <header className="bg-white shadow-sm">
+      <header className="bg-white border-b border-gray-200">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center">
+            <div className="w-9 h-9 bg-[#3182F6] rounded-xl flex items-center justify-center">
               <span className="text-white text-sm font-bold">AE</span>
             </div>
             <span className="font-bold text-slate-800">{t('appTitle', lang)}</span>
@@ -50,7 +50,7 @@ export function AppLayout({ user, lang, onToggleLang, onLogout, activeNav, child
       </header>
 
       {/* Nav */}
-      <nav className="bg-white border-b border-slate-200">
+      <nav className="bg-white border-b border-gray-200">
         <div className="max-w-6xl mx-auto px-6 flex gap-6 overflow-x-auto">
           <Link href="/" className={navClass(activeNav === 'dashboard')}>
             {t('navDashboard', lang)}

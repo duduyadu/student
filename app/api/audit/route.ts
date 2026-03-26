@@ -34,8 +34,8 @@ export async function POST(req: NextRequest) {
       .from('audit_logs')
       .insert({
         action:       body.action,
-        user_id:      body.user_id      ?? null,
-        user_role:    body.user_role    ?? null,
+        user_id:      user.id,          // 인증된 사용자 ID 사용 (body 값 무시)
+        user_role:    (user.app_metadata as { role?: string })?.role ?? null,  // app_metadata에서 추출
         user_name:    body.user_name    ?? null,
         target_table: body.target_table ?? null,
         target_id:    body.target_id    ?? null,

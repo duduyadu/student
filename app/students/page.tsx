@@ -185,7 +185,7 @@ export default function StudentsPage() {
             <button
               onClick={handleBulkPdf}
               disabled={bulkPdfLoading || selectedIds.size === 0}
-              className="bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-medium px-3 py-2 rounded-xl transition-colors flex items-center gap-1.5"
+              className="bg-[#3182F6] hover:bg-[#1B64DA] disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-medium px-3 py-2 rounded-xl transition-colors flex items-center gap-1.5"
               title={selectedIds.size === 0 ? '학생을 먼저 선택하세요' : `${selectedIds.size}명 PDF 다운로드`}
             >
               {bulkPdfLoading ? (
@@ -206,7 +206,7 @@ export default function StudentsPage() {
             <Link href="/students/import" className="bg-slate-600 hover:bg-slate-700 text-white text-sm font-medium px-3 py-2 rounded-xl transition-colors">
               {t('importBulk', lang)}
             </Link>
-            <Link href="/students/new" className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-3 py-2 rounded-xl transition-colors">
+            <Link href="/students/new" className="bg-[#3182F6] hover:bg-[#1B64DA] text-white text-sm font-medium px-3 py-2 rounded-xl transition-colors">
               {t('addStudent', lang)}
             </Link>
           </div>
@@ -222,14 +222,14 @@ export default function StudentsPage() {
             onChange={e => setSearch(e.target.value)}
             placeholder={t('searchName', lang)}
             autoComplete="off"
-            className="flex-1 min-w-48 px-4 py-2 border border-slate-200 rounded-xl bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+            className="flex-1 min-w-48 px-4 py-2 border border-slate-200 rounded-xl bg-white text-slate-800 focus:outline-none focus:border-[#3182F6] focus:bg-white text-sm"
           />
           <select
             id="agency-filter"
             name="agency-filter"
             value={agencyFilter}
             onChange={e => setAgencyFilter(e.target.value)}
-            className="px-3 py-2 border border-slate-200 rounded-xl bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+            className="px-3 py-2 border border-slate-200 rounded-xl bg-white text-slate-800 focus:outline-none focus:border-[#3182F6] focus:bg-white text-sm"
           >
             <option value="">{t('allAgencies', lang)}</option>
             {agencies.map(a => (
@@ -243,7 +243,7 @@ export default function StudentsPage() {
             name="status-filter"
             value={statusFilter}
             onChange={e => setStatusFilter(e.target.value)}
-            className="px-3 py-2 border border-slate-200 rounded-xl bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+            className="px-3 py-2 border border-slate-200 rounded-xl bg-white text-slate-800 focus:outline-none focus:border-[#3182F6] focus:bg-white text-sm"
           >
             <option value="">{t('allStatus', lang)}</option>
             {STUDENT_STATUSES.map(s => (
@@ -260,7 +260,7 @@ export default function StudentsPage() {
                 <p className="text-slate-500 font-medium">{t('noSearchResult', lang)}</p>
                 <button
                   onClick={() => { setSearch(''); setAgencyFilter(''); setStatusFilter('') }}
-                  className="mt-4 inline-block text-blue-600 text-sm hover:underline"
+                  className="mt-4 inline-block text-[#3182F6] text-sm hover:underline"
                 >
                   {t('clearFilter', lang)}
                 </button>
@@ -269,7 +269,7 @@ export default function StudentsPage() {
               <>
                 <p className="text-4xl mb-3">👤</p>
                 <p>{t('noStudents', lang)}</p>
-                <Link href="/students/new" className="mt-4 inline-block text-blue-600 text-sm hover:underline">{t('addFirstStudent', lang)}</Link>
+                <Link href="/students/new" className="mt-4 inline-block text-[#3182F6] text-sm hover:underline">{t('addFirstStudent', lang)}</Link>
               </>
             )}
           </div>
@@ -283,18 +283,18 @@ export default function StudentsPage() {
                   type="checkbox"
                   checked={filtered.length > 0 && selectedIds.size === filtered.length}
                   onChange={toggleSelectAll}
-                  className="w-4 h-4 rounded border-2 border-slate-400 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                  className="w-4 h-4 rounded border-2 border-slate-400 text-[#3182F6] focus:border-[#3182F6] cursor-pointer"
                 />
                 <span className="text-xs text-slate-500">{t('selectAllLabel', lang)} ({selectedIds.size}/{filtered.length})</span>
               </div>
               {filtered.map(s => (
-                <div key={s.id} className={`bg-white rounded-2xl px-4 py-3.5 shadow-sm transition-colors ${selectedIds.has(s.id) ? 'ring-2 ring-indigo-400 bg-indigo-50' : ''}`}>
+                <div key={s.id} className={`bg-white rounded-2xl px-4 py-3.5 shadow-sm transition-colors ${selectedIds.has(s.id) ? 'ring-2 ring-[#3182F6]/40 bg-[#EBF3FE]' : ''}`}>
                   <div className="flex items-start gap-3">
                     <input
                       type="checkbox"
                       checked={selectedIds.has(s.id)}
                       onChange={() => toggleSelect(s.id)}
-                      className="w-4 h-4 mt-1 rounded border-2 border-slate-400 text-indigo-600 focus:ring-indigo-500 cursor-pointer shrink-0"
+                      className="w-4 h-4 mt-1 rounded border-2 border-slate-400 text-[#3182F6] focus:border-[#3182F6] cursor-pointer shrink-0"
                     />
                     {/* 프로필 사진 썸네일 */}
                     <div className="w-9 h-9 rounded-full overflow-hidden bg-slate-200 shrink-0 mt-0.5">
@@ -315,7 +315,7 @@ export default function StudentsPage() {
                       <p className="text-xs text-slate-400 mt-1">
                         {s.agency?.agency_name_vn ?? s.agency?.agency_name_kr ?? t('unassigned', lang)}
                         {s.student_code && <span className="ml-2 font-mono">{s.student_code}</span>}
-                        {placement(s) && <span className="ml-2 text-blue-500">{placement(s)}</span>}
+                        {placement(s) && <span className="ml-2 text-[#3182F6]">{placement(s)}</span>}
                       </p>
                     </Link>
                     <span className="text-slate-300 text-sm mt-1">›</span>
@@ -335,7 +335,7 @@ export default function StudentsPage() {
                           type="checkbox"
                           checked={filtered.length > 0 && selectedIds.size === filtered.length}
                           onChange={toggleSelectAll}
-                          className="w-4 h-4 rounded border-2 border-slate-400 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                          className="w-4 h-4 rounded border-2 border-slate-400 text-[#3182F6] focus:border-[#3182F6] cursor-pointer"
                         />
                         <span className="text-[10px] text-slate-400 font-medium">전체</span>
                       </div>
@@ -352,13 +352,13 @@ export default function StudentsPage() {
                 </thead>
                 <tbody className="divide-y divide-slate-50">
                   {filtered.map(s => (
-                    <tr key={s.id} className={`hover:bg-slate-50 transition-colors ${selectedIds.has(s.id) ? 'bg-indigo-50' : ''}`}>
+                    <tr key={s.id} className={`hover:bg-slate-50 transition-colors ${selectedIds.has(s.id) ? 'bg-[#EBF3FE]' : ''}`}>
                       <td className="px-4 py-4 text-center">
                         <input
                           type="checkbox"
                           checked={selectedIds.has(s.id)}
                           onChange={() => toggleSelect(s.id)}
-                          className="w-4 h-4 rounded border-2 border-slate-400 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                          className="w-4 h-4 rounded border-2 border-slate-400 text-[#3182F6] focus:border-[#3182F6] cursor-pointer"
                         />
                       </td>
                       {/* 프로필 사진 썸네일 */}
@@ -383,11 +383,11 @@ export default function StudentsPage() {
                         <span className={`text-xs px-2 py-1 rounded-full font-medium ${statusColor(s.status)}`}>
                           {slabel(s.status, lang)}
                         </span>
-                        {placement(s) && <p className="text-xs text-blue-500 mt-1">{placement(s)}</p>}
+                        {placement(s) && <p className="text-xs text-[#3182F6] mt-1">{placement(s)}</p>}
                       </td>
                       <td className="px-6 py-4 text-slate-400 text-sm">{s.enrollment_date ?? '-'}</td>
                       <td className="px-6 py-4">
-                        <Link href={`/students/${s.id}`} className="text-blue-600 text-sm hover:underline">{t('viewDetail', lang)}</Link>
+                        <Link href={`/students/${s.id}`} className="text-[#3182F6] text-sm hover:underline">{t('viewDetail', lang)}</Link>
                       </td>
                     </tr>
                   ))}

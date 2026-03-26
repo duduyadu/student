@@ -1,0 +1,473 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1774524597481,
+  "projectRoot": "C:\\projects\\aju-ej",
+  "techStack": {
+    "languages": [
+      {
+        "name": "JavaScript/TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "package.json"
+        ]
+      },
+      {
+        "name": "TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "tsconfig.json"
+        ]
+      }
+    ],
+    "frameworks": [
+      {
+        "name": "next",
+        "version": "16.1.6",
+        "category": "fullstack"
+      },
+      {
+        "name": "react",
+        "version": "19.2.3",
+        "category": "frontend"
+      },
+      {
+        "name": "react-dom",
+        "version": "19.2.3",
+        "category": "frontend"
+      }
+    ],
+    "packageManager": "npm",
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": "npm run build",
+    "testCommand": null,
+    "lintCommand": "npm run lint",
+    "devCommand": "npm run dev",
+    "scripts": {
+      "dev": "next dev",
+      "build": "next build",
+      "start": "next start",
+      "lint": "eslint",
+      "type-check": "tsc --noEmit"
+    }
+  },
+  "conventions": {
+    "namingStyle": "camelCase",
+    "importStyle": "ES modules",
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "app",
+      "components",
+      "docs",
+      "lib",
+      "public",
+      "src"
+    ],
+    "gitBranches": null
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "app": {
+      "path": "app",
+      "purpose": "Application code",
+      "fileCount": 4,
+      "lastAccessed": 1774524597447,
+      "keyFiles": [
+        "favicon.ico",
+        "globals.css",
+        "layout.tsx",
+        "page.tsx"
+      ]
+    },
+    "components": {
+      "path": "components",
+      "purpose": "UI components",
+      "fileCount": 3,
+      "lastAccessed": 1774524597447,
+      "keyFiles": [
+        "ExamChart.tsx",
+        "LangToggle.tsx",
+        "StarRating.tsx"
+      ]
+    },
+    "docs": {
+      "path": "docs",
+      "purpose": "Documentation",
+      "fileCount": 3,
+      "lastAccessed": 1774524597464,
+      "keyFiles": [
+        "VERSION-AUDIT.md"
+      ]
+    },
+    "lib": {
+      "path": "lib",
+      "purpose": "Library code",
+      "fileCount": 9,
+      "lastAccessed": 1774524597465,
+      "keyFiles": [
+        "auth.ts",
+        "constants.ts",
+        "email.ts",
+        "i18n.ts",
+        "supabase.ts"
+      ]
+    },
+    "public": {
+      "path": "public",
+      "purpose": "Public files",
+      "fileCount": 5,
+      "lastAccessed": 1774524597469,
+      "keyFiles": [
+        "file.svg",
+        "globe.svg",
+        "next.svg",
+        "vercel.svg",
+        "window.svg"
+      ]
+    },
+    "setup": {
+      "path": "setup",
+      "purpose": null,
+      "fileCount": 8,
+      "lastAccessed": 1774524597470,
+      "keyFiles": [
+        "create-master-user.mjs",
+        "create-sheets-auto.gs",
+        "generate-salt.gs",
+        "i18n-initial-data.tsv",
+        "phase1-auto-setup.gs"
+      ]
+    },
+    "src": {
+      "path": "src",
+      "purpose": "Source code",
+      "fileCount": 72,
+      "lastAccessed": 1774524597470,
+      "keyFiles": [
+        "AgencyService.gs",
+        "AgencyService.js",
+        "Analytics.html",
+        "AnalyticsService.gs",
+        "AnalyticsService.js"
+      ]
+    },
+    "app\\api": {
+      "path": "app\\api",
+      "purpose": "API routes",
+      "fileCount": 0,
+      "lastAccessed": 1774524597471,
+      "keyFiles": []
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "app\\agencies\\page.tsx",
+      "accessCount": 20,
+      "lastAccessed": 1774529424914,
+      "type": "file"
+    },
+    {
+      "path": "app\\reports\\page.tsx",
+      "accessCount": 18,
+      "lastAccessed": 1774529324869,
+      "type": "file"
+    },
+    {
+      "path": "",
+      "accessCount": 18,
+      "lastAccessed": 1774529636807,
+      "type": "directory"
+    },
+    {
+      "path": "app\\login\\page.tsx",
+      "accessCount": 13,
+      "lastAccessed": 1774529419143,
+      "type": "file"
+    },
+    {
+      "path": "app\\auth\\reset-password-request\\page.tsx",
+      "accessCount": 12,
+      "lastAccessed": 1774529423540,
+      "type": "file"
+    },
+    {
+      "path": "app\\auth\\reset-password\\page.tsx",
+      "accessCount": 11,
+      "lastAccessed": 1774529322385,
+      "type": "file"
+    },
+    {
+      "path": "app\\students\\[id]\\_components\\AspirationTracker.tsx",
+      "accessCount": 10,
+      "lastAccessed": 1774529511614,
+      "type": "file"
+    },
+    {
+      "path": "lib\\i18n.ts",
+      "accessCount": 9,
+      "lastAccessed": 1774526253968,
+      "type": "file"
+    },
+    {
+      "path": ".pdca-status.json",
+      "accessCount": 9,
+      "lastAccessed": 1774529666939,
+      "type": "file"
+    },
+    {
+      "path": "app\\api\\register\\route.ts",
+      "accessCount": 8,
+      "lastAccessed": 1774527362430,
+      "type": "file"
+    },
+    {
+      "path": "app\\api\\exam-ai-analysis\\route.ts",
+      "accessCount": 8,
+      "lastAccessed": 1774527364985,
+      "type": "file"
+    },
+    {
+      "path": "app\\students\\[id]\\_components\\ConsultTimeline.tsx",
+      "accessCount": 8,
+      "lastAccessed": 1774529470944,
+      "type": "file"
+    },
+    {
+      "path": "app\\students\\[id]\\_components\\EvaluationPanel.tsx",
+      "accessCount": 8,
+      "lastAccessed": 1774529484824,
+      "type": "file"
+    },
+    {
+      "path": "lib\\auth.ts",
+      "accessCount": 7,
+      "lastAccessed": 1774527361894,
+      "type": "file"
+    },
+    {
+      "path": "lib\\types.ts",
+      "accessCount": 5,
+      "lastAccessed": 1774525469483,
+      "type": "file"
+    },
+    {
+      "path": "docs\\02-design\\features\\reports-analytics.design.md",
+      "accessCount": 5,
+      "lastAccessed": 1774526147260,
+      "type": "file"
+    },
+    {
+      "path": "docs\\02-design\\features\\teacher-evaluation.design.md",
+      "accessCount": 5,
+      "lastAccessed": 1774526148175,
+      "type": "file"
+    },
+    {
+      "path": "app\\api\\health\\route.ts",
+      "accessCount": 5,
+      "lastAccessed": 1774526708158,
+      "type": "file"
+    },
+    {
+      "path": "app\\api\\audit\\route.ts",
+      "accessCount": 5,
+      "lastAccessed": 1774527363108,
+      "type": "file"
+    },
+    {
+      "path": "app\\api\\student-withdraw\\route.ts",
+      "accessCount": 5,
+      "lastAccessed": 1774527363328,
+      "type": "file"
+    },
+    {
+      "path": "docs\\archive\\2026-03\\_INDEX.md",
+      "accessCount": 5,
+      "lastAccessed": 1774529664368,
+      "type": "file"
+    },
+    {
+      "path": "components\\pdf\\LifeRecordDocument.tsx",
+      "accessCount": 4,
+      "lastAccessed": 1774525191477,
+      "type": "directory"
+    },
+    {
+      "path": "app\\api\\mock-exam-import\\route.ts",
+      "accessCount": 4,
+      "lastAccessed": 1774526707295,
+      "type": "file"
+    },
+    {
+      "path": "app\\api\\student-documents\\[id]\\route.ts",
+      "accessCount": 4,
+      "lastAccessed": 1774526715158,
+      "type": "file"
+    },
+    {
+      "path": ".claude\\agent-memory\\bkit-report-generator\\MEMORY.md",
+      "accessCount": 4,
+      "lastAccessed": 1774527559249,
+      "type": "file"
+    },
+    {
+      "path": "docs\\02-design\\features\\email-notifications.design.md",
+      "accessCount": 3,
+      "lastAccessed": 1774525449569,
+      "type": "file"
+    },
+    {
+      "path": "docs\\02-design\\features\\agencies-management.design.md",
+      "accessCount": 3,
+      "lastAccessed": 1774526314034,
+      "type": "file"
+    },
+    {
+      "path": "app\\api\\create-agency-user\\route.ts",
+      "accessCount": 3,
+      "lastAccessed": 1774526698522,
+      "type": "file"
+    },
+    {
+      "path": "app\\api\\add-agency-account\\route.ts",
+      "accessCount": 3,
+      "lastAccessed": 1774526699045,
+      "type": "file"
+    },
+    {
+      "path": "app\\api\\reset-agency-password\\route.ts",
+      "accessCount": 3,
+      "lastAccessed": 1774526699381,
+      "type": "file"
+    },
+    {
+      "path": "app\\api\\agency-accounts\\route.ts",
+      "accessCount": 3,
+      "lastAccessed": 1774526699407,
+      "type": "file"
+    },
+    {
+      "path": "app\\api\\topik-ai-proxy\\route.ts",
+      "accessCount": 3,
+      "lastAccessed": 1774526706863,
+      "type": "file"
+    },
+    {
+      "path": "app\\register\\page.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1774526712383,
+      "type": "file"
+    },
+    {
+      "path": "lib\\email.ts",
+      "accessCount": 2,
+      "lastAccessed": 1774525453113,
+      "type": "file"
+    },
+    {
+      "path": "docs\\02-design\\features\\auth-flow.design.md",
+      "accessCount": 2,
+      "lastAccessed": 1774525453946,
+      "type": "file"
+    },
+    {
+      "path": "docs\\02-design\\features\\ai-analysis-topik.design.md",
+      "accessCount": 2,
+      "lastAccessed": 1774525454370,
+      "type": "file"
+    },
+    {
+      "path": "docs\\02-design\\features\\mock-exam-import.design.md",
+      "accessCount": 2,
+      "lastAccessed": 1774525454904,
+      "type": "file"
+    },
+    {
+      "path": "docs\\02-design\\features\\consultation-records.design.md",
+      "accessCount": 2,
+      "lastAccessed": 1774525458736,
+      "type": "file"
+    },
+    {
+      "path": "docs\\02-design\\features\\aspiration-history.design.md",
+      "accessCount": 2,
+      "lastAccessed": 1774525459716,
+      "type": "file"
+    },
+    {
+      "path": "docs\\02-design\\features\\health-check.design.md",
+      "accessCount": 2,
+      "lastAccessed": 1774525460057,
+      "type": "file"
+    },
+    {
+      "path": "docs\\03-analysis\\platform-code-quality.analysis.md",
+      "accessCount": 2,
+      "lastAccessed": 1774526313786,
+      "type": "file"
+    },
+    {
+      "path": "lib",
+      "accessCount": 2,
+      "lastAccessed": 1774526735018,
+      "type": "directory"
+    },
+    {
+      "path": "docs\\archive\\2026-02\\_INDEX.md",
+      "accessCount": 1,
+      "lastAccessed": 1774524901701,
+      "type": "file"
+    },
+    {
+      "path": "docs\\01-plan\\features\\platform-code-quality.plan.md",
+      "accessCount": 1,
+      "lastAccessed": 1774524955675,
+      "type": "file"
+    },
+    {
+      "path": "docs\\02-design\\features\\visa-document-checklist.design.md",
+      "accessCount": 1,
+      "lastAccessed": 1774524965308,
+      "type": "file"
+    },
+    {
+      "path": "docs\\04-report\\features\\visa-document-checklist.report.md",
+      "accessCount": 1,
+      "lastAccessed": 1774524965448,
+      "type": "file"
+    },
+    {
+      "path": "docs\\02-design\\features\\platform-code-quality.design.md",
+      "accessCount": 1,
+      "lastAccessed": 1774525077708,
+      "type": "file"
+    },
+    {
+      "path": "docs\\04-report\\features\\platform-code-quality.report.md",
+      "accessCount": 1,
+      "lastAccessed": 1774525124020,
+      "type": "file"
+    },
+    {
+      "path": "components",
+      "accessCount": 1,
+      "lastAccessed": 1774525470086,
+      "type": "directory"
+    },
+    {
+      "path": "docs\\03-analysis",
+      "accessCount": 1,
+      "lastAccessed": 1774526314564,
+      "type": "directory"
+    }
+  ],
+  "userDirectives": []
+}

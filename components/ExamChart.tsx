@@ -84,10 +84,10 @@ export default function ExamChart({ exams, chartLevel = 'trend', aiAnalysis }: P
 
       {/* ai: AI 분석 텍스트 */}
       {chartLevel === 'ai' && aiAnalysis && (
-        <div className="bg-indigo-50 border border-indigo-100 rounded-2xl p-5">
+        <div className="bg-[#EBF3FE] border border-indigo-100 rounded-2xl p-5">
           <div className="flex items-center gap-2 mb-2">
-            <span className="text-indigo-600 text-sm font-semibold">AI 성적 분석</span>
-            <span className="text-xs bg-indigo-100 text-indigo-500 px-2 py-0.5 rounded-full">Gemini</span>
+            <span className="text-[#3182F6] text-sm font-semibold">AI 성적 분석</span>
+            <span className="text-xs bg-[#EBF3FE] text-[#3182F6] px-2 py-0.5 rounded-full">Gemini</span>
           </div>
           <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-line">{aiAnalysis}</p>
         </div>

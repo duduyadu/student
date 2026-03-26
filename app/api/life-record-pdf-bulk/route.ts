@@ -77,9 +77,15 @@ export async function POST(req: NextRequest) {
 
   const supabase = getServiceClient()
 
-  // 역할 기반 소속 검증 (agency는 자기 학생만 필터링)
-  const role = (user.app_metadata as { role?: string })?.role ?? 'agency'
+  // 역할 기반 소속 검증
+  const role = (user.app_metadata as { role?: string })?.role ?? 'student'
   const agencyCode = (user.app_metadata as { agency_code?: string })?.agency_code
+
+  // student 역할은 일괄 다운로드 불가
+  if (role === 'student') {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
+
   let allowedIds = studentIds
   if (role === 'agency' && agencyCode) {
     const { data: sts } = await supabase

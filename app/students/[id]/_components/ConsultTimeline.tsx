@@ -24,7 +24,7 @@ const CATEGORY_COLORS: Record<ConsultCategory, string> = {
   other:    'bg-slate-100 text-slate-600',
 }
 
-const inp = 'w-full px-3 py-2 border border-slate-200 rounded-xl bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm'
+const inp = 'w-full px-3 py-2 border border-slate-200 rounded-xl bg-white text-slate-800 focus:outline-none focus:border-[#3182F6] focus:bg-white text-sm'
 const lbl = 'block text-xs font-medium text-slate-500 mb-1'
 
 interface Props {
@@ -157,7 +157,7 @@ export default function ConsultTimeline({ studentId, consultations, onRefresh }:
         </div>
         <button
           onClick={openAdd}
-          className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-xl transition-colors"
+          className="bg-[#3182F6] hover:bg-[#1B64DA] text-white text-sm px-4 py-2 rounded-xl transition-colors"
         >
           + 상담 추가
         </button>
@@ -275,7 +275,7 @@ export default function ConsultTimeline({ studentId, consultations, onRefresh }:
             <button type="button" onClick={() => setShowForm(false)}
               className="px-4 py-2 border border-slate-200 text-slate-600 rounded-xl text-sm">취소</button>
             <button type="submit" disabled={saving}
-              className="px-5 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white rounded-xl text-sm font-medium">
+              className="px-5 py-2 bg-[#3182F6] hover:bg-[#1B64DA] disabled:bg-blue-300 text-white rounded-xl text-sm font-medium">
               {saving ? '저장 중...' : (editId ? '수정 완료' : '저장')}
             </button>
           </div>
@@ -330,7 +330,7 @@ export default function ConsultTimeline({ studentId, consultations, onRefresh }:
                       </div>
                       <div className="flex gap-1 shrink-0">
                         <button onClick={() => openEdit(c)}
-                          className="text-xs text-slate-300 hover:text-blue-500 transition-colors px-1">수정</button>
+                          className="text-xs text-slate-300 hover:text-[#3182F6] transition-colors px-1">수정</button>
                         <button onClick={() => handleDelete(c.id)}
                           className="text-xs text-slate-300 hover:text-red-500 transition-colors px-1">삭제</button>
                       </div>
@@ -338,7 +338,7 @@ export default function ConsultTimeline({ studentId, consultations, onRefresh }:
 
                     {/* 희망 대학 스냅샷 */}
                     {(c.aspiration_univ || c.aspiration_major) && (
-                      <div className="mb-2 text-xs bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg inline-block">
+                      <div className="mb-2 text-xs bg-[#EBF3FE] text-[#3182F6] px-3 py-1.5 rounded-lg inline-block">
                         🎯 희망: {[c.aspiration_univ, c.aspiration_major].filter(Boolean).join(' · ')}
                       </div>
                     )}

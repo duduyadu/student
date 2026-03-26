@@ -73,11 +73,6 @@ export async function GET() {
       // 400/404는 라우트가 살아있어도 파라미터 부족으로 나올 수 있음 → warn
       return res.status
     })
-    const status = checks.find(c => c.status === 'error') ? 'ok' : (
-      error ? 'error' :
-      result === 200 ? 'ok' :
-      result === 400 || result === 404 || result === 500 ? 'warn' : 'ok'
-    )
     checks.push({
       name:   route.name,
       status: error ? 'error' : result === 200 ? 'ok' : 'warn',

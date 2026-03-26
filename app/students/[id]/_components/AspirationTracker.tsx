@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import type { AspirationHistory } from '@/lib/types'
 
-const inp = 'w-full px-3 py-2 border border-slate-200 rounded-xl bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm'
+const inp = 'w-full px-3 py-2 border border-slate-200 rounded-xl bg-white text-slate-800 focus:outline-none focus:border-[#3182F6] focus:bg-white text-sm'
 const lbl = 'block text-xs font-medium text-slate-500 mb-1'
 
 interface Props {
@@ -79,7 +79,7 @@ export default function AspirationTracker({ studentId, aspirations, onRefresh }:
         <h3 className="text-sm font-semibold text-slate-700">🎯 희망 대학 변경 이력</h3>
         <button
           onClick={openAdd}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-3 py-1.5 rounded-xl transition-colors"
+          className="bg-[#3182F6] hover:bg-[#1B64DA] text-white text-xs px-3 py-1.5 rounded-xl transition-colors"
         >
           + 이력 추가
         </button>
@@ -87,8 +87,8 @@ export default function AspirationTracker({ studentId, aspirations, onRefresh }:
 
       {/* 입력 폼 */}
       {showForm && (
-        <form onSubmit={handleSave} className="bg-indigo-50 rounded-2xl p-4 space-y-3 border border-indigo-100">
-          <h4 className="text-xs font-semibold text-indigo-700 pb-2 border-b border-indigo-100">
+        <form onSubmit={handleSave} className="bg-[#EBF3FE] rounded-2xl p-4 space-y-3 border border-indigo-100">
+          <h4 className="text-xs font-semibold text-[#3182F6] pb-2 border-b border-indigo-100">
             {editId ? '이력 수정' : '새 희망 대학 이력'}
           </h4>
 
@@ -125,7 +125,7 @@ export default function AspirationTracker({ studentId, aspirations, onRefresh }:
             <button type="button" onClick={() => setShowForm(false)}
               className="px-4 py-1.5 border border-slate-200 text-slate-600 rounded-xl text-xs">취소</button>
             <button type="submit" disabled={saving}
-              className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-300 text-white rounded-xl text-xs font-medium">
+              className="px-4 py-1.5 bg-[#3182F6] hover:bg-[#1B64DA] disabled:bg-indigo-300 text-white rounded-xl text-xs font-medium">
               {saving ? '저장 중...' : (editId ? '수정 완료' : '저장')}
             </button>
           </div>
@@ -148,7 +148,7 @@ export default function AspirationTracker({ studentId, aspirations, onRefresh }:
               <div key={a.id} className="relative pl-7">
                 {/* 타임라인 점 */}
                 <div className={`absolute left-0 top-3 w-5 h-5 rounded-full border-2 flex items-center justify-center
-                  ${idx === 0 ? 'bg-indigo-600 border-indigo-600' : 'bg-white border-indigo-300'}`}>
+                  ${idx === 0 ? 'bg-[#3182F6] border-[#3182F6]' : 'bg-white border-indigo-300'}`}>
                   <div className={`w-2 h-2 rounded-full ${idx === 0 ? 'bg-white' : 'bg-indigo-300'}`} />
                 </div>
 
@@ -158,7 +158,7 @@ export default function AspirationTracker({ studentId, aspirations, onRefresh }:
                       <div className="flex items-center gap-2 mb-1 flex-wrap">
                         <span className="text-xs text-slate-400 font-medium">{a.changed_date}</span>
                         {idx === 0 && (
-                          <span className="text-[10px] bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-full font-medium">최신</span>
+                          <span className="text-[10px] bg-[#EBF3FE] text-[#3182F6] px-2 py-0.5 rounded-full font-medium">최신</span>
                         )}
                       </div>
                       {(a.university || a.major) ? (
@@ -174,7 +174,7 @@ export default function AspirationTracker({ studentId, aspirations, onRefresh }:
                     </div>
                     <div className="flex gap-1 shrink-0">
                       <button onClick={() => openEdit(a)}
-                        className="text-xs text-slate-300 hover:text-indigo-500 transition-colors px-1">수정</button>
+                        className="text-xs text-slate-300 hover:text-[#3182F6] transition-colors px-1">수정</button>
                       <button onClick={() => handleDelete(a.id)}
                         className="text-xs text-slate-300 hover:text-red-500 transition-colors px-1">삭제</button>
                     </div>

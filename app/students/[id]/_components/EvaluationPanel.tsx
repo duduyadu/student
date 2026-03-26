@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase'
 import type { TeacherEvaluation, EvaluationTemplate } from '@/lib/types'
 import StarRating from '@/components/StarRating'
 
-const inp = 'w-full px-3 py-2 border border-slate-200 rounded-xl bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm'
+const inp = 'w-full px-3 py-2 border border-slate-200 rounded-xl bg-white text-slate-800 focus:outline-none focus:border-[#3182F6] focus:bg-white text-sm'
 const lbl = 'block text-xs font-medium text-slate-500 mb-1'
 
 interface Props {
@@ -123,7 +123,7 @@ export default function EvaluationPanel({ studentId, evaluations, templates, onR
       {/* 툴바 */}
       <div className="flex justify-end">
         <button onClick={openAdd}
-          className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-xl transition-colors">
+          className="bg-[#3182F6] hover:bg-[#1B64DA] text-white text-sm px-4 py-2 rounded-xl transition-colors">
           + 평가 추가
         </button>
       </div>
@@ -226,7 +226,7 @@ export default function EvaluationPanel({ studentId, evaluations, templates, onR
             <button type="button" onClick={() => setShowForm(false)}
               className="px-4 py-2 border border-slate-200 text-slate-600 rounded-xl text-sm">취소</button>
             <button type="submit" disabled={saving}
-              className="px-5 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white rounded-xl text-sm font-medium">
+              className="px-5 py-2 bg-[#3182F6] hover:bg-[#1B64DA] disabled:bg-blue-300 text-white rounded-xl text-sm font-medium">
               {saving ? '저장 중...' : (editId ? '수정 완료' : '저장')}
             </button>
           </div>
@@ -252,7 +252,7 @@ export default function EvaluationPanel({ studentId, evaluations, templates, onR
                   <div className="flex items-center gap-2 flex-wrap mb-0.5">
                     <span className="text-sm font-semibold text-slate-700">{ev.eval_date}</span>
                     {ev.eval_period && (
-                      <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full">{ev.eval_period}</span>
+                      <span className="text-xs bg-[#EBF3FE] text-[#3182F6] px-2 py-0.5 rounded-full">{ev.eval_period}</span>
                     )}
                     <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                       ev.is_public ? 'bg-green-50 text-green-600' : 'bg-slate-100 text-slate-400'
@@ -270,7 +270,7 @@ export default function EvaluationPanel({ studentId, evaluations, templates, onR
                     </div>
                   )}
                   <div className="flex gap-1">
-                    <button onClick={() => openEdit(ev)} className="text-xs text-slate-300 hover:text-blue-500 px-1">수정</button>
+                    <button onClick={() => openEdit(ev)} className="text-xs text-slate-300 hover:text-[#3182F6] px-1">수정</button>
                     <button onClick={() => handleDelete(ev.id)} className="text-xs text-slate-300 hover:text-red-500 px-1">삭제</button>
                   </div>
                 </div>

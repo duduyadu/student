@@ -10,7 +10,7 @@ export function getUserMeta(session: Session): UserMeta {
   const app  = (session.user.app_metadata  ?? {}) as { role?: UserRole; agency_code?: string }
   const user = (session.user.user_metadata ?? {}) as { name_kr?: string }
   return {
-    role:         app.role         ?? 'agency',
+    role:         app.role         ?? 'student',
     agency_code:  app.agency_code,
     name_kr:      user.name_kr ?? '',
   }

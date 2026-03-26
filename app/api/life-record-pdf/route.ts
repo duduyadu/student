@@ -27,16 +27,24 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'studentId is required' }, { status: 400 })
   }
 
-  // 역할 기반 소속 검증 (agency는 자기 학생만)
-  const role = (user.app_metadata as { role?: string })?.role ?? 'agency'
+  // 역할 기반 소속 검증
+  const role = (user.app_metadata as { role?: string })?.role ?? 'student'
   const agencyCode = (user.app_metadata as { agency_code?: string })?.agency_code
   const supabase = getServiceClient()
-  if (role === 'agency' && agencyCode) {
+  if (role === 'agency') {
+    if (!agencyCode) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     const { data: st } = await supabase.from('students').select('agency_code').eq('id', studentId).single()
     if (!st || st.agency_code !== agencyCode) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
+  } else if (role === 'student') {
+    // 학생은 본인 레코드만 열람 가능
+    const { data: st } = await supabase.from('students').select('auth_user_id').eq('id', studentId).single()
+    if (!st || st.auth_user_id !== user.id) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
   }
+  // master: 모든 학생 접근 허용
 
   // 병렬 데이터 로드
   const [
