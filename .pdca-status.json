@@ -74,5 +74,14 @@
     "completedAt": "2026-03-27T00:00:00Z",
     "archivedAt": "2026-03-27T00:00:00Z",
     "archivedTo": "docs/archive/2026-03/health-api-fix/"
+  },
+  "performance-query-fix": {
+    "phase": "archived",
+    "matchRate": 100,
+    "iterationCount": 0,
+    "startedAt": "2026-03-27T00:00:00Z",
+    "completedAt": "2026-03-27T00:00:00Z",
+    "archivedAt": "2026-03-27T00:00:00Z",
+    "archivedTo": "docs/archive/2026-03/performance-query-fix/"
   }
 }

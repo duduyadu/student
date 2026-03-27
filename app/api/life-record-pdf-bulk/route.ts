@@ -103,10 +103,12 @@ export async function POST(req: NextRequest) {
 
   const zip = new JSZip()
 
-  for (const studentId of allowedIds) {
-    const { student, consultations, evaluations, examResults, aspirationHistory, templates } =
-      await fetchStudentData(supabase, studentId)
+  // 모든 학생 데이터 병렬 조회 (순차 N+1 → Promise.all)
+  const allStudentData = await Promise.all(
+    allowedIds.map(id => fetchStudentData(supabase, id))
+  )
 
+  for (const { student, consultations, evaluations, examResults, aspirationHistory, templates } of allStudentData) {
     if (!student) continue
 
     const baseData: Omit<LifeRecordData, 'lang'> = {

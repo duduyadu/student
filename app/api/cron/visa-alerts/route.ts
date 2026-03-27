@@ -51,6 +51,23 @@ export async function GET(req: NextRequest) {
   }
 
   const currentYear = today.getFullYear()
+
+  // 대상 학생 필터 (D-7/30/90) + 발송 이력 일괄 조회 (루프 내 N+1 방지)
+  const targetIds = students
+    .filter(s => [7, 30, 90].includes(
+      Math.ceil((new Date(s.visa_expiry).getTime() - today.getTime()) / 86400000)
+    ))
+    .map(s => s.id)
+
+  const { data: sentLogs } = targetIds.length > 0
+    ? await supabaseAdmin
+        .from('visa_alert_logs')
+        .select('student_id, days_before')
+        .in('student_id', targetIds)
+        .eq('year', currentYear)
+    : { data: [] }
+  const sentSet = new Set((sentLogs ?? []).map(l => `${l.student_id}-${l.days_before}`))
+
   let sent = 0
   for (const student of students) {
     const expiry   = new Date(student.visa_expiry)
@@ -59,15 +76,8 @@ export async function GET(req: NextRequest) {
     // D-7, D-30, D-90 정확한 날에만 발송 (매일 중복 방지)
     if (![7, 30, 90].includes(daysLeft)) continue
 
-    // 이미 올해 발송된 이력 확인 (중복 방지)
-    const { data: existing } = await supabaseAdmin
-      .from('visa_alert_logs')
-      .select('id')
-      .eq('student_id', student.id)
-      .eq('days_before', daysLeft)
-      .eq('year', currentYear)
-      .maybeSingle()
-    if (existing) continue
+    // 이미 올해 발송된 이력 확인 (메모리 Set으로 체크)
+    if (sentSet.has(`${student.id}-${daysLeft}`)) continue
 
     const urgencyKo = daysLeft <= 7 ? '🚨 즉시 조치 필요' : daysLeft <= 30 ? '⚠️ 갱신 서류 준비' : '📋 갱신 준비 시작'
     const urgencyVi = daysLeft <= 7 ? '🚨 Cần xử lý ngay' : daysLeft <= 30 ? '⚠️ Chuẩn bị hồ sơ' : '📋 Bắt đầu chuẩn bị'

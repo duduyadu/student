@@ -59,6 +59,20 @@ export async function GET(req: NextRequest) {
   const in30   = new Date(today); in30.setDate(today.getDate() + 30)
   const in90   = new Date(today); in90.setDate(today.getDate() + 90)
 
+  // 오늘 발송 이력 일괄 조회 (루프 내 alreadySent() N+1 방지)
+  const todayStr = fmt(today)
+  const { data: todayLogs } = await supabaseAdmin
+    .from('document_alert_logs')
+    .select('student_id, alert_type, doc_type_id')
+    .gte('sent_at', `${todayStr}T00:00:00Z`)
+
+  const sentMissing = new Set(
+    (todayLogs ?? []).filter(l => l.alert_type === 'missing').map(l => l.student_id)
+  )
+  const sentExpiry = new Set(
+    (todayLogs ?? []).filter(l => l.alert_type === 'expiry_warning').map(l => `${l.student_id}-${l.doc_type_id}`)
+  )
+
   let missingSent  = 0
   let expirySent   = 0
 
@@ -81,8 +95,8 @@ export async function GET(req: NextRequest) {
     // D-7, D-30, D-90 날에만 발송
     if (![7, 30, 90].includes(daysLeft)) continue
 
-    // 오늘 이미 발송됐으면 skip
-    if (await alreadySent(student.id, 'missing')) continue
+    // 오늘 이미 발송됐으면 skip (Set 체크)
+    if (sentMissing.has(student.id)) continue
 
     // 미제출 필수 서류 조회
     const { data: studentDocs } = await supabaseAdmin
@@ -168,7 +182,7 @@ export async function GET(req: NextRequest) {
     if (!student?.email) continue
     const daysLeft = Math.ceil((new Date(doc.expiry_date).getTime() - today.getTime()) / 86400000)
     if (![7, 30].includes(daysLeft)) continue
-    if (await alreadySent(student.id, 'expiry_warning', doc.doc_type_id)) continue
+    if (sentExpiry.has(`${student.id}-${doc.doc_type_id}`)) continue
 
     const subject = `[AJU E&J] 서류 갱신 필요 — ${dt?.name_kr} 만료 D-${daysLeft}`
     const html = `

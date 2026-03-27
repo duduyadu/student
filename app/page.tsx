@@ -207,12 +207,16 @@ export default function DashboardPage() {
   }
 
   const loadTopikDist = async () => {
-    // 각 학생의 최신 exam_results.level 집계
-    const { data } = await supabase
-      .from('exam_results')
-      .select('student_id, level, exam_date')
-      .order('exam_date', { ascending: false })
-    if (!data) return
+    // 두 쿼리 병렬 실행 (순차 → Promise.all)
+    const [{ data }, { data: students }] = await Promise.all([
+      supabase
+        .from('exam_results')
+        .select('student_id, level, exam_date')
+        .order('exam_date', { ascending: false }),
+      supabase
+        .from('students').select('id').eq('is_active', true),
+    ])
+    if (!data || !students) return
 
     // 학생별 최신 성적만 추출
     const latest = new Map<string, string>()
@@ -221,9 +225,6 @@ export default function DashboardPage() {
     })
 
     const counts = { none: 0, lv1: 0, lv2: 0 }
-    const { data: students } = await supabase
-      .from('students').select('id').eq('is_active', true)
-    if (!students) return
 
     students.forEach(s => {
       const lv = latest.get(s.id)
