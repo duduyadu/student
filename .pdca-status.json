@@ -56,5 +56,14 @@
     "startedAt": "2026-03-26T00:00:00Z",
     "archivedAt": "2026-03-26T00:00:00Z",
     "archivedTo": "docs/archive/2026-03/ui-style-toss/"
+  },
+  "nextjs-middleware": {
+    "phase": "archived",
+    "matchRate": 100,
+    "iterationCount": 0,
+    "startedAt": "2026-03-27T00:00:00Z",
+    "completedAt": "2026-03-27T00:00:00Z",
+    "archivedAt": "2026-03-27T00:00:00Z",
+    "archivedTo": "docs/archive/2026-03/nextjs-middleware/"
   }
 }
