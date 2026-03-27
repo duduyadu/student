@@ -98,38 +98,19 @@ export default function DashboardPage() {
     if (data) setPendingStudents(data as Student[])
   }
 
-  const approveOne = async (studentId: string): Promise<void> => {
-    const now = new Date()
-    const yy  = now.getFullYear().toString().slice(-2)
-    const { data: stu } = await supabase.from('students').select('agency_id').eq('id', studentId).single()
-    let agencyNum = '000'
-    if (stu?.agency_id) {
-      const { data: ag } = await supabase.from('agencies').select('agency_number').eq('id', stu.agency_id).single()
-      if (ag) agencyNum = String(ag.agency_number).padStart(3, '0')
-    }
-    const yearStart = `${now.getFullYear()}-01-01`
-    const yearEnd   = `${now.getFullYear()}-12-31`
-    const { count } = await supabase.from('students').select('*', { count: 'exact', head: true })
-      .eq('agency_id', stu?.agency_id ?? '').eq('is_approved', true)
-      .gte('created_at', yearStart).lte('created_at', yearEnd)
-
-    // 레이스 컨디션 방지: 이미 사용 중인 코드면 seq를 증가시켜 재시도
-    let seq = (count ?? 0) + 1
-    let student_code = `${yy}${agencyNum}${String(seq).padStart(3, '0')}`
-    while (true) {
-      const { data: collision } = await supabase
-        .from('students').select('id').eq('student_code', student_code).maybeSingle()
-      if (!collision) break
-      seq++
-      student_code = `${yy}${agencyNum}${String(seq).padStart(3, '0')}`
-    }
-
-    await supabase.from('students').update({ is_approved: true, student_code }).eq('id', studentId)
+  const approveStudents = async (studentIds: string[]): Promise<void> => {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) return
+    await fetch('/api/approve-student', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+      body: JSON.stringify({ studentIds }),
+    })
   }
 
   const handleApprove = async (studentId: string) => {
     setApprovingId(studentId)
-    await approveOne(studentId)
+    await approveStudents([studentId])
     setPendingStudents(prev => prev.filter(s => s.id !== studentId))
     setSelectedIds(prev => { const n = new Set(prev); n.delete(studentId); return n })
     setApprovingId(null)
@@ -139,9 +120,7 @@ export default function DashboardPage() {
   const handleBulkApprove = async () => {
     if (selectedIds.size === 0) return
     setBulkApproving(true)
-    for (const id of selectedIds) {
-      await approveOne(id)
-    }
+    await approveStudents([...selectedIds])
     setPendingStudents(prev => prev.filter(s => !selectedIds.has(s.id)))
     setSelectedIds(new Set())
     setBulkApproving(false)

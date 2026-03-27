@@ -117,7 +117,7 @@ export async function GET(req: NextRequest) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'AJU E&J <onboarding@resend.dev>',
+        from: process.env.RESEND_FROM_EMAIL ?? 'AJU E&J <onboarding@resend.dev>',
         to:   [student.email],
         subject,
         html,
