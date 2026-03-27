@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
   }
   const token = authHeader.slice(7)
   const { data: { user: caller }, error: authErr } = await supabaseAdmin.auth.getUser(token)
-  if (authErr || !caller || (caller.app_metadata as any)?.role !== 'master') {
+  if (authErr || !caller || (caller.app_metadata as { role?: string })?.role !== 'master') {
     return NextResponse.json({ error: '권한이 없습니다.' }, { status: 403 })
   }
 

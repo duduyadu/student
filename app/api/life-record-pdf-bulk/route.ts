@@ -7,8 +7,7 @@ import React from 'react'
 import type { ReactElement, JSXElementConstructor } from 'react'
 import { getServiceClient, getAnonClient } from '@/lib/supabaseServer'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function fetchStudentData(supabase: any, studentId: string) {
+async function fetchStudentData(supabase: ReturnType<typeof getServiceClient>, studentId: string) {
   const [
     { data: student },
     { data: consultations },

@@ -173,11 +173,10 @@ export async function GET(req: NextRequest) {
     .gte('expiry_date', fmt(today))
     .lte('expiry_date', fmt(in30))
 
+  type DocWithJoin = typeof expiringDocs extends (infer T)[] | null ? T : never
   for (const doc of expiringDocs ?? []) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const student = (doc as any).student
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const dt      = (doc as any).doc_type
+    const student = (doc as DocWithJoin & { student: { id: string; name_kr: string; name_vn: string; email: string } | null }).student
+    const dt      = (doc as DocWithJoin & { doc_type: { name_kr: string; name_vi: string } | null }).doc_type
 
     if (!student?.email) continue
     const daysLeft = Math.ceil((new Date(doc.expiry_date).getTime() - today.getTime()) / 86400000)
