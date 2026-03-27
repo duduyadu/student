@@ -38,14 +38,40 @@ function toChartData(exams: ExamResult[]) {
       reading: e.reading_score   ?? null,
       listen:  e.listening_score ?? null,
       level:   e.level,
+      isMock:  e.exam_source === 'mock' || e.exam_source === 'topik-app',
     }))
+}
+
+// 모의고사 여부에 따라 커스텀 dot 렌더링
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const MockDot = (props: any) => {
+  const { cx, cy, payload } = props
+  if (payload?.isMock) {
+    // 모의고사: 빈 원(outline only) + 주황색
+    return <circle cx={cx} cy={cy} r={5} fill="#fff" stroke="#F59E0B" strokeWidth={2} />
+  }
+  // 정규: 채워진 원 + 남색
+  return <circle cx={cx} cy={cy} r={4} fill="#3949AB" />
 }
 
 // ── 추이 차트 ──────────────────────────────────
 function TrendChart({ data }: { data: ReturnType<typeof toChartData> }) {
+  const hasMock = data.some(d => d.isMock)
   return (
     <div className="bg-white rounded-2xl p-5 shadow-sm">
-      <p className="text-sm font-semibold text-slate-700 mb-4">총점 추이</p>
+      <div className="flex items-center justify-between mb-4">
+        <p className="text-sm font-semibold text-slate-700">총점 추이</p>
+        {hasMock && (
+          <div className="flex items-center gap-3 text-xs text-slate-500">
+            <span className="flex items-center gap-1">
+              <span className="inline-block w-3 h-3 rounded-full bg-[#3949AB]" />정규
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="inline-block w-3 h-3 rounded-full border-2 border-[#F59E0B] bg-white" />모의
+            </span>
+          </div>
+        )}
+      </div>
       <ResponsiveContainer width="100%" height={220}>
         <LineChart data={data} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -57,12 +83,13 @@ function TrendChart({ data }: { data: ReturnType<typeof toChartData> }) {
               name === 'total' ? '총점' : name === 'reading' ? '읽기' : '듣기',
             ]}
             labelFormatter={(label, payload) => {
-              const d = (payload as { payload?: { date?: string } }[])?.[0]?.payload?.date
-              return `${label}${d ? ` (${d})` : ''}`
+              const p = (payload as { payload?: { date?: string; isMock?: boolean } }[])?.[0]?.payload
+              const tag = p?.isMock ? ' [모의]' : ''
+              return `${label}${p?.date ? ` (${p.date})` : ''}${tag}`
             }}
           />
           <Legend formatter={v => v === 'total' ? '총점' : v === 'reading' ? '읽기' : '듣기'} />
-          <Line type="monotone" dataKey="total"   stroke="#3949AB" strokeWidth={2.5} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+          <Line type="monotone" dataKey="total"   stroke="#3949AB" strokeWidth={2.5} dot={<MockDot />} activeDot={{ r: 6 }} />
           <Line type="monotone" dataKey="reading" stroke="#43A047" strokeWidth={1.5} dot={{ r: 3 }} strokeDasharray="4 2" />
           <Line type="monotone" dataKey="listen"  stroke="#FB8C00" strokeWidth={1.5} dot={{ r: 3 }} strokeDasharray="4 2" />
         </LineChart>

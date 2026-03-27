@@ -626,6 +626,15 @@ export default function StudentDetailPage() {
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-semibold text-slate-700">{e.exam_date}</span>
                       <span className="text-xs text-slate-400">{e.exam_type}</span>
+                      {(e.exam_source === 'topik-app' || e.exam_source === 'mock') && (
+                        <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium">모의</span>
+                      )}
+                      {e.exam_source === 'official' && (
+                        <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full font-medium">공식</span>
+                      )}
+                      {e.exam_source === 'topik-app' && (
+                        <span className="text-xs bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded font-medium">TOPIK앱</span>
+                      )}
                     </div>
                     <div className="flex items-center gap-3">
                       <span className={`text-sm font-bold px-3 py-1 rounded-full ${levelColor(e.level)}`}>{e.level}</span>
