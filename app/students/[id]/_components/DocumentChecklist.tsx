@@ -8,19 +8,19 @@ interface Props {
   studentId: string
 }
 
-const CATEGORY_LABELS: Record<DocCategory, string> = {
-  identity:  '신분서류',
-  school:    '학교서류',
-  financial: '재정서류',
-  health:    '건강서류',
+const CATEGORY_LABELS: Record<DocCategory, { ko: string; vi: string }> = {
+  identity:  { ko: '신분서류',   vi: 'Giấy tờ tùy thân' },
+  school:    { ko: '학교서류',   vi: 'Giấy tờ học tập' },
+  financial: { ko: '재정서류',   vi: 'Giấy tờ tài chính' },
+  health:    { ko: '건강서류',   vi: 'Giấy tờ sức khỏe' },
 }
 
-const STATUS_LABELS: Record<DocStatus, string> = {
-  pending:   '미제출',
-  submitted: '제출됨',
-  reviewing: '검토중',
-  approved:  '승인',
-  rejected:  '반려',
+const STATUS_LABELS: Record<DocStatus, { ko: string; vi: string }> = {
+  pending:   { ko: '미제출',  vi: 'Chưa nộp' },
+  submitted: { ko: '제출됨',  vi: 'Đã nộp' },
+  reviewing: { ko: '검토중',  vi: 'Đang xem xét' },
+  approved:  { ko: '승인',    vi: 'Đã duyệt' },
+  rejected:  { ko: '반려',    vi: 'Bị từ chối' },
 }
 
 const STATUS_COLORS: Record<DocStatus, string> = {
@@ -140,7 +140,7 @@ export default function DocumentChecklist({ studentId }: Props) {
                 activeCategory === cat ? 'bg-[#3182F6] text-white' : 'text-slate-500 hover:text-slate-800'
               }`}
             >
-              {CATEGORY_LABELS[cat]} ({catApproved}/{catDocs.length})
+              {CATEGORY_LABELS[cat].ko} ({catApproved}/{catDocs.length})
             </button>
           )
         })}
@@ -192,7 +192,7 @@ export default function DocumentChecklist({ studentId }: Props) {
                     </td>
                     <td className="text-center px-3 py-3">
                       <span className={`inline-block text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_COLORS[doc.status as DocStatus]}`}>
-                        {STATUS_LABELS[doc.status as DocStatus]}
+                        {STATUS_LABELS[doc.status as DocStatus].ko}
                       </span>
                       {doc.self_checked && (
                         <div className="text-xs text-slate-400 mt-0.5">자가확인</div>
@@ -239,7 +239,7 @@ export default function DocumentChecklist({ studentId }: Props) {
                         className="text-xs border border-slate-200 rounded-lg px-2 py-1 bg-white focus:outline-none focus:border-[#3182F6] disabled:opacity-50"
                       >
                         {ALL_STATUSES.map(s => (
-                          <option key={s} value={s}>{STATUS_LABELS[s]}</option>
+                          <option key={s} value={s}>{STATUS_LABELS[s].ko}</option>
                         ))}
                       </select>
                     </td>
