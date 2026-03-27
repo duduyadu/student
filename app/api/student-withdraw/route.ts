@@ -13,6 +13,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: '인증 실패' }, { status: 401 })
   }
 
+  // 역할 검증: student만 탈퇴 가능
+  const role = (user.app_metadata?.role as string) ?? ''
+  if (role !== 'student') {
+    return NextResponse.json({ error: '학생만 탈퇴할 수 있습니다.' }, { status: 403 })
+  }
+
   // 본인 학생 레코드 비활성화
   const { data: student, error } = await supabaseAdmin
     .from('students')

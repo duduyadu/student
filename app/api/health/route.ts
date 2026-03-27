@@ -19,7 +19,14 @@ async function measure<T>(fn: () => Promise<T>): Promise<{ result?: T; ms: numbe
   }
 }
 
-export async function GET() {
+export async function GET(req: Request) {
+  // 인증: CRON_SECRET 헤더 필요 (Gemini API 비용 남용 방지)
+  const secret = process.env.CRON_SECRET
+  const token = (req.headers.get('authorization') ?? '').replace('Bearer ', '').trim()
+  if (!secret || token !== secret) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   const checks: CheckResult[] = []
 
   // ── 1. Supabase DB ─────────────────────────────────────────

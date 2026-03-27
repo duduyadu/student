@@ -17,6 +17,18 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const { name_kr, name_vn, phone_vn, email, password, dob, gender, status, agency_id } = body
 
+    // 서버 측 입력 검증
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!email || !emailRegex.test(String(email))) {
+      return NextResponse.json({ error: '유효한 이메일을 입력해주세요.' }, { status: 400 })
+    }
+    if (!password || String(password).length < 8) {
+      return NextResponse.json({ error: '비밀번호는 8자 이상이어야 합니다.' }, { status: 400 })
+    }
+    if (!name_kr || !name_vn) {
+      return NextResponse.json({ error: 'name_kr, name_vn은 필수입니다.' }, { status: 400 })
+    }
+
     // 1. Admin API로 계정 생성 (Rate Limit 없음, 이메일 인증 불필요)
     const { data: authData, error: authErr } = await adminClient.auth.admin.createUser({
       email,
