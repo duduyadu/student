@@ -24,7 +24,7 @@ export function useAdminAuth() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
-    router.push('/login')
+    window.location.href = '/login'
   }
 
   return { user, handleLogout }

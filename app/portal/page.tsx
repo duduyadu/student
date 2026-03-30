@@ -104,7 +104,7 @@ export default function PortalPage() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
-    router.push('/login')
+    window.location.href = '/login'
   }
 
   const handleSave = async () => {
@@ -147,7 +147,7 @@ export default function PortalPage() {
     })
     if (res.ok) {
       await supabase.auth.signOut()
-      router.push('/login')
+      window.location.href = '/login'
     } else {
       setWithdrawing(false)
       setShowWithdrawConfirm(false)

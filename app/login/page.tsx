@@ -45,9 +45,9 @@ export default function LoginPage() {
     }).catch(() => {})
 
     if (appMeta?.role === 'student') {
-      router.push('/portal')
+      window.location.href = '/portal'
     } else {
-      router.push('/')
+      window.location.href = '/'
     }
   }
 
