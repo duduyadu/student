@@ -3,7 +3,7 @@
 > Supabase + Next.js 기반 다국어(KO/VI) 학생 관리 시스템. JWT 인증, RLS 권한 격리, 감사 로그 포함.
 
 **Version**: 3.0 (Supabase Migration)
-**Status**: 🔄 마이그레이션 중
+**Status**: ✅ v3.0 운영 중
 
 ---
 
@@ -46,7 +46,7 @@ Never guess
 | Item | Value |
 |------|-------|
 | Backend | Supabase (PostgreSQL + PostgREST + Realtime) |
-| Database | PostgreSQL with RLS (8 tables) |
+| Database | PostgreSQL with RLS (13 tables) |
 | Frontend | Next.js 14 (App Router) + React |
 | Language | TypeScript |
 | Auth | Supabase Auth (JWT + Email/Password) |

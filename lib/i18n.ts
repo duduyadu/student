@@ -406,6 +406,17 @@ export const T = {
   forgotPwSending:    { ko: '발송 중...',              vi: 'Đang gửi...' },
   forgotPwSentTitle:  { ko: '이메일을 확인하세요',     vi: 'Kiểm tra email của bạn' },
   backToLogin:        { ko: '로그인으로 돌아가기',     vi: 'Quay lại đăng nhập' },
+
+  // ─── 단위 / 대시보드 헬스 모니터 ───
+  unitPerson:         { ko: '명',                                      vi: ' người' },
+  healthMonitorTitle: { ko: 'API 상태 모니터',                         vi: 'Giám sát API' },
+  healthChecking:     { ko: '확인 중...',                              vi: 'Đang kiểm tra...' },
+  healthRefresh:      { ko: '새로고침',                                vi: 'Làm mới' },
+  healthLoadingMsg:   { ko: 'API 상태 확인 중...',                     vi: 'Đang kiểm tra trạng thái API...' },
+  healthLoadError:    { ko: '상태 정보를 불러올 수 없습니다.',          vi: 'Không thể tải thông tin trạng thái.' },
+  healthAllOk:        { ko: '✅ 전체 정상',                            vi: '✅ Tất cả ổn' },
+  healthPartialError: { ko: '❌ 일부 오류',                            vi: '❌ Một số lỗi' },
+  healthTimeSuffix:   { ko: ' 기준',                                   vi: '' },
 } as const
 
 export const t = (key: keyof typeof T, lang: Lang): string => T[key][lang]

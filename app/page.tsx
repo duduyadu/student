@@ -308,7 +308,7 @@ export default function DashboardPage() {
           <div className="bg-amber-50 border border-amber-300 rounded-2xl p-5 mb-5">
             <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
               <h3 className="text-sm font-semibold text-amber-700">
-                🆕 {t('pendingNew', lang)} ({pendingStudents.length}명)
+                🆕 {t('pendingNew', lang)} ({pendingStudents.length}{t('unitPerson', lang)})
               </h3>
               <div className="flex items-center gap-2">
                 <button
@@ -323,7 +323,7 @@ export default function DashboardPage() {
                     disabled={bulkApproving}
                     className="text-xs font-semibold px-3 py-1.5 bg-[#3182F6] hover:bg-[#1B64DA] disabled:bg-blue-300 text-white rounded-lg transition-colors"
                   >
-                    {bulkApproving ? t('processing', lang) : `${t('approveSelected', lang)} (${selectedIds.size}명)`}
+                    {bulkApproving ? t('processing', lang) : `${t('approveSelected', lang)} (${selectedIds.size}${t('unitPerson', lang)})`}
                   </button>
                 )}
               </div>
@@ -391,7 +391,7 @@ export default function DashboardPage() {
                         <Cell key={i} fill={entry.color} />
                       ))}
                     </Pie>
-                    <ReTooltip formatter={(v, name) => [`${v}명`, String(name)]} />
+                    <ReTooltip formatter={(v, name) => [`${v}${t('unitPerson', lang)}`, String(name)]} />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
@@ -532,7 +532,7 @@ export default function DashboardPage() {
                         style={{ width: `${pct}%` }}
                       />
                     </div>
-                    <span className="text-xs font-semibold text-slate-600 w-8 shrink-0">{count}명</span>
+                    <span className="text-xs font-semibold text-slate-600 w-8 shrink-0">{count}{t('unitPerson', lang)}</span>
                   </div>
                 )
               })}
@@ -544,7 +544,7 @@ export default function DashboardPage() {
         {warn7.length > 0 && (
           <div className="bg-red-50 border border-red-300 rounded-2xl p-5 mb-4">
             <h3 className="text-sm font-semibold text-red-700 mb-3">
-              {t('visa7', lang)} ({warn7.length}명)
+              {t('visa7', lang)} ({warn7.length}{t('unitPerson', lang)})
             </h3>
             <div className="space-y-2">
               {warn7.map(s => {
@@ -571,7 +571,7 @@ export default function DashboardPage() {
         {warn30.length > 0 && (
           <div className="bg-orange-50 border border-orange-200 rounded-2xl p-5 mb-4">
             <h3 className="text-sm font-semibold text-orange-700 mb-3">
-              {t('visa30', lang)} ({warn30.length}명)
+              {t('visa30', lang)} ({warn30.length}{t('unitPerson', lang)})
             </h3>
             <div className="space-y-2">
               {warn30.map(s => {
@@ -598,7 +598,7 @@ export default function DashboardPage() {
         {warn90.length > 0 && (
           <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-5 mb-4">
             <h3 className="text-sm font-semibold text-yellow-700 mb-3">
-              {t('visa90', lang)} ({warn90.length}명)
+              {t('visa90', lang)} ({warn90.length}{t('unitPerson', lang)})
             </h3>
             <div className="space-y-2">
               {warn90.map(s => {
@@ -632,32 +632,32 @@ export default function DashboardPage() {
         {user?.role === 'master' && (
           <div className="bg-white rounded-2xl p-5 shadow-sm">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-semibold text-slate-700">🔧 API 상태 모니터</h3>
+              <h3 className="text-sm font-semibold text-slate-700">🔧 {t('healthMonitorTitle', lang)}</h3>
               <button
                 onClick={fetchHealth}
                 disabled={healthLoading}
                 className="text-xs px-3 py-1.5 bg-slate-100 hover:bg-slate-200 disabled:opacity-50 text-slate-600 rounded-lg transition-colors font-medium"
               >
-                {healthLoading ? '확인 중...' : '새로고침'}
+                {healthLoading ? t('healthChecking', lang) : t('healthRefresh', lang)}
               </button>
             </div>
 
             {healthLoading && !health && (
-              <div className="text-center py-6 text-slate-400 text-sm">API 상태 확인 중...</div>
+              <div className="text-center py-6 text-slate-400 text-sm">{t('healthLoadingMsg', lang)}</div>
             )}
 
             {!healthLoading && !health && (
-              <div className="text-center py-6 text-slate-400 text-sm">상태 정보를 불러올 수 없습니다.</div>
+              <div className="text-center py-6 text-slate-400 text-sm">{t('healthLoadError', lang)}</div>
             )}
 
             {health && (
               <>
                 <div className="flex items-center gap-2 mb-4">
                   <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${health.ok ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-600'}`}>
-                    {health.ok ? '✅ 전체 정상' : '❌ 일부 오류'}
+                    {health.ok ? t('healthAllOk', lang) : t('healthPartialError', lang)}
                   </span>
                   <span className="text-xs text-slate-400">
-                    {health.checkedAt ? new Date(health.checkedAt).toLocaleTimeString('ko-KR') + ' 기준' : ''}
+                    {health.checkedAt ? new Date(health.checkedAt).toLocaleTimeString(lang === 'vi' ? 'vi-VN' : 'ko-KR') + t('healthTimeSuffix', lang) : ''}
                   </span>
                 </div>
                 <div className="space-y-2">

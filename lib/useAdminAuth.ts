@@ -12,6 +12,8 @@ export function useAdminAuth() {
 
   useEffect(() => {
     const run = async () => {
+      const { data: { user: authUser } } = await supabase.auth.getUser()
+      if (!authUser) { router.push('/login'); return }
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) { router.push('/login'); return }
       const meta = getUserMeta(session)
