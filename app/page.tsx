@@ -69,7 +69,10 @@ export default function DashboardPage() {
   const fetchHealth = useCallback(async () => {
     setHealthLoading(true)
     try {
-      const res = await fetch('/api/health')
+      const { data: { session } } = await supabase.auth.getSession()
+      const res = await fetch('/api/health', {
+        headers: session ? { 'Authorization': `Bearer ${session.access_token}` } : {},
+      })
       setHealth(await res.json())
     } catch {
       setHealth(null)
@@ -372,7 +375,7 @@ export default function DashboardPage() {
               <h3 className="text-sm font-semibold text-slate-700 mb-3">
                 📊 {t('topikDistTitle', lang)}
               </h3>
-              <div className="h-44">
+              <div className="h-44 min-h-0">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
