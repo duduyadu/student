@@ -94,12 +94,12 @@
     "archivedTo": "docs/archive/2026-03/admin-multi-account/"
   },
   "dashboard-i18n-fix": {
-    "phase": "completed",
+    "phase": "archived",
     "matchRate": 100,
     "iterationCount": 0,
     "startedAt": "2026-03-30T00:00:00Z",
     "completedAt": "2026-03-30T00:00:00Z",
-    "reportPath": "docs/04-report/features/dashboard-i18n-fix.report.md",
-    "analysisPath": "docs/03-analysis/dashboard-i18n-fix.analysis.md"
+    "archivedAt": "2026-03-30T00:00:00Z",
+    "archivedTo": "docs/archive/2026-03/dashboard-i18n-fix/"
   }
 }

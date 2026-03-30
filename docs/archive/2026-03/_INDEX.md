@@ -13,3 +13,4 @@
 | health-api-fix | 100% | 2026-03-27 |
 | performance-query-fix | 100% | 2026-03-27 |
 | admin-multi-account | 100% | 2026-03-30 |
+| dashboard-i18n-fix | 100% | 2026-03-30 |
