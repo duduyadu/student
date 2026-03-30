@@ -9,6 +9,16 @@
 
 ## Core Principles
 
+### 0. Critical Thinking First (MANDATORY)
+```
+항상 비판적으로 사고한다.
+- 긍정적인 답변 먼저 하지 않는다
+- 문제의 근본 원인을 찾기 전에 해결책을 제시하지 않는다
+- 추측하지 않는다 — 코드/문서를 직접 확인한다
+- 실패한 시도를 반복하지 않는다 — 다른 접근법을 찾는다
+- 에러 발생 시 "될 것 같다"가 아니라 "왜 안 되는가"를 먼저 분석한다
+```
+
 ### 1. Automation First, Commands are Shortcuts
 ```
 Claude automatically applies PDCA methodology.

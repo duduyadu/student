@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import dynamic from 'next/dynamic'
+import { ResponsiveContainer } from 'recharts'
 import { supabase } from '@/lib/supabase'
 import type { Student } from '@/lib/types'
 import { STATUS_COLORS, STUDENT_STATUSES } from '@/lib/constants'
@@ -11,15 +12,14 @@ import { t, statusLabel } from '@/lib/i18n'
 import { useAdminAuth } from '@/lib/useAdminAuth'
 import { AppLayout } from '@/components/Layout/AppLayout'
 
-// recharts — SSR 비활성화
+// recharts — SSR 비활성화 (ResponsiveContainer는 정적 import — dynamic 시 타이밍 레이스 발생)
 const {
-  PieChart, Pie, Cell, Tooltip: ReTooltip, ResponsiveContainer,
+  PieChart, Pie, Cell, Tooltip: ReTooltip,
 } = {
-  PieChart:           dynamic(() => import('recharts').then(m => ({ default: m.PieChart          })), { ssr: false }),
-  Pie:                dynamic(() => import('recharts').then(m => ({ default: m.Pie               })), { ssr: false }),
-  Cell:               dynamic(() => import('recharts').then(m => ({ default: m.Cell              })), { ssr: false }),
-  Tooltip:            dynamic(() => import('recharts').then(m => ({ default: m.Tooltip           })), { ssr: false }),
-  ResponsiveContainer: dynamic(() => import('recharts').then(m => ({ default: m.ResponsiveContainer })), { ssr: false }),
+  PieChart: dynamic(() => import('recharts').then(m => ({ default: m.PieChart })), { ssr: false }),
+  Pie:      dynamic(() => import('recharts').then(m => ({ default: m.Pie      })), { ssr: false }),
+  Cell:     dynamic(() => import('recharts').then(m => ({ default: m.Cell     })), { ssr: false }),
+  Tooltip:  dynamic(() => import('recharts').then(m => ({ default: m.Tooltip  })), { ssr: false }),
 } as const
 
 interface StatusCount { status: string; count: number }
@@ -376,7 +376,7 @@ export default function DashboardPage() {
                 📊 {t('topikDistTitle', lang)}
               </h3>
               <div className="h-44 min-h-0">
-                <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+                <ResponsiveContainer width="100%" height={176}>
                   <PieChart>
                     <Pie
                       data={topikDist.filter(d => d.value > 0)}
