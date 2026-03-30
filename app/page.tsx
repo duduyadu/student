@@ -644,11 +644,11 @@ export default function DashboardPage() {
                     {health.ok ? '✅ 전체 정상' : '❌ 일부 오류'}
                   </span>
                   <span className="text-xs text-slate-400">
-                    {new Date(health.checkedAt).toLocaleTimeString('ko-KR')} 기준
+                    {health.checkedAt ? new Date(health.checkedAt).toLocaleTimeString('ko-KR') + ' 기준' : ''}
                   </span>
                 </div>
                 <div className="space-y-2">
-                  {health.checks.map((c) => (
+                  {(health.checks ?? []).map((c) => (
                     <div key={c.name} className={`flex items-center justify-between rounded-xl px-4 py-2.5 border ${
                       c.status === 'ok'   ? 'bg-emerald-50 border-emerald-100' :
                       c.status === 'warn' ? 'bg-yellow-50 border-yellow-200'  :
