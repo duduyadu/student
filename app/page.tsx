@@ -222,7 +222,7 @@ export default function DashboardPage() {
   const loadRecentActivity = async () => {
     const [consults, newStudents] = await Promise.all([
       supabase.from('consultations')
-        .select('id, student_id, content, created_at, student:students(name_kr)')
+        .select('id, student_id, content, created_at')
         .order('created_at', { ascending: false })
         .limit(5),
       supabase.from('students')
@@ -232,14 +232,24 @@ export default function DashboardPage() {
         .limit(5),
     ])
 
+    // 상담 기록의 student_id로 학생 이름 별도 조회
+    const consultStudentIds = (consults.data ?? []).map(c => c.student_id).filter(Boolean)
+    let studentNameMap: Record<string, string> = {}
+    if (consultStudentIds.length > 0) {
+      const { data: stuNames } = await supabase
+        .from('students')
+        .select('id, name_kr')
+        .in('id', consultStudentIds)
+      stuNames?.forEach(s => { studentNameMap[s.id] = s.name_kr })
+    }
+
     const items: ActivityItem[] = []
 
     consults.data?.forEach(c => {
-      const stu = Array.isArray(c.student) ? c.student[0] : c.student
       items.push({
         type: 'consult',
         label: t('actConsult', lang),
-        sub: (stu as { name_kr: string } | null)?.name_kr ?? '-',
+        sub: studentNameMap[c.student_id] ?? '-',
         at: c.created_at,
         href: `/students/${c.student_id}`,
       })
