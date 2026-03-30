@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { logAudit } from '@/lib/auditClient'
 import type { AspirationHistory } from '@/lib/types'
 
 const inp = 'w-full px-3 py-2 border border-slate-200 rounded-xl bg-white text-slate-800 focus:outline-none focus:border-[#3182F6] focus:bg-white text-sm'
@@ -55,11 +56,17 @@ export default function AspirationTracker({ studentId, aspirations, onRefresh }:
       major:        form.major || null,
       reason:       form.reason || null,
     }
+    let savedId: string | undefined
     if (editId) {
-      await supabase.from('aspiration_history').update(payload).eq('id', editId)
+      const { error } = await supabase.from('aspiration_history').update(payload).eq('id', editId)
+      if (error) { alert('수정 실패: ' + error.message); setSaving(false); return }
+      savedId = editId
     } else {
-      await supabase.from('aspiration_history').insert(payload)
+      const { data, error } = await supabase.from('aspiration_history').insert(payload).select('id').single()
+      if (error) { alert('저장 실패: ' + error.message); setSaving(false); return }
+      savedId = data?.id
     }
+    await logAudit({ action: editId ? 'UPDATE' : 'CREATE', targetTable: 'aspiration_history', targetId: savedId })
     setSaving(false)
     setShowForm(false)
     setEditId(null)
@@ -68,7 +75,9 @@ export default function AspirationTracker({ studentId, aspirations, onRefresh }:
 
   const handleDelete = async (id: string) => {
     if (!confirm('이 희망 대학 이력을 삭제하시겠습니까?')) return
-    await supabase.from('aspiration_history').delete().eq('id', id)
+    const { error } = await supabase.from('aspiration_history').delete().eq('id', id)
+    if (error) { alert('삭제 실패: ' + error.message); return }
+    await logAudit({ action: 'DELETE', targetTable: 'aspiration_history', targetId: id })
     onRefresh()
   }
 

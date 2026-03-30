@@ -9,6 +9,7 @@ import { STATUS_COLORS, TOPIK_LEVELS, CONSULT_TYPES } from '@/lib/constants'
 import { useLang } from '@/lib/useLang'
 import { t, statusLabel } from '@/lib/i18n'
 import { useAdminAuth } from '@/lib/useAdminAuth'
+import { logAudit } from '@/lib/auditClient'
 import { AppLayout } from '@/components/Layout/AppLayout'
 import ConsultTimeline from './_components/ConsultTimeline'
 import EvaluationPanel from './_components/EvaluationPanel'
@@ -191,6 +192,7 @@ export default function StudentDetailPage() {
       setSavingExam(false)
       return
     }
+    await logAudit({ action: editExamId ? 'UPDATE' : 'CREATE', targetTable: 'exam_results', targetId: editExamId ?? undefined })
     await loadExams()
     setExam({ exam_date: '', exam_type: 'TOPIK', reading_score: '', listening_score: '', total_score: '', level: '2급' })
     setShowExamForm(false)
@@ -202,6 +204,7 @@ export default function StudentDetailPage() {
     if (!confirm(t('examDeleteConfirm', lang))) return
     const { error } = await supabase.from('exam_results').delete().eq('id', examId)
     if (error) { alert(t('deleteFail', lang) + error.message); return }
+    await logAudit({ action: 'DELETE', targetTable: 'exam_results', targetId: examId })
     await loadExams()
   }
 
@@ -214,7 +217,12 @@ export default function StudentDetailPage() {
     fd.append('studentId', id)
     fd.append('examDate', excelDate)
     if (excelRound) fd.append('roundNumber', excelRound)
-    const res = await fetch('/api/mock-exam-import', { method: 'POST', body: fd })
+    const { data: { session: excelSession } } = await supabase.auth.getSession()
+    const res = await fetch('/api/mock-exam-import', {
+      method: 'POST',
+      headers: excelSession ? { Authorization: `Bearer ${excelSession.access_token}` } : {},
+      body: fd,
+    })
     const json = await res.json()
     if (res.ok) {
       alert(json.message)
@@ -231,7 +239,10 @@ export default function StudentDetailPage() {
     setAiLoading(true)
     setChartLevel('ai')
     try {
-      const res  = await fetch(`/api/exam-ai-analysis?studentId=${id}`)
+      const { data: { session: aiSession } } = await supabase.auth.getSession()
+      const res  = await fetch(`/api/exam-ai-analysis?studentId=${id}`, {
+        headers: aiSession ? { Authorization: `Bearer ${aiSession.access_token}` } : {},
+      })
       const json = await res.json()
       if (res.ok) setAiAnalysis(json.analysis)
       else        alert('AI 분석 오류: ' + json.error)

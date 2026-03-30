@@ -1,6 +1,15 @@
 import { getServiceClient } from '@/lib/supabaseServer'
 import { NextRequest, NextResponse } from 'next/server'
 
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;')
+}
+
 type SupabaseAdmin = ReturnType<typeof getServiceClient>
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY
@@ -101,8 +110,10 @@ export async function GET(req: NextRequest) {
 
     if (missingDocs.length === 0) continue
 
-    const docListKo = missingDocs.map(d => `❌ ${d.doc_type.name_kr}${d.status === 'rejected' ? ' (반려됨)' : ' (미제출)'}`).join('<br>')
-    const docListVi = missingDocs.map(d => `❌ ${d.doc_type.name_vi}${d.status === 'rejected' ? ' (bị từ chối)' : ' (chưa nộp)'}`).join('<br>')
+    const docListKo = missingDocs.map(d => `❌ ${escapeHtml(d.doc_type.name_kr ?? '')}${d.status === 'rejected' ? ' (반려됨)' : ' (미제출)'}`).join('<br>')
+    const docListVi = missingDocs.map(d => `❌ ${escapeHtml(d.doc_type.name_vi ?? '')}${d.status === 'rejected' ? ' (bị từ chối)' : ' (chưa nộp)'}`).join('<br>')
+    const safeNameKr = escapeHtml(student.name_kr ?? '')
+    const safeNameVn = escapeHtml(student.name_vn ?? '')
 
     const subject = `[AJU E&J] 비자 갱신 D-${daysLeft} — 미제출 서류 ${missingDocs.length}건`
     const html = `
@@ -111,7 +122,7 @@ export async function GET(req: NextRequest) {
     <h2 style="margin:0;font-size:18px">AJU E&J 서류 준비 알림</h2>
   </div>
 
-  <p style="font-size:15px;color:#1e293b">안녕하세요, <strong>${student.name_kr}</strong> 학생</p>
+  <p style="font-size:15px;color:#1e293b">안녕하세요, <strong>${safeNameKr}</strong> 학생</p>
   <p style="font-size:15px;color:#1e293b">
     비자 만료까지 <strong style="color:#dc2626">D-${daysLeft}</strong>일 남았습니다.
     비자 갱신 전 아래 서류를 준비해 주세요.
@@ -125,7 +136,7 @@ export async function GET(req: NextRequest) {
 
   <hr style="border:none;border-top:1px solid #e2e8f0;margin:16px 0">
 
-  <p style="font-size:15px;color:#1e293b">Xin chào, <strong>${student.name_vn}</strong></p>
+  <p style="font-size:15px;color:#1e293b">Xin chào, <strong>${safeNameVn}</strong></p>
   <p style="font-size:15px;color:#1e293b">
     Còn <strong style="color:#dc2626">D-${daysLeft}</strong> ngày đến hạn visa.
     Vui lòng chuẩn bị các giấy tờ sau:
@@ -170,15 +181,19 @@ export async function GET(req: NextRequest) {
     if (![7, 30].includes(daysLeft)) continue
     if (sentExpiry.has(`${student.id}-${doc.doc_type_id}`)) continue
 
-    const subject = `[AJU E&J] 서류 갱신 필요 — ${dt?.name_kr} 만료 D-${daysLeft}`
+    const safeStudNameKr = escapeHtml(student.name_kr ?? '')
+    const safeStudNameVn = escapeHtml(student.name_vn ?? '')
+    const safeDocNameKr  = escapeHtml(dt?.name_kr ?? '')
+    const safeDocNameVi  = escapeHtml(dt?.name_vi ?? '')
+    const subject = `[AJU E&J] 서류 갱신 필요 — ${safeDocNameKr} 만료 D-${daysLeft}`
     const html = `
 <div style="font-family:sans-serif;max-width:520px;margin:auto;padding:24px">
   <div style="background:#f59e0b;color:#fff;border-radius:12px;padding:16px 20px;margin-bottom:20px">
     <h2 style="margin:0;font-size:18px">AJU E&J 서류 만료 알림</h2>
   </div>
-  <p style="font-size:15px;color:#1e293b">안녕하세요, <strong>${student.name_kr}</strong> 학생</p>
+  <p style="font-size:15px;color:#1e293b">안녕하세요, <strong>${safeStudNameKr}</strong> 학생</p>
   <p style="font-size:15px;color:#1e293b">
-    <strong>${dt?.name_kr}</strong>이(가) <strong style="color:#dc2626">D-${daysLeft}</strong>일 후 만료됩니다.
+    <strong>${safeDocNameKr}</strong>이(가) <strong style="color:#dc2626">D-${daysLeft}</strong>일 후 만료됩니다.
     서류를 갱신하고 포털에서 업로드해 주세요.
   </p>
   <a href="${BASE_URL}/portal" style="display:inline-block;background:#2563eb;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-size:14px;margin:16px 0">
@@ -187,9 +202,9 @@ export async function GET(req: NextRequest) {
 
   <hr style="border:none;border-top:1px solid #e2e8f0;margin:16px 0">
 
-  <p style="font-size:15px;color:#1e293b">Xin chào, <strong>${student.name_vn}</strong></p>
+  <p style="font-size:15px;color:#1e293b">Xin chào, <strong>${safeStudNameVn}</strong></p>
   <p style="font-size:15px;color:#1e293b">
-    <strong>${dt?.name_vi}</strong> sẽ hết hạn sau <strong style="color:#dc2626">D-${daysLeft}</strong> ngày.
+    <strong>${safeDocNameVi}</strong> sẽ hết hạn sau <strong style="color:#dc2626">D-${daysLeft}</strong> ngày.
     Vui lòng gia hạn và tải lên cổng thông tin.
   </p>
 

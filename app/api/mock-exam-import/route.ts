@@ -130,7 +130,7 @@ export async function POST(req: NextRequest) {
         exam_date:       examDate,
         exam_type:       'TOPIK 모의고사',
         exam_source:     'mock',
-        round_number:    roundNumber ? parseInt(roundNumber) : null,
+        round_number:    roundNumber ? parseInt(roundNumber, 10) : null,
         listening_score: listening,
         reading_score:   reading,
         writing_score:   null,  // TOPIK I: 쓰기 없음

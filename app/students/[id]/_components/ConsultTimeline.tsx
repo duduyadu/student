@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { logAudit } from '@/lib/auditClient'
 import type { Consultation, ConsultCategory, CounselorRole } from '@/lib/types'
 
 const CATEGORY_LABELS: Record<ConsultCategory, string> = {
@@ -120,11 +121,17 @@ export default function ConsultTimeline({ studentId, consultations, onRefresh }:
       improvement:     form.improvement || null,
       next_goal:       form.next_goal || null,
     }
+    let savedId: string | undefined
     if (editId) {
-      await supabase.from('consultations').update(payload).eq('id', editId)
+      const { error } = await supabase.from('consultations').update(payload).eq('id', editId)
+      if (error) { alert('수정 실패: ' + error.message); setSaving(false); return }
+      savedId = editId
     } else {
-      await supabase.from('consultations').insert(payload)
+      const { data, error } = await supabase.from('consultations').insert(payload).select('id').single()
+      if (error) { alert('저장 실패: ' + error.message); setSaving(false); return }
+      savedId = data?.id
     }
+    await logAudit({ action: editId ? 'UPDATE' : 'CREATE', targetTable: 'consultations', targetId: savedId })
     setSaving(false)
     setShowForm(false)
     setEditId(null)
@@ -133,7 +140,9 @@ export default function ConsultTimeline({ studentId, consultations, onRefresh }:
 
   const handleDelete = async (id: string) => {
     if (!confirm('이 상담 기록을 삭제하시겠습니까?')) return
-    await supabase.from('consultations').delete().eq('id', id)
+    const { error } = await supabase.from('consultations').delete().eq('id', id)
+    if (error) { alert('삭제 실패: ' + error.message); return }
+    await logAudit({ action: 'DELETE', targetTable: 'consultations', targetId: id })
     onRefresh()
   }
 

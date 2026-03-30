@@ -6,6 +6,15 @@ const resend = process.env.RESEND_API_KEY
 
 const FROM = process.env.RESEND_FROM_EMAIL ?? 'AJU E&J <noreply@aju-ej.com>'
 
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;')
+}
+
 export async function sendDocStatusEmail(params: {
   to: string
   studentName: string
@@ -15,7 +24,10 @@ export async function sendDocStatusEmail(params: {
 }) {
   if (!resend) return  // API 키 없으면 무시
 
-  const { to, studentName, docNameKr, status, rejectReason } = params
+  const { to, status } = params
+  const studentName  = escapeHtml(params.studentName)
+  const docNameKr    = escapeHtml(params.docNameKr)
+  const rejectReason = params.rejectReason ? escapeHtml(params.rejectReason) : undefined
 
   const isApproved = status === 'approved'
   const subject = isApproved

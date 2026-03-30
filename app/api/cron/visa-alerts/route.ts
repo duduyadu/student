@@ -1,6 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServiceClient } from '@/lib/supabaseServer'
 
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;')
+}
+
 export async function GET(req: NextRequest) {
   const supabaseAdmin = getServiceClient()
   // Vercel cron 또는 수동 호출 시 CRON_SECRET으로 인증
@@ -81,6 +90,9 @@ export async function GET(req: NextRequest) {
     const urgencyKo = daysLeft <= 7 ? '🚨 즉시 조치 필요' : daysLeft <= 30 ? '⚠️ 갱신 서류 준비' : '📋 갱신 준비 시작'
     const urgencyVi = daysLeft <= 7 ? '🚨 Cần xử lý ngay' : daysLeft <= 30 ? '⚠️ Chuẩn bị hồ sơ' : '📋 Bắt đầu chuẩn bị'
 
+    const safeNameKr     = escapeHtml(student.name_kr    ?? '')
+    const safeNameVn     = escapeHtml(student.name_vn    ?? '')
+    const safeVisaExpiry = escapeHtml(student.visa_expiry ?? '')
     const subject = `[AJU E&J] 비자 만료 D-${daysLeft} — ${urgencyKo}`
     const html = `
 <div style="font-family:sans-serif;max-width:520px;margin:auto;padding:24px">
@@ -88,18 +100,18 @@ export async function GET(req: NextRequest) {
     <h2 style="margin:0;font-size:18px">AJU E&J 비자 만료 알림</h2>
   </div>
 
-  <p style="font-size:15px;color:#1e293b">안녕하세요, <strong>${student.name_kr}</strong> 학생</p>
+  <p style="font-size:15px;color:#1e293b">안녕하세요, <strong>${safeNameKr}</strong> 학생</p>
   <p style="font-size:15px;color:#1e293b">
-    비자 만료일 <strong>${student.visa_expiry}</strong>까지
+    비자 만료일 <strong>${safeVisaExpiry}</strong>까지
     <strong style="color:#dc2626;font-size:18px"> D-${daysLeft}</strong> 남았습니다.
   </p>
   <p style="font-size:14px;color:#64748b">${urgencyKo} — 빠른 시일 내에 비자 갱신을 준비하세요.</p>
 
   <hr style="border:none;border-top:1px solid #e2e8f0;margin:16px 0">
 
-  <p style="font-size:15px;color:#1e293b">Xin chào, <strong>${student.name_vn}</strong></p>
+  <p style="font-size:15px;color:#1e293b">Xin chào, <strong>${safeNameVn}</strong></p>
   <p style="font-size:15px;color:#1e293b">
-    Visa hết hạn ngày <strong>${student.visa_expiry}</strong> —
+    Visa hết hạn ngày <strong>${safeVisaExpiry}</strong> —
     còn <strong style="color:#dc2626;font-size:18px"> D-${daysLeft}</strong> ngày.
   </p>
   <p style="font-size:14px;color:#64748b">${urgencyVi} — Vui lòng chuẩn bị gia hạn visa sớm.</p>
