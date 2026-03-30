@@ -222,7 +222,7 @@ export default function DashboardPage() {
   const loadRecentActivity = async () => {
     const [consults, newStudents] = await Promise.all([
       supabase.from('consultations')
-        .select('id, student_id, content, created_at')
+        .select('id, student_id, summary, created_at')
         .order('created_at', { ascending: false })
         .limit(5),
       supabase.from('students')
