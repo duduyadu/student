@@ -421,7 +421,7 @@ export default function DashboardPage() {
                     </span>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-medium text-slate-700 truncate">{item.sub}</p>
-                      <p className="text-[10px] text-slate-400">{item.label} · {new Date(item.at).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })}</p>
+                      <p className="text-[10px] text-slate-400">{item.label} · {new Date(item.at).toLocaleDateString(lang === 'vi' ? 'vi-VN' : 'ko-KR', { month: 'short', day: 'numeric' })}</p>
                     </div>
                   </Link>
                 ))}
