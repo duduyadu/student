@@ -1,7 +1,7 @@
 import { getServiceClient } from '@/lib/supabaseServer'
 import { NextRequest, NextResponse } from 'next/server'
 
-const supabaseAdmin = getServiceClient()
+type SupabaseAdmin = ReturnType<typeof getServiceClient>
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://aju-ej.vercel.app'
@@ -16,23 +16,8 @@ async function sendEmail(to: string, subject: string, html: string): Promise<boo
   return res.ok
 }
 
-async function alreadySent(studentId: string, alertType: string, docTypeId?: string): Promise<boolean> {
-  const today = new Date().toISOString().split('T')[0]
-  const query = supabaseAdmin
-    .from('document_alert_logs')
-    .select('id')
-    .eq('student_id', studentId)
-    .eq('alert_type', alertType)
-    .gte('sent_at', `${today}T00:00:00Z`)
-
-  if (docTypeId) query.eq('doc_type_id', docTypeId)
-
-  const { data } = await query.maybeSingle()
-  return !!data
-}
-
-async function logAlert(studentId: string, alertType: string, docTypeId?: string, daysBefore?: number) {
-  await supabaseAdmin.from('document_alert_logs').insert({
+async function logAlert(sb: SupabaseAdmin, studentId: string, alertType: string, docTypeId?: string, daysBefore?: number) {
+  await sb.from('document_alert_logs').insert({
     student_id: studentId,
     doc_type_id: docTypeId ?? null,
     alert_type: alertType,
@@ -52,6 +37,8 @@ export async function GET(req: NextRequest) {
   if (!process.env.CRON_SECRET || authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
+
+  const supabaseAdmin = getServiceClient()
 
   const today  = new Date()
   const fmt    = (d: Date) => d.toISOString().split('T')[0]
@@ -155,7 +142,7 @@ export async function GET(req: NextRequest) {
     const ok = await sendEmail(student.email, subject, html)
     if (ok) {
       missingSent++
-      await logAlert(student.id, 'missing', undefined, daysLeft)
+      await logAlert(supabaseAdmin, student.id, 'missing', undefined, daysLeft)
     }
   }
 
@@ -214,7 +201,7 @@ export async function GET(req: NextRequest) {
     const ok = await sendEmail(student.email, subject, html)
     if (ok) {
       expirySent++
-      await logAlert(student.id, 'expiry_warning', doc.doc_type_id, daysLeft)
+      await logAlert(supabaseAdmin, student.id, 'expiry_warning', doc.doc_type_id, daysLeft)
     }
   }
 

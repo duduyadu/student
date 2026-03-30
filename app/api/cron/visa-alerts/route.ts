@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServiceClient } from '@/lib/supabaseServer'
 
-const supabaseAdmin = getServiceClient()
-
 export async function GET(req: NextRequest) {
+  const supabaseAdmin = getServiceClient()
   // Vercel cron 또는 수동 호출 시 CRON_SECRET으로 인증
   const authHeader = req.headers.get('authorization')
   if (!process.env.CRON_SECRET || authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
