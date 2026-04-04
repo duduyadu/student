@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import type { Student, Consultation, ExamResult } from '@/lib/types'
-import { STATUS_COLORS, EDUCATION_PHASE_COLORS } from '@/lib/constants'
+import { STATUS_COLORS, EDUCATION_PHASE_COLORS, EDUCATION_PHASES } from '@/lib/constants'
 import { t, type Lang } from '@/lib/i18n'
 import { useLang } from '@/lib/useLang'
 import { LangToggle } from '@/components/LangToggle'
@@ -291,6 +291,40 @@ export default function PortalPage() {
             </div>
           </div>
         </div>
+
+        {/* 교육 진행 단계 */}
+        {student.education_phase && student.education_phase !== '교육중단' && (
+          <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+            <h3 className="text-xs font-semibold text-slate-500 mb-3">교육 현황</h3>
+            <div className="flex items-center gap-1 overflow-x-auto pb-1">
+              {(['미시작', '온라인교육중', '온라인수료', '오프라인교육중', '오프라인수료'] as const).map((phase, idx) => {
+                const phases = ['미시작', '온라인교육중', '온라인수료', '오프라인교육중', '오프라인수료']
+                const currentIdx = phases.indexOf(student.education_phase ?? '미시작')
+                const isCurrent = phase === (student.education_phase ?? '미시작')
+                const isDone = idx < currentIdx
+                return (
+                  <div key={phase} className="flex items-center gap-1 shrink-0">
+                    {idx > 0 && (
+                      <span className={`text-xs ${isDone || isCurrent ? 'text-blue-400' : 'text-slate-300'}`}>›</span>
+                    )}
+                    <span className={`text-xs px-2 py-1 rounded-full font-medium whitespace-nowrap ${
+                      isCurrent ? EDUCATION_PHASE_COLORS[phase] + ' ring-2 ring-offset-1 ring-blue-300' :
+                      isDone    ? 'bg-slate-100 text-slate-400 line-through' :
+                                  'bg-slate-50 text-slate-300'
+                    }`}>
+                      {phase}
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
+        {student.education_phase === '교육중단' && (
+          <div className="bg-red-50 border border-red-200 rounded-2xl p-4">
+            <p className="text-sm font-semibold text-red-700">교육 중단 상태입니다. 담당자에게 문의하세요.</p>
+          </div>
+        )}
 
         {/* 비자 만료 알림 */}
         {visaDays !== null && visaDays <= 90 && (

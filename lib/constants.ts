@@ -17,6 +17,15 @@ export const EDUCATION_PHASES = [
 ] as const
 export type EducationPhase = typeof EDUCATION_PHASES[number]
 
+export const EDUCATION_PHASE_FLOW: Record<string, string[]> = {
+  '미시작':        ['온라인교육중'],
+  '온라인교육중':  ['온라인수료', '교육중단'],
+  '온라인수료':    ['오프라인교육중'],
+  '오프라인교육중':['오프라인수료', '교육중단'],
+  '오프라인수료':  [],
+  '교육중단':      ['온라인교육중'],
+}
+
 export const EDUCATION_PHASE_COLORS: Record<string, string> = {
   '미시작':        'bg-slate-100 text-slate-500',
   '온라인교육중':  'bg-blue-100 text-blue-700',
