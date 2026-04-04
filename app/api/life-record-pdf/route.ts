@@ -33,8 +33,10 @@ export async function GET(req: NextRequest) {
   const supabase = getServiceClient()
   if (role === 'agency') {
     if (!agencyCode) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-    const { data: st } = await supabase.from('students').select('agency_code').eq('id', studentId).single()
-    if (!st || st.agency_code !== agencyCode) {
+    const { data: agency } = await supabase.from('agencies').select('id').eq('agency_code', agencyCode).single()
+    if (!agency) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    const { data: st } = await supabase.from('students').select('id').eq('id', studentId).eq('agency_id', agency.id).single()
+    if (!st) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
   } else if (role === 'student') {

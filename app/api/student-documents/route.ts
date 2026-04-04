@@ -34,8 +34,10 @@ export async function GET(req: NextRequest) {
       .from('students').select('id').eq('id', studentId).eq('auth_user_id', userId).single()
     if (!stu) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   } else if (role === 'agency') {
+    const agencyCode = (user.app_metadata as { agency_code?: string })?.agency_code
+    if (!agencyCode) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     const { data: agency } = await supabase
-      .from('agencies').select('id').eq('user_id', userId).single()
+      .from('agencies').select('id').eq('agency_code', agencyCode).single()
     if (!agency) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     const { data: stu } = await supabase
       .from('students').select('id').eq('id', studentId).eq('agency_id', agency.id).single()

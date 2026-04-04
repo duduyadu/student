@@ -87,8 +87,11 @@ export async function POST(req: NextRequest) {
 
   let allowedIds = studentIds
   if (role === 'agency' && agencyCode) {
+    const { data: agency } = await supabase
+      .from('agencies').select('id').eq('agency_code', agencyCode).single()
+    if (!agency) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     const { data: sts } = await supabase
-      .from('students').select('id').in('id', studentIds).eq('agency_code', agencyCode)
+      .from('students').select('id').in('id', studentIds).eq('agency_id', agency.id)
     allowedIds = (sts ?? []).map(s => s.id)
     if (allowedIds.length === 0) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
