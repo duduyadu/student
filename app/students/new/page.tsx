@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import type { Agency } from '@/lib/types'
-import { STUDENT_STATUSES } from '@/lib/constants'
+import { STUDENT_STATUSES, EDUCATION_PHASES, EDUCATION_PHASE_COLORS } from '@/lib/constants'
 import { useLang } from '@/lib/useLang'
 import { t } from '@/lib/i18n'
 import { useAdminAuth } from '@/lib/useAdminAuth'
@@ -29,7 +29,7 @@ export default function NewStudentPage() {
     target_university: '', target_major: '',
     visa_type: '', visa_expiry: '',
     arc_number: '', arc_issue_date: '', arc_expiry_date: '',
-    status: '유학전', agency_id: '', notes: '',
+    status: '유학전', education_phase: '미시작', agency_id: '', notes: '',
     language_school: '', current_university: '', current_company: '',
   })
 
@@ -109,6 +109,7 @@ export default function NewStudentPage() {
       arc_issue_date:   form.arc_issue_date    || null,
       arc_expiry_date:  form.arc_expiry_date   || null,
       status:           form.status,
+      education_phase:  form.education_phase,
       agency_id:        form.agency_id || null,
       notes:            form.notes     || null,
       preferred_lang:   'vi',
@@ -233,6 +234,16 @@ export default function NewStudentPage() {
                 <select value={form.status} onChange={e => set('status', e.target.value)} className={input}>
                   {STUDENT_STATUSES.map(s => <option key={s}>{s}</option>)}
                 </select>
+              </Field>
+            </Row>
+            <Row>
+              <Field label="교육단계">
+                <select value={form.education_phase} onChange={e => set('education_phase', e.target.value)} className={input}>
+                  {EDUCATION_PHASES.map(p => <option key={p} value={p}>{p}</option>)}
+                </select>
+                <span className={`mt-1 inline-block text-xs px-2 py-0.5 rounded-full font-medium ${EDUCATION_PHASE_COLORS[form.education_phase]}`}>
+                  {form.education_phase}
+                </span>
               </Field>
             </Row>
             {form.status !== '유학전' && (
