@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import type { Student, Agency } from '@/lib/types'
-import { STATUS_COLORS, STUDENT_STATUSES } from '@/lib/constants'
+import { STATUS_COLORS, STUDENT_STATUSES, EDUCATION_PHASES, EDUCATION_PHASE_COLORS } from '@/lib/constants'
 import * as XLSX from 'xlsx'
 import { useLang } from '@/lib/useLang'
 import { t, statusLabel as slabel } from '@/lib/i18n'
@@ -18,6 +18,7 @@ export default function StudentsPage() {
   const [search, setSearch]       = useState('')
   const [agencyFilter, setAgencyFilter] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
+  const [educationFilter, setEducationFilter] = useState('')
   const [loading, setLoading]     = useState(true)
   const [lang, toggleLang]        = useLang()
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
@@ -48,7 +49,8 @@ export default function StudentsPage() {
     const matchSearch = s.name_kr.includes(search) || s.name_vn.toLowerCase().includes(search.toLowerCase())
     const matchAgency = agencyFilter === '' || s.agency_id === agencyFilter
     const matchStatus = statusFilter === '' || s.status === statusFilter
-    return matchSearch && matchAgency && matchStatus
+    const matchEducation = educationFilter === '' || (s.education_phase ?? '미시작') === educationFilter
+    return matchSearch && matchAgency && matchStatus && matchEducation
   })
 
   const handleExport = () => {
@@ -58,6 +60,7 @@ export default function StudentsPage() {
       '이름(베트남어)':   s.name_vn,
       '유학원':           s.agency?.agency_name_vn ?? s.agency?.agency_name_kr ?? '',
       '유학단계':         s.status,
+      '교육단계':         s.education_phase ?? '미시작',
       '생년월일':         s.dob ?? '',
       '성별':             s.gender === 'M' ? '남' : '여',
       '한국연락처':       s.phone_kr ?? '',
@@ -250,6 +253,18 @@ export default function StudentsPage() {
               <option key={s} value={s}>{slabel(s, lang)}</option>
             ))}
           </select>
+          <select
+            id="education-filter"
+            name="education-filter"
+            value={educationFilter}
+            onChange={e => setEducationFilter(e.target.value)}
+            className="px-3 py-2 border border-slate-200 rounded-xl bg-white text-slate-800 focus:outline-none focus:border-[#3182F6] focus:bg-white text-sm"
+          >
+            <option value="">전체 교육단계</option>
+            {EDUCATION_PHASES.map(p => (
+              <option key={p} value={p}>{p}</option>
+            ))}
+          </select>
         </div>
 
         {filtered.length === 0 ? (
@@ -259,7 +274,7 @@ export default function StudentsPage() {
                 <p className="text-4xl mb-3">🔍</p>
                 <p className="text-slate-500 font-medium">{t('noSearchResult', lang)}</p>
                 <button
-                  onClick={() => { setSearch(''); setAgencyFilter(''); setStatusFilter('') }}
+                  onClick={() => { setSearch(''); setAgencyFilter(''); setStatusFilter(''); setEducationFilter('') }}
                   className="mt-4 inline-block text-[#3182F6] text-sm hover:underline"
                 >
                   {t('clearFilter', lang)}
@@ -310,6 +325,7 @@ export default function StudentsPage() {
                       <div className="flex items-center gap-2 mb-0.5">
                         <span className="font-semibold text-slate-800 truncate">{s.name_kr}</span>
                         <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium shrink-0 ${statusColor(s.status)}`}>{slabel(s.status, lang)}</span>
+                        <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium shrink-0 ${EDUCATION_PHASE_COLORS[s.education_phase ?? '미시작']}`}>{s.education_phase ?? '미시작'}</span>
                       </div>
                       <p className="text-xs text-slate-500 truncate">{s.name_vn}</p>
                       <p className="text-xs text-slate-400 mt-1">
@@ -346,6 +362,7 @@ export default function StudentsPage() {
                     <th className="text-left text-xs font-medium text-slate-500 px-6 py-3">{t('colNameVn', lang)}</th>
                     <th className="text-left text-xs font-medium text-slate-500 px-6 py-3">{t('colAgency', lang)}</th>
                     <th className="text-left text-xs font-medium text-slate-500 px-6 py-3">{t('colStatus', lang)}</th>
+                    <th className="text-left text-xs font-medium text-slate-500 px-6 py-3">교육단계</th>
                     <th className="text-left text-xs font-medium text-slate-500 px-6 py-3">{t('colEnrollDate', lang)}</th>
                     <th className="px-6 py-3"></th>
                   </tr>
@@ -384,6 +401,11 @@ export default function StudentsPage() {
                           {slabel(s.status, lang)}
                         </span>
                         {placement(s) && <p className="text-xs text-[#3182F6] mt-1">{placement(s)}</p>}
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`text-xs px-2 py-1 rounded-full font-medium ${EDUCATION_PHASE_COLORS[s.education_phase ?? '미시작']}`}>
+                          {s.education_phase ?? '미시작'}
+                        </span>
                       </td>
                       <td className="px-6 py-4 text-slate-400 text-sm">{s.enrollment_date ?? '-'}</td>
                       <td className="px-6 py-4">

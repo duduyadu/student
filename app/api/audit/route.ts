@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServiceClient, getAnonClient } from '@/lib/supabaseServer'
-
-const serviceClient = getServiceClient
+import { getServiceClient } from '@/lib/supabaseServer'
 
 // POST /api/audit — 감사 로그 기록 (LOGIN/LOGOUT 등 앱 레벨 이벤트)
 export async function POST(req: NextRequest) {
@@ -10,7 +8,7 @@ export async function POST(req: NextRequest) {
     const authHeader = req.headers.get('authorization')
     const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null
     if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    const { data: { user }, error: authErr } = await getAnonClient().auth.getUser(token)
+    const { data: { user }, error: authErr } = await getServiceClient().auth.getUser(token)
     if (authErr || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const body = await req.json() as {
@@ -30,13 +28,13 @@ export async function POST(req: NextRequest) {
     const forwarded = req.headers.get('x-forwarded-for')
     const ip = forwarded ? forwarded.split(',')[0].trim() : 'unknown'
 
-    const { error } = await serviceClient()
+    const { error } = await getServiceClient()
       .from('audit_logs')
       .insert({
         action:       body.action,
         user_id:      user.id,          // 인증된 사용자 ID 사용 (body 값 무시)
         user_role:    (user.app_metadata as { role?: string })?.role ?? null,  // app_metadata에서 추출
-        user_name:    body.user_name    ?? null,
+        user_name:    (user.user_metadata as { name_kr?: string })?.name_kr ?? body.user_name ?? null,
         target_table: body.target_table ?? null,
         target_id:    body.target_id    ?? null,
         details:      body.details      ?? null,
@@ -63,7 +61,7 @@ export async function GET(req: NextRequest) {
     }
 
     // 토큰으로 사용자 정보 조회
-    const { data: { user }, error: authErr } = await serviceClient().auth.getUser(token)
+    const { data: { user }, error: authErr } = await getServiceClient().auth.getUser(token)
     if (authErr || !user) {
       return NextResponse.json({ error: '인증 실패' }, { status: 401 })
     }
@@ -77,7 +75,7 @@ export async function GET(req: NextRequest) {
     const action = searchParams.get('action')
     const table  = searchParams.get('table')
 
-    let query = serviceClient()
+    let query = getServiceClient()
       .from('audit_logs')
       .select('*', { count: 'exact' })
       .order('created_at', { ascending: false })

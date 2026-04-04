@@ -5,7 +5,7 @@ import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import type { Student, Consultation, ExamResult, TeacherEvaluation, EvaluationTemplate, AspirationHistory, TopikSchedule } from '@/lib/types'
-import { STATUS_COLORS, TOPIK_LEVELS, CONSULT_TYPES } from '@/lib/constants'
+import { STATUS_COLORS, TOPIK_LEVELS, CONSULT_TYPES, EDUCATION_PHASE_COLORS } from '@/lib/constants'
 import { useLang } from '@/lib/useLang'
 import { t, statusLabel } from '@/lib/i18n'
 import { useAdminAuth } from '@/lib/useAdminAuth'
@@ -363,6 +363,9 @@ export default function StudentDetailPage() {
               <div className="flex items-center gap-2 mt-1">
                 <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_COLORS[student.status] ?? 'bg-slate-100 text-slate-600'}`}>
                   {statusLabel(student.status, lang)}
+                </span>
+                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${EDUCATION_PHASE_COLORS[student.education_phase ?? '미시작']}`}>
+                  {student.education_phase ?? '미시작'}
                 </span>
                 {student.agency?.agency_name_kr && (
                   <span className="text-xs text-slate-400">{student.agency.agency_name_kr}</span>

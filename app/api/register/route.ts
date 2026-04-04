@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServiceClient } from '@/lib/supabaseServer'
 
-const adminClient = getServiceClient()
-
 const PRIVACY_TEXT = `AJU E&J는 유학 관리 서비스 제공을 위해 아래와 같이 개인정보를 수집·이용합니다.
 
 ■ 수집 항목: 이름(한국어/베트남어), 전화번호, 이메일, 비자 정보, 유학 단계
@@ -13,6 +11,7 @@ const PRIVACY_TEXT = `AJU E&J는 유학 관리 서비스 제공을 위해 아래
 위 내용에 동의하지 않을 경우 서비스 이용이 제한될 수 있습니다.`
 
 export async function POST(req: NextRequest) {
+  const adminClient = getServiceClient()
   try {
     const body = await req.json()
     const { name_kr, name_vn, phone_vn, email, password, dob, gender, status, agency_id } = body
@@ -106,6 +105,16 @@ export async function POST(req: NextRequest) {
       student_id:   studentId,
       consent_type: 'signup',
       consent_text: PRIVACY_TEXT,
+    })
+
+    // 4. 감사 로그 (CUD 필수 규칙)
+    await adminClient.from('audit_logs').insert({
+      action: 'REGISTER_STUDENT',
+      user_id: userId,
+      user_role: 'student',
+      target_table: 'students',
+      target_id: studentId,
+      details: { email, agency_id: agency_id ?? null },
     })
 
     return NextResponse.json({ success: true })

@@ -5,7 +5,7 @@ import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import type { Agency } from '@/lib/types'
-import { STUDENT_STATUSES, TOPIK_LEVELS } from '@/lib/constants'
+import { STUDENT_STATUSES, TOPIK_LEVELS, EDUCATION_PHASES, EDUCATION_PHASE_COLORS } from '@/lib/constants'
 import { t } from '@/lib/i18n'
 import { useLang } from '@/lib/useLang'
 import { useAdminAuth } from '@/lib/useAdminAuth'
@@ -33,7 +33,7 @@ export default function EditStudentPage() {
     visa_type: '', visa_expiry: '',
     arc_number: '', arc_issue_date: '', arc_expiry_date: '',
     topik_level: '',
-    status: '유학전', agency_id: '', notes: '',
+    status: '유학전', education_phase: '미시작', agency_id: '', notes: '',
     language_school: '', current_university: '', current_company: '',
   })
 
@@ -70,6 +70,7 @@ export default function EditStudentPage() {
         arc_expiry_date:   s.arc_expiry_date    ?? '',
         topik_level:       s.topik_level        ?? '',
         status:            s.status             ?? '유학전',
+        education_phase:   s.education_phase    ?? '미시작',
         agency_id:         s.agency_id        ?? '',
         notes:             s.notes            ?? '',
         language_school:   s.language_school   ?? '',
@@ -138,6 +139,7 @@ export default function EditStudentPage() {
       arc_expiry_date:   form.arc_expiry_date   || null,
       topik_level:       form.topik_level       || null,
       status:            form.status,
+      education_phase:   form.education_phase,
       agency_id:         form.agency_id         || null,
       notes:             form.notes             || null,
       language_school:   form.language_school   || null,
@@ -258,6 +260,18 @@ export default function EditStudentPage() {
                 <select value={form.status} onChange={e => set('status', e.target.value)} className={input}>
                   {STUDENT_STATUSES.map(s => <option key={s}>{s}</option>)}
                 </select>
+              </Field>
+              <Field label="교육단계">
+                <select value={form.education_phase} onChange={e => set('education_phase', e.target.value)} className={input}>
+                  {EDUCATION_PHASES.map(p => (
+                    <option key={p} value={p}>{p}</option>
+                  ))}
+                </select>
+                {form.education_phase && (
+                  <span className={`mt-1 inline-block text-xs px-2 py-0.5 rounded-full font-medium ${EDUCATION_PHASE_COLORS[form.education_phase]}`}>
+                    {form.education_phase}
+                  </span>
+                )}
               </Field>
             </Row>
             {form.status !== '유학전' && (

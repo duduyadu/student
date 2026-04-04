@@ -1,9 +1,8 @@
 import { getServiceClient } from '@/lib/supabaseServer'
 import { NextRequest, NextResponse } from 'next/server'
 
-const supabaseAdmin = getServiceClient()
-
 export async function POST(req: NextRequest) {
+  const supabaseAdmin = getServiceClient()
   // ── 1. 호출자 인증 확인 ─────────────────────────────────────────
   const authHeader = req.headers.get('Authorization')
   if (!authHeader?.startsWith('Bearer ')) {
@@ -37,6 +36,16 @@ export async function POST(req: NextRequest) {
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 400 })
   }
+
+  // 감사 로그 (CUD 필수 규칙)
+  await supabaseAdmin.from('audit_logs').insert({
+    action: 'CREATE_AGENCY_USER',
+    user_id: caller.id,
+    user_role: 'master',
+    target_table: 'auth.users',
+    target_id: data.user.id,
+    details: { email, agency_code, agency_name_kr: agency_name_kr ?? null },
+  })
 
   return NextResponse.json({ user_id: data.user.id })
 }

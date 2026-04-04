@@ -1,9 +1,8 @@
 import { getServiceClient } from '@/lib/supabaseServer'
 import { NextRequest, NextResponse } from 'next/server'
 
-const supabaseAdmin = getServiceClient()
-
 export async function POST(req: NextRequest) {
+  const supabaseAdmin = getServiceClient()
   const authHeader = req.headers.get('Authorization')
   if (!authHeader?.startsWith('Bearer ')) {
     return NextResponse.json({ error: '인증이 필요합니다.' }, { status: 401 })
@@ -89,6 +88,15 @@ export async function POST(req: NextRequest) {
         errors.push({ id: studentId, error: updateErr.message })
       } else {
         results.push({ id: studentId, student_code })
+        // 감사 로그 (CUD 필수 규칙)
+        await supabaseAdmin.from('audit_logs').insert({
+          action: 'APPROVE_STUDENT',
+          user_id: user.id,
+          user_role: role,
+          target_table: 'students',
+          target_id: studentId,
+          details: { student_code },
+        })
       }
     } catch (e) {
       errors.push({ id: studentId, error: e instanceof Error ? e.message : String(e) })

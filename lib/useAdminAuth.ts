@@ -25,6 +25,14 @@ export function useAdminAuth() {
   }, [])
 
   const handleLogout = async () => {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (session) {
+      await fetch('/api/audit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+        body: JSON.stringify({ action: 'LOGOUT' }),
+      }).catch(() => {})
+    }
     await supabase.auth.signOut()
     window.location.href = '/login'
   }

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import type { Student, Consultation, ExamResult } from '@/lib/types'
-import { STATUS_COLORS } from '@/lib/constants'
+import { STATUS_COLORS, EDUCATION_PHASE_COLORS } from '@/lib/constants'
 import { t, type Lang } from '@/lib/i18n'
 import { useLang } from '@/lib/useLang'
 import { LangToggle } from '@/components/LangToggle'
@@ -103,6 +103,14 @@ export default function PortalPage() {
   }
 
   const handleLogout = async () => {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (session) {
+      await fetch('/api/audit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+        body: JSON.stringify({ action: 'LOGOUT' }),
+      }).catch(() => {})
+    }
     await supabase.auth.signOut()
     window.location.href = '/login'
   }
@@ -158,13 +166,13 @@ export default function PortalPage() {
     if (!student) return
     const file = e.target.files?.[0]
     if (!file) return
-    if (file.size > 5 * 1024 * 1024) { alert('5MB 이하 이미지만 업로드 가능합니다. / Chỉ tải ảnh dưới 5MB.'); return }
+    if (file.size > 5 * 1024 * 1024) { alert(t('photoSizeLimit', lang)); return }
     setPhotoUploading(true)
     const path = `${student.id}/profile`
     const { error: upErr } = await supabase.storage
       .from('student-photos')
       .upload(path, file, { upsert: true, contentType: file.type })
-    if (upErr) { alert('업로드 실패: ' + upErr.message); setPhotoUploading(false); return }
+    if (upErr) { alert(t('uploadFail', lang) + upErr.message); setPhotoUploading(false); return }
     const { data: { publicUrl } } = supabase.storage.from('student-photos').getPublicUrl(path)
     const url = `${publicUrl}?t=${Date.now()}`
     await supabase.from('students').update({ photo_url: url }).eq('id', student.id)
@@ -257,7 +265,7 @@ export default function PortalPage() {
               <>
                 <img src={student.photo_url} alt="프로필" className="w-14 h-14 rounded-2xl object-cover" />
                 <div className="absolute inset-0 bg-black/30 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <span className="text-white text-xs font-medium">수정</span>
+                  <span className="text-white text-xs font-medium">{t('editBtn', lang)}</span>
                 </div>
               </>
             ) : (
@@ -273,6 +281,9 @@ export default function PortalPage() {
             <div className="flex items-center gap-2 mt-1 flex-wrap">
               <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_COLORS[student.status] ?? 'bg-slate-100 text-slate-600'}`}>
                 {student.status}
+              </span>
+              <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${EDUCATION_PHASE_COLORS[student.education_phase ?? '미시작']}`}>
+                {student.education_phase ?? '미시작'}
               </span>
               {student.student_code && (
                 <span className="text-xs text-slate-400 font-mono">{student.student_code}</span>
@@ -438,7 +449,7 @@ export default function PortalPage() {
             ) : consults.map(c => (
               <div key={c.id} className="bg-white rounded-2xl shadow-sm p-5">
                 <div className="flex items-center gap-3 mb-3">
-                  <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">{c.consult_type ?? '상담'}</span>
+                  <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">{c.consult_type ?? t('actConsult', lang)}</span>
                   <span className="text-xs text-slate-400">{c.consult_date}</span>
                 </div>
                 {c.summary && (

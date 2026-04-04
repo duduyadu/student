@@ -1,11 +1,10 @@
 import { getServiceClient } from '@/lib/supabaseServer'
 import { NextRequest, NextResponse } from 'next/server'
 
-const supabaseAdmin = getServiceClient()
-
 // GET /api/agency-accounts?user_ids=id1,id2,...
 // master 전용 — 유학원 계정 이메일 목록 반환
 export async function GET(req: NextRequest) {
+  const supabaseAdmin = getServiceClient()
   const authHeader = req.headers.get('Authorization')
   if (!authHeader?.startsWith('Bearer ')) {
     return NextResponse.json({ error: '인증이 필요합니다.' }, { status: 401 })
@@ -22,12 +21,14 @@ export async function GET(req: NextRequest) {
   const userIds = ids.split(',').filter(Boolean)
   const emailMap: Record<string, string> = {}
 
-  await Promise.all(
-    userIds.map(async (uid) => {
-      const { data } = await supabaseAdmin.auth.admin.getUserById(uid)
-      if (data?.user?.email) emailMap[uid] = data.user.email
-    })
-  )
+  // N+1 해소: 일괄 조회 후 메모리 필터링
+  const { data: { users }, error: listErr } = await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 })
+  if (listErr) return NextResponse.json({ error: listErr.message }, { status: 500 })
+
+  const targetIds = new Set(userIds)
+  for (const u of users) {
+    if (targetIds.has(u.id) && u.email) emailMap[u.id] = u.email
+  }
 
   return NextResponse.json(emailMap)
 }

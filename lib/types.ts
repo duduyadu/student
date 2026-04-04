@@ -45,6 +45,7 @@ export interface Student {
   arc_expiry_date?: string
   topik_level?: string
   status: string
+  education_phase?: string
   preferred_lang: string
   notes?: string
   agency_id?: string

@@ -1,0 +1,234 @@
+================================================================
+AJU E&J 베트남 유학생 통합 관리 플랫폼
+================================================================
+버전: 3.0 (Supabase Migration)
+작성일: 2026-04-05
+================================================================
+
+■ 프로그램 개요
+----------------------------------------------------------------
+베트남 유학생의 유학 전 과정(교육 → 비자 → 입학 → 졸업)을
+유학원과 관리자가 함께 관리하는 웹 기반 통합 관리 시스템.
+
+한국어 / 베트남어 완전 지원 (다국어)
+Supabase + Next.js 기반 SaaS형 플랫폼
+
+■ 접속 방법
+----------------------------------------------------------------
+로컬 개발 서버: http://localhost:3000
+프로덕션 (Vercel): https://aju-ej.vercel.app
+Supabase 대시보드: https://supabase.com/dashboard
+  - Project: chwhvqqfcvitvwutrywe
+
+■ 사용자 역할 (3가지)
+----------------------------------------------------------------
+1. Master (관리자)
+   - ID: 마스터 계정 정보 파일 참고
+   - 권한: 모든 기능 접근 가능
+   - 주요 업무:
+     · 학생 가입 승인 (학생코드 자동 발급: YY-유학원번호-순번)
+     · 유학원 생성/관리/계정 발급
+     · 전체 학생 조회/수정/삭제
+     · 감사 로그 모니터링
+     · 시스템 통계 확인
+
+2. Agency (유학원)
+   - 본인 유학원 소속 학생만 접근 가능 (RLS 자동 격리)
+   - 주요 업무:
+     · 학생 정보 조회/수정
+     · 상담 기록 입력
+     · 선생님 평가 입력
+     · 서류 체크리스트 관리
+     · 생활기록부 PDF 출력
+
+3. Student (학생)
+   - /portal 경로만 접근 가능
+   - 주요 업무:
+     · 본인 정보 조회
+     · 상담/성적/서류 현황 조회
+     · 생활기록부 PDF 다운로드
+
+■ 주요 기능 목록
+----------------------------------------------------------------
+[학생 관리]
+- 학생 등록 (관리자 직접 / 학생 자가 가입)
+- 학생 승인 및 학생코드 자동 발급
+- 학생 상세 정보 수정 (기본정보, 비자, 연락처)
+- 학생 탈퇴 처리
+- Excel 일괄 내보내기 / 일괄 import
+
+[교육 관리]
+- 학생 교육 단계 분류 (온라인/오프라인)
+  · 미시작 → 온라인교육중 → 온라인수료 → 오프라인교육중 → 오프라인수료
+
+[상담 관리]
+- 정기/비정기/긴급 상담 기록
+- 상담 카테고리: 성적, 태도, 진로, 비자, 생활, 가정, 기타
+- 생활기록부 공개 여부 설정
+
+[시험 성적 관리]
+- TOPIK 공식 성적 기록
+- 모의고사 성적 Excel 일괄 import
+- 외부 TOPIK 로컬 프로그램 성적 자동 동기화 (API)
+- 성적 추이 차트 시각화
+- AI 성적 분석 (Google Gemini 2.5)
+
+[서류 관리]
+- 비자 타입별 필수 서류 자동 목록 생성
+- 서류 상태 관리: 미제출 → 제출 → 승인/반려
+- 서류 승인/반려 시 이메일 자동 발송
+
+[생활기록부]
+- 한국어/베트남어 PDF 생성
+- 공개 설정된 상담/평가만 포함
+- 개별 다운로드 / 여러 학생 일괄 ZIP 다운로드
+
+[선생님 평가]
+- 항목별 별점(1-5점) 평가
+- 생활기록부 공개 여부 설정
+
+[비자 관리]
+- 비자 종류/만료일 관리
+- 만료 90일/30일/7일 전 이메일 자동 알림 (매일 새벽 1시)
+
+[유학원 관리] (Master 전용)
+- 유학원 CRUD
+- 유학원 계정 생성/비밀번호 재설정
+
+[감사 로그] (Master 전용)
+- 모든 CUD 작업 자동 기록 (사용자, IP, 시각, 대상)
+- 로그인/로그아웃 기록
+
+[시스템 모니터링]
+- 헬스 체크 API (DB/AI/이메일 상태 확인)
+
+■ 기술 스택
+----------------------------------------------------------------
+Frontend   : Next.js 14 (App Router) + TypeScript + Tailwind CSS
+Backend    : Next.js API Routes (21개)
+Database   : Supabase (PostgreSQL)
+Auth       : Supabase Auth (JWT, 이메일/비밀번호)
+권한관리   : Row Level Security (RLS) — 유학원별 데이터 자동 격리
+PDF        : react-pdf + renderToBuffer
+Excel      : xlsx (XLSX)
+이메일     : Resend API
+AI 분석    : Google Gemini 2.5 Flash
+배포       : Vercel (Frontend) + Supabase (Backend)
+Cron       : Vercel Cron (비자/서류 알림 자동화)
+
+■ 데이터베이스 테이블 (8개)
+----------------------------------------------------------------
+students          - 학생 기본 정보
+agencies          - 유학원 정보
+consultations     - 상담 기록
+exam_results      - 시험 성적 (TOPIK + 모의고사)
+teacher_evaluations - 선생님 평가
+student_documents - 서류 체크리스트
+audit_logs        - 감사 로그
+system_config     - 시스템 설정 (저작권 등)
+i18n              - 다국어 번역 사전
+document_types    - 서류 유형 정의
+privacy_consents  - 개인정보 동의 이력
+aspiration_history - 목표대학 변경 이력
+visa_alert_logs   - 비자 알림 발송 이력
+
+■ API 라우트 목록 (21개)
+----------------------------------------------------------------
+인증/계정
+  POST /api/register              학생 자가 가입
+  POST /api/create-agency-user    유학원 계정 생성
+  POST /api/add-agency-account    유학원 계정 추가
+  POST /api/reset-agency-password 비밀번호 재설정
+  GET  /api/agency-accounts       유학원 계정 이메일 조회
+
+학생 관리
+  POST /api/approve-student       학생 승인 + 학생코드 발급
+  POST /api/student-withdraw      학생 탈퇴
+
+서류 관리
+  GET/POST /api/student-documents      서류 목록/생성
+  GET/PUT  /api/student-documents/[id] 서류 상세/수정
+  GET/POST/PUT/DELETE /api/document-types 서류 유형 CRUD
+
+PDF/파일
+  GET  /api/life-record-pdf       생활기록부 PDF (개별)
+  POST /api/life-record-pdf-bulk  생활기록부 PDF (일괄 ZIP)
+  POST /api/mock-exam-import      모의고사 Excel import
+
+AI/분석
+  GET  /api/exam-ai-analysis      TOPIK 성적 AI 분석
+  GET  /api/topik-ai-proxy        TOPIK AI 프록시
+
+동기화
+  POST /api/topik-sync            외부 TOPIK 성적 동기화
+
+자동화 (Cron)
+  GET  /api/cron/visa-alerts      비자 만료 알림 (매일 01:00)
+  GET  /api/cron/document-alerts  서류 기한 알림 (매일 01:10)
+
+모니터링
+  GET  /api/audit                 감사 로그 조회
+  POST /api/audit                 감사 로그 기록
+  GET  /api/health                시스템 헬스 체크
+
+■ 학생 상태 분류
+----------------------------------------------------------------
+유학단계 (status)         교육단계 (education_phase)
+------------------------  ---------------------------------
+유학전                    미시작
+어학연수                  온라인교육중
+대학교                    온라인수료
+취업                      오프라인교육중
+                          오프라인수료
+                          교육중단
+
+■ 파일 구조 (주요)
+----------------------------------------------------------------
+/app
+  /login          - 로그인
+  /register       - 학생 자가 가입
+  /portal         - 학생 포털 (학생 전용)
+  /students       - 학생 목록 (관리자/유학원)
+  /students/[id]  - 학생 상세 (탭: 기본정보/상담/성적/평가/서류)
+  /students/new   - 학생 등록
+  /students/import - 학생 일괄 import
+  /agencies       - 유학원 관리 (Master 전용)
+  /reports        - 통계
+
+/lib
+  types.ts        - TypeScript 타입 정의
+  constants.ts    - 상수 (상태값, 색상 등)
+  supabase.ts     - Supabase 클라이언트
+  supabaseServer.ts - Supabase 서버 클라이언트
+  useAdminAuth.ts - 인증 훅
+  i18n.ts         - 다국어 번역
+  constants.ts    - 상수
+
+/components
+  Layout/AppLayout.tsx     - 관리자 레이아웃
+  ExamChart.tsx            - 성적 차트
+  StarRating.tsx           - 별점 평가
+  pdf/LifeRecordDocument.tsx - 생활기록부 PDF
+
+■ 환경 변수 (.env.local)
+----------------------------------------------------------------
+NEXT_PUBLIC_SUPABASE_URL      Supabase 프로젝트 URL
+NEXT_PUBLIC_SUPABASE_ANON_KEY Supabase 익명 키 (클라이언트)
+SUPABASE_SERVICE_ROLE_KEY     Supabase 서비스 키 (서버 전용!)
+GEMINI_API_KEY                Google Gemini AI 키
+RESEND_API_KEY                Resend 이메일 키
+RESEND_FROM_EMAIL             발신 이메일 주소
+CRON_SECRET                   Cron 보안 토큰
+TOPIK_SYNC_SECRET             TOPIK 동기화 보안 토큰
+NEXT_PUBLIC_SITE_URL          사이트 URL
+
+■ 개발 명령어
+----------------------------------------------------------------
+npm run dev        개발 서버 실행 (http://localhost:3000)
+npm run build      프로덕션 빌드
+npm run type-check TypeScript 타입 검사
+npm run lint       ESLint 검사
+
+================================================================
+문의: AJU E&J 개발팀
+================================================================

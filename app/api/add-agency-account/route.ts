@@ -1,9 +1,8 @@
 import { getServiceClient } from '@/lib/supabaseServer'
 import { NextRequest, NextResponse } from 'next/server'
 
-const supabaseAdmin = getServiceClient()
-
 export async function POST(req: NextRequest) {
+  const supabaseAdmin = getServiceClient()
   const authHeader = req.headers.get('Authorization')
   if (!authHeader?.startsWith('Bearer ')) {
     return NextResponse.json({ error: '인증이 필요합니다.' }, { status: 401 })
@@ -43,6 +42,16 @@ export async function POST(req: NextRequest) {
       await supabaseAdmin.from('agencies').update({ user_id: data.user.id }).eq('id', agency_id)
     }
   }
+
+  // 감사 로그 (CUD 필수 규칙)
+  await supabaseAdmin.from('audit_logs').insert({
+    action: 'CREATE_AGENCY_ACCOUNT',
+    user_id: caller.id,
+    user_role: 'master',
+    target_table: 'agencies',
+    target_id: agency_id ?? null,
+    details: { email, agency_code, agency_name_kr: agency_name_kr ?? null },
+  })
 
   return NextResponse.json({ user_id: data.user.id })
 }
