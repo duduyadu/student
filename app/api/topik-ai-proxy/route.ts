@@ -2,44 +2,93 @@ import { NextRequest, NextResponse } from 'next/server'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 
 /**
- * TOPIK 모의고사 분석 AI 프록시
- *
- * 목적: TOPIK Electron 앱이 Gemini API 키를 직접 가지지 않도록
- *       이 서버가 키를 관리하고 분석을 대신 수행.
- *
- * 키 변경 시: Vercel 환경변수 GEMINI_API_KEY 만 수정 → 앱 재빌드 불필요.
- *
- * 인증: 요청 헤더 x-topik-secret 값 확인 (TOPIK_PROXY_SECRET 환경변수와 비교)
- *
  * POST /api/topik-ai-proxy
+ *
+ * TOPIK 프로그램 전용 Gemini AI 프록시.
+ * TOPIK 앱이 API 키를 직접 보유하지 않아도 AI 분석을 사용할 수 있도록 중계한다.
+ * 키 변경은 Vercel 환경변수(GEMINI_API_KEY)만 수정하면 되고 앱 재빌드가 불필요하다.
+ *
+ * 인증: Authorization: Bearer <TOPIK_SYNC_SECRET>
+ *
+ * ── 모드 A (범용 프롬프트) ──────────────────────────────────────────────────────
+ * Body: {
+ *   contents: string,              // 프롬프트 텍스트
+ *   model?: string,                // 기본값: gemini-2.5-flash-lite
+ *   responseMimeType?: string,     // 기본값: application/json
+ *   responseSchema?: object        // JSON 스키마 (선택)
+ * }
+ * Response: { text: string }
+ *
+ * ── 모드 B (간단 학생 분석) ─────────────────────────────────────────────────────
  * Body: {
  *   studentName: string,
  *   agency: string,
  *   listeningScore: number,
  *   readingScore: number,
  *   totalScore: number,
- *   level: number,          // 1 or 2 (TOPIK I 등급)
- *   examDate: string,       // YYYY-MM-DD
- *   scoreHistory?: Array<{ examDate: string, total: number, level: number }>
+ *   level: number,
+ *   examDate: string,
+ *   scoreHistory?: Array<{ examDate: string; total: number; level: number }>
  * }
  * Response: { analysisKo: string, analysisVi: string }
  */
 export async function POST(req: NextRequest) {
-  // ── 1. 프록시 시크릿 인증 ────────────────────────────────
-  const secret = process.env.TOPIK_PROXY_SECRET
-  const clientSecret = req.headers.get('x-topik-secret')
-  if (!secret || clientSecret !== secret) {
-    return NextResponse.json({ error: '인증 실패' }, { status: 401 })
+  // ── 인증 ───────────────────────────────────────────────
+  const authHeader = req.headers.get('authorization')
+  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null
+  const syncSecret = process.env.TOPIK_SYNC_SECRET
+
+  if (!token || !syncSecret || token !== syncSecret) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  // ── 2. Gemini API 키 확인 ─────────────────────────────────
   const apiKey = process.env.GEMINI_API_KEY
   if (!apiKey) {
-    return NextResponse.json({ error: 'GEMINI_API_KEY 미설정' }, { status: 500 })
+    return NextResponse.json({ error: 'AI 서비스를 사용할 수 없습니다.' }, { status: 503 })
   }
 
-  // ── 3. 요청 데이터 파싱 ───────────────────────────────────
-  let body: {
+  let body: Record<string, unknown>
+  try {
+    body = await req.json()
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
+  }
+
+  const genAI = new GoogleGenerativeAI(apiKey)
+
+  // ── 모드 A: 범용 프롬프트 ──────────────────────────────
+  if (typeof body.contents === 'string') {
+    const {
+      contents,
+      model = 'gemini-2.5-flash-lite',
+      responseMimeType = 'application/json',
+      responseSchema,
+    } = body as {
+      contents: string
+      model?: string
+      responseMimeType?: string
+      responseSchema?: unknown
+    }
+
+    try {
+      const geminiModel = genAI.getGenerativeModel({
+        model: model as string,
+        generationConfig: {
+          responseMimeType: responseMimeType as string,
+          ...(responseSchema ? { responseSchema: normalizeSchema(responseSchema) } : {}),
+        } as Record<string, unknown>,
+      })
+
+      const result = await geminiModel.generateContent(contents)
+      return NextResponse.json({ text: result.response.text() })
+    } catch (err) {
+      console.error('[topik-ai-proxy] Mode A error:', err)
+      return NextResponse.json({ error: 'AI 요청 실패' }, { status: 500 })
+    }
+  }
+
+  // ── 모드 B: 간단 학생 분석 ─────────────────────────────
+  const { studentName, agency, listeningScore, readingScore, totalScore, level, examDate, scoreHistory } = body as {
     studentName: string
     agency: string
     listeningScore: number
@@ -50,22 +99,14 @@ export async function POST(req: NextRequest) {
     scoreHistory?: Array<{ examDate: string; total: number; level: number }>
   }
 
-  try {
-    body = await req.json()
-  } catch {
-    return NextResponse.json({ error: '잘못된 JSON 형식' }, { status: 400 })
-  }
-
-  const { studentName, agency, listeningScore, readingScore, totalScore, level, examDate, scoreHistory } = body
   if (!studentName || totalScore === undefined) {
-    return NextResponse.json({ error: 'studentName, totalScore 필수' }, { status: 400 })
+    return NextResponse.json({ error: 'contents 또는 studentName+totalScore 필수' }, { status: 400 })
   }
 
-  // ── 4. 프롬프트 구성 ──────────────────────────────────────
   const levelLabel = level === 2 ? '2급 합격' : level === 1 ? '1급 합격' : '불합격'
   const historyText = scoreHistory && scoreHistory.length > 1
     ? '\n\n이전 성적 추이:\n' + scoreHistory
-        .slice(0, -1)  // 현재 회차 제외
+        .slice(0, -1)
         .map((h, i) => `  ${i + 1}회차: ${h.examDate} | ${h.total}점 | ${h.level === 2 ? '2급' : h.level === 1 ? '1급' : '불합격'}`)
         .join('\n')
     : ''
@@ -106,22 +147,38 @@ Hãy phân tích ngắn gọn bằng tiếng Việt (khoảng 150 từ):
 Chỉ viết văn xuôi, không dùng markdown.
 `.trim()
 
-  // ── 5. Gemini 병렬 호출 ───────────────────────────────────
   try {
-    const genAI = new GoogleGenerativeAI(apiKey)
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
-
+    const simpleModel = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
     const [resultKo, resultVi] = await Promise.all([
-      model.generateContent(promptKo),
-      model.generateContent(promptVi),
+      simpleModel.generateContent(promptKo),
+      simpleModel.generateContent(promptVi),
     ])
-
     return NextResponse.json({
       analysisKo: resultKo.response.text().trim(),
       analysisVi: resultVi.response.text().trim(),
     })
   } catch (err) {
-    console.error('[topik-ai-proxy] Gemini error:', err)
+    console.error('[topik-ai-proxy] Mode B error:', err)
     return NextResponse.json({ error: 'AI 분석 요청에 실패했습니다.' }, { status: 500 })
   }
+}
+
+/**
+ * @google/genai 새 SDK는 소문자 타입('object')을 사용하고
+ * @google/generative-ai 구 SDK는 대문자('OBJECT')를 사용한다.
+ * TOPIK 프로그램에서 소문자로 보내면 여기서 대문자로 정규화한다.
+ */
+function normalizeSchema(schema: unknown): unknown {
+  if (!schema || typeof schema !== 'object') return schema
+  const s = { ...(schema as Record<string, unknown>) }
+  if (typeof s.type === 'string') s.type = s.type.toUpperCase()
+  if (s.properties && typeof s.properties === 'object') {
+    s.properties = Object.fromEntries(
+      Object.entries(s.properties as Record<string, unknown>).map(
+        ([k, v]) => [k, normalizeSchema(v)]
+      )
+    )
+  }
+  if (s.items) s.items = normalizeSchema(s.items)
+  return s
 }
