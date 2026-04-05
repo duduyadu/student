@@ -118,6 +118,7 @@ export default function PortalPage() {
   const handleSave = async () => {
     if (!student) return
     setSaving(true); setSaveError('')
+    const { data: { session } } = await supabase.auth.getSession()
     const { error } = await supabase.from('students').update({
       phone_vn:        editForm.phone_vn        || null,
       phone_kr:        editForm.phone_kr        || null,
@@ -126,6 +127,13 @@ export default function PortalPage() {
       home_address_vn: editForm.home_address_vn || null,
     }).eq('id', student.id)
     if (error) { setSaveError(t('saveFail', lang) + error.message); setSaving(false); return }
+    if (session) {
+      await fetch('/api/audit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+        body: JSON.stringify({ action: 'UPDATE', target_table: 'students', target_id: student.id, details: { fields: ['phone_vn', 'phone_kr', 'visa_type', 'visa_expiry', 'home_address_vn'] } }),
+      }).catch(() => {})
+    }
     setStudent(prev => prev ? { ...prev,
       phone_vn: editForm.phone_vn || undefined, phone_kr: editForm.phone_kr || undefined,
       visa_type: editForm.visa_type || undefined, visa_expiry: editForm.visa_expiry || undefined,
@@ -295,7 +303,7 @@ export default function PortalPage() {
         {/* 교육 진행 단계 */}
         {student.education_phase && student.education_phase !== '교육중단' && (
           <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
-            <h3 className="text-xs font-semibold text-slate-500 mb-3">교육 현황</h3>
+            <h3 className="text-xs font-semibold text-slate-500 mb-3">{lang === 'vi' ? 'Tiến trình giáo dục' : '교육 현황'}</h3>
             <div className="flex items-center gap-1 overflow-x-auto pb-1">
               {(['미시작', '온라인교육중', '온라인수료', '오프라인교육중', '오프라인수료'] as const).map((phase, idx) => {
                 const phases = ['미시작', '온라인교육중', '온라인수료', '오프라인교육중', '오프라인수료']
@@ -322,7 +330,7 @@ export default function PortalPage() {
         )}
         {student.education_phase === '교육중단' && (
           <div className="bg-red-50 border border-red-200 rounded-2xl p-4">
-            <p className="text-sm font-semibold text-red-700">교육 중단 상태입니다. 담당자에게 문의하세요.</p>
+            <p className="text-sm font-semibold text-red-700">{lang === 'vi' ? 'Đã dừng đào tạo. Vui lòng liên hệ người phụ trách.' : '교육 중단 상태입니다. 담당자에게 문의하세요.'}</p>
           </div>
         )}
 

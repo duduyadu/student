@@ -237,7 +237,7 @@ export default function NewStudentPage() {
               </Field>
             </Row>
             <Row>
-              <Field label="교육단계">
+              <Field label={lang === 'vi' ? 'Giai đoạn giáo dục' : '교육단계'}>
                 <select value={form.education_phase} onChange={e => set('education_phase', e.target.value)} className={input}>
                   {EDUCATION_PHASES.map(p => <option key={p} value={p}>{p}</option>)}
                 </select>
